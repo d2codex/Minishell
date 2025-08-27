@@ -29,7 +29,7 @@ $(BIN_DIR)/%: %.c $(LIB)
 	$(CC) $(FLAGS) $(INCLUDES) $< $(LIB) -o $@
 
 # Build library  from parent Makefile
-$(LIB)
+$(LIB):
 	$(MAKE) -C .. libminishell.a
 
 # Clean test binaries
