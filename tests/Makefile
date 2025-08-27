@@ -28,13 +28,17 @@ $(BIN_DIR)/%: %.c $(LIB)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(FLAGS) $(INCLUDES) $< $(LIB) -o $@
 
+# Build library  from parent Makefile
+$(LIB)
+	$(MAKE) -C .. libminishell.a
+
 # Clean test binaries
 clean:
 	rm -rf $(BIN_DIR)
 
 # Full clean including library
 fclean: clean
-	rm -f $(LIB)
+	$(MAKE) -C .. clean
 
 # Rebuild all tests
 re: fclean all
