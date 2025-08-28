@@ -25,7 +25,7 @@ all: $(UNIT_BIN) $(INTEG_BIN)
 
 # Rule to build unit test binaries
 $(BIN_DIR)/%: %.c $(LIB)
-	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(dir $@)
 	$(CC) $(FLAGS) $(INCLUDES) $< $(LIB) -o $@
 
 # Build library  from parent Makefile
