@@ -1,6 +1,6 @@
 CC = cc
 FLAGS = -Wall -Wextra -Werror -g3
-INCLUDES = -I../includes -I../libft
+INCLUDES = -I../includes -I../libft/includes
 
 # Directories
 UNIT_DIR = unit
@@ -25,11 +25,11 @@ all: $(UNIT_BIN) $(INTEG_BIN)
 
 # Rule to build unit test binaries
 $(BIN_DIR)/%: %.c $(LIB)
-	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(dir $@)
 	$(CC) $(FLAGS) $(INCLUDES) $< $(LIB) -o $@
 
 # Build library  from parent Makefile
-$(LIB)
+$(LIB):
 	$(MAKE) -C .. libminishell.a
 
 # Clean test binaries
@@ -46,6 +46,7 @@ re: fclean all
 # Optional: run a single test
 # Usage: make run TEST=unit/test_cd
 run: $(LIB)
+	@mkdir -p $(BIN_DIR)
 	$(CC) $(FLAGS) $(INCLUDES) $(TEST).c $(LIB) -o $(BIN_DIR)/$(notdir $(TEST))
 	./$(BIN_DIR)/$(notdir $(TEST))
 
