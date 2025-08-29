@@ -1,6 +1,6 @@
 CC = cc
 FLAGS = -Wall -Wextra -Werror -g3
-INCLUDES = -I../includes -I../libft
+INCLUDES = -I../includes -I../libft/includes
 
 # Directories
 UNIT_DIR = unit

@@ -1,7 +1,7 @@
 NAME = minishell
 CC = cc
 FLAGS = -Wall -Werror -Wextra -g3
-INCLUDES = -I./libft -I./includes
+INCLUDES = -I./libft/includes -I./includes 
 
 # directories
 SRC_DIR = src
