@@ -4,6 +4,6 @@ int	main(void)
 
 	running = 1;
 	while (running)
-		running = prompt_user("[mini$HELL]");
+		running = prompt_user("[$HELL]");
 	return (0);
 }
