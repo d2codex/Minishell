@@ -46,6 +46,7 @@ re: fclean all
 # Optional: run a single test
 # Usage: make run TEST=unit/test_cd
 run: $(LIB)
+	@mkdir -p $(BIN_DIR)
 	$(CC) $(FLAGS) $(INCLUDES) $(TEST).c $(LIB) -o $(BIN_DIR)/$(notdir $(TEST))
 	./$(BIN_DIR)/$(notdir $(TEST))
 
