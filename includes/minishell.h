@@ -7,6 +7,11 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-int	builtin_pwd(char **args);
+/* src/builtins/pwd.c */
+int		builtin_pwd(char **args);
+
+/* src/minishell_loop.c */
+void	process_line(char *line);
+int		prompt_user(char *prompt);
 
 #endif
