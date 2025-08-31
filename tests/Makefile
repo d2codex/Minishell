@@ -26,7 +26,7 @@ all: $(UNIT_BIN) $(INTEG_BIN)
 # Rule to build unit test binaries
 $(BIN_DIR)/%: %.c $(LIB)
 	@mkdir -p $(dir $@)
-	$(CC) $(FLAGS) $(INCLUDES) $< $(LIB) -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $< $(LIB) ../libft/libft.a -o $@
 
 # Build library  from parent Makefile
 $(LIB):
@@ -47,7 +47,7 @@ re: fclean all
 # Usage: make run TEST=unit/test_cd
 run: $(LIB)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(FLAGS) $(INCLUDES) $(TEST).c $(LIB) -o $(BIN_DIR)/$(notdir $(TEST))
+	$(CC) $(FLAGS) $(INCLUDES) $(TEST).c $(LIB) ../libft/libft.a -o $(BIN_DIR)/$(notdir $(TEST))
 	./$(BIN_DIR)/$(notdir $(TEST))
 
 .PHONY: all clean fclean re run
