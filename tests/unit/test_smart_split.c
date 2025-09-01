@@ -187,38 +187,6 @@ void	test_tricky_metachar_cases(void)
 	print_tokens_safe(tokens);
 	printf(CYN " (error: %d)" RESET "\n\n", error);
 	free_tokens_safe(tokens);
-
-	/* error = TOKEN_OK;
-	tokens = ft_split_tokens("echo>'file name'|grep\"pattern\">>out", &error);
-	printf(YEL "Input: " RESET "\"echo>'file name'|grep\\\"pattern\\\">>out\"\n");
-	printf(CYN "Tokens: " RESET);
-	print_tokens_safe(tokens);
-	printf(CYN " (error: %d)" RESET "\n\n", error);
-	free_tokens_safe(tokens); */
-
-/* 	error = TOKEN_OK;
-	tokens = ft_split_tokens("echo '>><<||' \"<>|\"", &error);
-	printf(YEL "Input: " RESET "\"echo '>><<||' \\\"<>|\\\"\"\n");
-	printf(CYN "Tokens: " RESET);
-	print_tokens_safe(tokens);
-	printf(CYN " (error: %d)" RESET "\n\n", error);
-	free_tokens_safe(tokens); */
-
-/* 	error = TOKEN_OK;
-	tokens = ft_split_tokens("cmd1<'input file'|cmd2>'output file'>>log", &error);
-	printf(YEL "Input: " RESET "\"cmd1<'input file'|cmd2>'output file'>>log\"\n");
-	printf(CYN "Tokens: " RESET);
-	print_tokens_safe(tokens);
-	printf(CYN " (error: %d)" RESET "\n\n", error);
-	free_tokens_safe(tokens); */
-
-/* 	error = TOKEN_OK;
-	tokens = ft_split_tokens("'<<'>>\"|\"|'>'<\"<<\"", &error);
-	printf(YEL "Input: " RESET "\"'<<'>>\\\"|\\\"|'>'<\\\"<<\\\"\"\n");
-	printf(CYN "Tokens: " RESET);
-	print_tokens_safe(tokens);
-	printf(CYN " (error: %d)" RESET "\n\n", error);
-	free_tokens_safe(tokens); */
 }
 
 int	main(void)
@@ -231,6 +199,5 @@ int	main(void)
 	test_complex_cases();
 	test_tricky_metachar_cases();
 
-	printf(MAG "=== END OF TESTS ===" RESET "\n");
 	return (0);
 }

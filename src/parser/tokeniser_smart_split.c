@@ -24,7 +24,7 @@ static t_token_error	extract_operator(const char *s, char **tab, size_t *i,
 		return (TOKEN_NOT_OPERATOR);  // Pas un opérateur dans ce contexte
 
 	len = 1;
-	if (s[*i + 1] == s[*i])
+	if ((s[*i] == '<' || s[*i] == '>') && s[*i + 1] == s[*i])
 		len = 2;
 	tab[*token] = ft_substr(s, *i, len);
 	if (!tab[*token])
@@ -91,6 +91,7 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
 	size_t			token;
 	t_quote			quote_state;
 	t_token_error	returned_error_code;
+	int				tmp;
 
 	i = 0;
 	token = 0;
@@ -100,12 +101,17 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
 		skip_whitespace(s, &i);
 		if (!s[i])
 			break ;
-		quote_state = update_quote_state(quote_state, s[i]);
-		// Try to extract as operator first (checks quote state internally)
-		returned_error_code = extract_operator(s, tab, &i, &token, quote_state);
 
-		// If not an operator, extract as word
-		if (returned_error_code == TOKEN_NOT_OPERATOR)
+		quote_state = update_quote_state(quote_state, s[i]);
+
+		// Même logique que count_shell_tokens
+		returned_error_code = extract_operator(s, tab, &i, &token, quote_state);
+		if (returned_error_code == TOKEN_OK)
+			tmp = 1;
+		else
+			tmp = 0;
+
+		if (tmp == 0)
 			returned_error_code = extract_word(s, tab, &i, &token);
 
 		if (returned_error_code != TOKEN_OK && returned_error_code != TOKEN_NOT_OPERATOR)
