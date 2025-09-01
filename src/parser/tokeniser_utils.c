@@ -1,5 +1,15 @@
 #include "minishell.h"
 
+/**
+ * @brief Update the current quote state based on a character.
+ *
+ * This function updates the shell's quote state when encountering
+ * single or double quote characters.
+ *
+ * @param current_quote_state The current state (NORMAL, SINGLE, DOUBLE)
+ * @param c The character to process
+ * @return The updated quote state
+ */
 t_quote	update_quote_state(t_quote current_quote_state, char c)
 {
 	if (c == '\'' && current_quote_state == STATE_NORMAL)
@@ -13,13 +23,16 @@ t_quote	update_quote_state(t_quote current_quote_state, char c)
 	return (current_quote_state);
 }
 
-int	is_whitespace(char c)
-{
-	if ((c >= 9 && c <= 13) || c == ' ')
-		return (true);
-	return (false);
-}
-
+/**
+ * @brief Check if a character is a shell separator.
+ *
+ * A separator is a whitespace or a special shell operator (|, <, >)
+ * when not inside quotes.
+ *
+ * @param current_quote_state The current quote state
+ * @param c The character to check
+ * @return true if the character is a separator, false otherwise
+ */
 bool	is_a_shell_separator(t_quote current_quote_state, char c)
 {
 	if (current_quote_state != STATE_NORMAL)
@@ -31,6 +44,15 @@ bool	is_a_shell_separator(t_quote current_quote_state, char c)
 	return (false);
 }
 
+/**
+ * @brief Detect if the string has unclosed quotes.
+ *
+ * Scans the string and checks if there is any quote that is
+ * not closed at the end of the string.
+ *
+ * @param s The string to check
+ * @return true if there are unclosed quotes, false otherwise
+ */
 bool	has_unclosed_quotes(char const *s)
 {
 	size_t	i;
@@ -49,30 +71,4 @@ bool	has_unclosed_quotes(char const *s)
 		return (true);
 	else
 		return (false);
-}
-
-int	count_shell_tokens(char const *s)
-{
-	size_t	i;
-	size_t	count;
-	size_t	in_word;
-	t_quote	current_quote_state;
-
-	i = 0;
-	count = 0;
-	in_word = 0;
-	current_quote_state = STATE_NORMAL;
-	while (s[i] != '\0')
-	{
-		current_quote_state = update_quote_state(current_quote_state, s[i]);
-		if (!is_a_shell_separator(current_quote_state, s[i]) && !in_word)
-		{
-			in_word = 1;
-			count += 1;
-		}
-		else if (is_a_shell_separator(current_quote_state, s[i]) && in_word)
-			in_word = 0;
-		i++;
-	}
-	return (count);
 }

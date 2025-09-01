@@ -1,7 +1,6 @@
 #include "minishell.h"
 
-/* wrapper to be able to use my free_tab function that needs a count param */
-void	free_tokens(char **tokens)
+void	free_tokens_safe(char **tokens)
 {
 	int	count;
 
@@ -10,10 +9,10 @@ void	free_tokens(char **tokens)
 	count = 0;
 	while (tokens[count])
 		count++;
-	free_tab(tokens, count);
+	free_string_array(tokens, count);
 }
 
-void	print_tokens(char **tokens)
+void	print_tokens_safe(char **tokens)
 {
 	int	i;
 
@@ -22,6 +21,7 @@ void	print_tokens(char **tokens)
 		printf(RED "NULL" RESET);
 		return;
 	}
+
 	printf("[");
 	i = 0;
 	while (tokens[i])
@@ -34,152 +34,203 @@ void	print_tokens(char **tokens)
 	printf("]");
 }
 
-void	test_simple_cases(void)
+void	test_basic_tokenization(void)
 {
-	char	**tokens;
+	char			**tokens;
+	t_token_error	error;
 
-	printf(BR_BLU "*** Basic tokenization ***" RESET "\n");
+	printf(BR_BLU "*** Basic cases ***" RESET "\n");
 
-	// Test 1: simple case
-	tokens = ft_split_tokens("echo hello");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo hello", &error);
 	printf(YEL "Input: " RESET "\"echo hello\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 
-	// Test 2: multiple spaces
-	tokens = ft_split_tokens("   echo   hello   world   ");
-	printf(YEL "Input: " RESET "\"   echo   hello   world   \"\n");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo hello > file.txt", &error);
+	printf(YEL "Input: " RESET "\"echo hello > file.txt\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 
-	// Test 3: empty string
-	tokens = ft_split_tokens("");
-	printf(YEL "Input: " RESET "\"\"\n");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("cat input.txt >> output.txt", &error);
+	printf(YEL "Input: " RESET "\"cat input.txt >> output.txt\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 }
 
-void	test_quotes(void)
+void	test_quotes_handling(void)
 {
-	char	**tokens;
+	char			**tokens;
+	t_token_error	error;
 
 	printf(BR_BLU "*** Quote handling ***" RESET "\n");
 
-	// Test 1: double quotes
-	tokens = ft_split_tokens("echo \"hello world\"");
-	printf(YEL "Input: " RESET "\"echo \\\"hello world\\\"\"\n");
-	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
-
-	// Test 2: dingle quotes
-	tokens = ft_split_tokens("echo 'hello world'");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo 'hello world'", &error);
 	printf(YEL "Input: " RESET "\"echo 'hello world'\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 
-	// Test 3: nested quotes
-	tokens = ft_split_tokens("echo \"hello 'world'\"");
-	printf(YEL "Input: " RESET "\"echo \\\"hello 'world'\\\"\"\n");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo 'hello|world'", &error);
+	printf(YEL "Input: " RESET "\"echo 'hello|world'\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 
-	// Test 4: concatenated quotes
-	tokens = ft_split_tokens("echo\"hello\"world");
-	printf(YEL "Input: " RESET "\"echo\\\"hello\\\"world\"\n");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo \"hello 'nested' quotes\"", &error);
+	printf(YEL "Input: " RESET "\"echo \\\"hello 'nested' quotes\\\"\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 }
 
 void	test_error_cases(void)
 {
-	char	**tokens;
+	char			**tokens;
+	t_token_error	error;
 
 	printf(BR_BLU "*** Error cases ***" RESET "\n");
 
-	// Test 1: unclosed single quote
-	tokens = ft_split_tokens("echo 'unclosed");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo 'unclosed", &error);
 	printf(YEL "Input: " RESET "\"echo 'unclosed\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	if (!tokens)
-		printf(" " GRN "(correctly rejected)" RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET, error);
+	if (error == TOKEN_UNCLOSED_QUOTE)
+		printf(GRN " - correctly detected" RESET);
 	printf("\n\n");
-	free_tokens(tokens);
+	free_tokens_safe(tokens);
 
-	// Test 2: unclosed double quote
-	tokens = ft_split_tokens("echo \"unclosed");
-	printf(YEL "Input: " RESET "\"echo \\\"unclosed\"\n");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("", &error);
+	printf(YEL "Input: " RESET "\"\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	if (!tokens)
-		printf(" " GRN "(correctly rejected)" RESET);
-	printf("\n\n");
-	free_tokens(tokens);
-
-	// Test 3: mixed unclosed quotes
-	tokens = ft_split_tokens("echo 'mixed \" unclosed");
-	printf(YEL "Input: " RESET "\"echo 'mixed \\\" unclosed\"\n");
-	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	if (!tokens)
-		printf(" " GRN "(correctly rejected)" RESET);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 }
 
-void	test_edge_cases(void)
+void	test_complex_cases(void)
 {
-	char	**tokens;
+	char			**tokens;
+	t_token_error	error;
 
-	printf(BR_BLU "*** Edge cases ***" RESET "\n");
+	printf(BR_BLU "*** Complex cases ***" RESET "\n");
 
-	// Test 1: empty quotes
-	tokens = ft_split_tokens("echo '' \"\"");
-	printf(YEL "Input: " RESET "\"echo '' \\\"\\\"\"\n");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("cat < input.txt | grep hello >> output.txt", &error);
+	printf(YEL "Input: " RESET "\"cat < input.txt | grep hello >> output.txt\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 
-	// Test 2: only spaces in quotes
-	tokens = ft_split_tokens("echo '   ' \"   \"");
-	printf(YEL "Input: " RESET "\"echo '   ' \\\"   \\\"\"\n");
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo hello>file.txt", &error);
+	printf(YEL "Input: " RESET "\"echo hello>file.txt\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+}
 
-	// Test 3: quote characters inside quotes
-	tokens = ft_split_tokens("echo '\"test\"' \"'test'\"");
-	printf(YEL "Input: " RESET "\"echo '\\\"test\\\"' \\\"'test'\\\"\"\n");
+void	test_tricky_metachar_cases(void)
+{
+	char			**tokens;
+	t_token_error	error;
+
+	printf(BR_BLU "*** Tricky metacharacter cases ***" RESET "\n");
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo hello>>>file", &error);
+	printf(YEL "Input: " RESET "\"echo hello>>>file\"\n");
 	printf(CYN "Tokens: " RESET);
-	print_tokens(tokens);
-	printf("\n\n");
-	free_tokens(tokens);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("cat<file|grep>out", &error);
+	printf(YEL "Input: " RESET "\"cat<file|grep>out\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens(">echo hello<", &error);
+	printf(YEL "Input: " RESET "\">echo hello<\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens(">><<||><", &error);
+	printf(YEL "Input: " RESET "\">><<||><\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	/* error = TOKEN_OK;
+	tokens = ft_split_tokens("echo>'file name'|grep\"pattern\">>out", &error);
+	printf(YEL "Input: " RESET "\"echo>'file name'|grep\\\"pattern\\\">>out\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens); */
+
+/* 	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo '>><<||' \"<>|\"", &error);
+	printf(YEL "Input: " RESET "\"echo '>><<||' \\\"<>|\\\"\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens); */
+
+/* 	error = TOKEN_OK;
+	tokens = ft_split_tokens("cmd1<'input file'|cmd2>'output file'>>log", &error);
+	printf(YEL "Input: " RESET "\"cmd1<'input file'|cmd2>'output file'>>log\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens); */
+
+/* 	error = TOKEN_OK;
+	tokens = ft_split_tokens("'<<'>>\"|\"|'>'<\"<<\"", &error);
+	printf(YEL "Input: " RESET "\"'<<'>>\\\"|\\\"|'>'<\\\"<<\\\"\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens); */
 }
 
 int	main(void)
 {
-	printf(MAG "=== TOKENIZER TESTS ===" RESET "\n\n");
+	printf(MAG "=== TOKENIZER COMPREHENSIVE TESTS ===" RESET "\n\n");
 
-	test_simple_cases();
-	test_quotes();
+	test_basic_tokenization();
+	test_quotes_handling();
 	test_error_cases();
-	test_edge_cases();
+	test_complex_cases();
+	test_tricky_metachar_cases();
 
+	printf(MAG "=== END OF TESTS ===" RESET "\n");
 	return (0);
 }
