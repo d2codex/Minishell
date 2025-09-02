@@ -1,37 +1,49 @@
 #include "minishell.h"
 
 /**
- * @brief Extract a special operator token (<, >, <<, >>, |) from the string.
+ * @brief Extract a special operator token (<, >, <<, >> and single |)
+ * from the string.
  *
  * Only extracts if we're in STATE_NORMAL (not in quotes).
+ * For mandatory part: treats << and >> as double tokens, || as two separate
+ * | tokens. (if we want || to be interpreted as a double char, we would need
+ * another implementation)
+ *
+ * Note: Recalculate quote state from start of string due to 42 norm
+ * limitation (max 4 function parameters could not pass the enum as a 5th param)
+ *
+ * Helper for: extract_tokens_to_tab()
  *
  * @param s The string to parse
  * @param tab Array of strings to store tokens
  * @param i Pointer to current index in the string
  * @param token Pointer to current token count
- * @param quote_state Current quote state
  * @return TOKEN_OK on success, TOKEN_MALLOC_ERROR if allocation fails,
- *         TOKEN_NOT_OPERATOR if not an operator in current state
+ * TOKEN_NOT_OPERATOR if not an operator in current state
  */
-static t_token_error	extract_operator(const char *s, char **tab, size_t *i,
-	size_t *token, t_quote quote_state)
+static t_token_error	extract_operator(const char *s, char **tab,
+	size_t *i, size_t *token)
 {
+	t_quote	quote_state;
+	size_t	j;
 	size_t	len;
 
-	// Only extract as operator if we're not in quotes
-	if (quote_state != STATE_NORMAL ||
-		(s[*i] != '|' && s[*i] != '<' && s[*i] != '>'))
-		return (TOKEN_NOT_OPERATOR);  // Pas un opérateur dans ce contexte
-
+	quote_state = STATE_NORMAL;
+	j = 0;
+	while (j < *i)
+	{
+		quote_state = update_quote_state(quote_state, s[j]);
+		j++;
+	}
+	if (quote_state != STATE_NORMAL
+		|| (s[*i] != '|' && s[*i] != '<' && s[*i] != '>'))
+		return (TOKEN_NOT_OPERATOR);
 	len = 1;
 	if ((s[*i] == '<' || s[*i] == '>') && s[*i + 1] == s[*i])
 		len = 2;
 	tab[*token] = ft_substr(s, *i, len);
 	if (!tab[*token])
-	{
-		free_string_array(tab, *token);
-		return (TOKEN_MALLOC_ERROR);
-	}
+		return (free_string_array(tab, *token), TOKEN_MALLOC_ERROR);
 	*i += len;
 	(*token)++;
 	return (TOKEN_OK);
@@ -42,6 +54,10 @@ static t_token_error	extract_operator(const char *s, char **tab, size_t *i,
  *
  * Extracts one word from the string, taking into account quote states.
  * Processes characters until a separator is found, respecting quote boundaries.
+ * Handles both single and double quotes, preserving metacharacters
+ * inside quotes.
+ *
+ * Helper for: extract_tokens_to_tab()
  *
  * @param s Input string
  * @param tab Array of tokens
@@ -76,10 +92,30 @@ static t_token_error	extract_word(const char *s, char **tab, size_t *i,
 }
 
 /**
+ * @brief Check if an operator was successfully extracted.
+ *
+ * Helper for: extract_tokens_to_tab()
+ *
+ * @param error_code The error code returned by extract_operator
+ * @return true if operator was extracted, false otherwise
+ */
+static bool	is_operator_extracted(t_token_error error_code)
+{
+	if (error_code == TOKEN_OK)
+		return (true);
+	return (false);
+}
+
+/**
  * @brief Fill the given array with tokens extracted from the string.
  *
- * Splits operators and words into separate tokens.
- * Each extraction function manages its own quote state tracking.
+ * Main orchestration function that coordinates token extraction.
+ * Uses helper functions and maintains strict synchronization with
+ * count_shell_tokens() to ensure consistent tokenization behavior.
+ * note: is_operator_extracted is used to bypass the 25l limitation
+ *
+ * Relies on: extract_operator(), extract_word(), skip_whitespace(),
+ * update_quote_state(), is_operator_extracted()
  *
  * @param s Input string
  * @param tab Preallocated token array
@@ -90,8 +126,8 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
 	size_t			i;
 	size_t			token;
 	t_quote			quote_state;
-	t_token_error	returned_error_code;
-	int				tmp;
+	t_token_error	returned_code;
+	int				token_counted;
 
 	i = 0;
 	token = 0;
@@ -101,26 +137,18 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
 		skip_whitespace(s, &i);
 		if (!s[i])
 			break ;
-
 		quote_state = update_quote_state(quote_state, s[i]);
-
-		// Même logique que count_shell_tokens
-		returned_error_code = extract_operator(s, tab, &i, &token, quote_state);
-		if (returned_error_code == TOKEN_OK)
-			tmp = 1;
-		else
-			tmp = 0;
-
-		if (tmp == 0)
-			returned_error_code = extract_word(s, tab, &i, &token);
-
-		if (returned_error_code != TOKEN_OK && returned_error_code != TOKEN_NOT_OPERATOR)
-			return (returned_error_code);
+		returned_code = extract_operator(s, tab, &i, &token);
+		token_counted = is_operator_extracted(returned_code);
+		if (token_counted == 0)
+			returned_code = extract_word(s, tab, &i, &token);
+		if (returned_code != TOKEN_OK
+			&& returned_code != TOKEN_NOT_OPERATOR)
+			return (returned_code);
 	}
 	tab[token] = NULL;
 	return (TOKEN_OK);
 }
-
 
 /**
  * @brief Allocate array and split shell input into tokens.
@@ -131,17 +159,18 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
  * ex of interface function that will call ft_split_token and use its returned
  * error code :
  *
- * t_token_error returned_error_code;
+ * t_token_error returned_code;
  * char **tokens;
- * tokens = ft_split_tokens(line, &returned_error_code);
+ * tokens = ft_split_tokens(line, &returned_code);
+ * if (returned_code == TOKEN_OK)
+ *			=> advance to the next step
  * if (!tokens)
  * {
- *		if (returned_error_code == TOKEN_UNCLOSED_QUOTE)
- *			=> print some error and do whatever you have to do here
- *		else if (returned_error_code == TOKEN_MALLOC_ERROR)
- *			=> print some error and do whatever you have to do here
+ *		if (returned_code == TOKEN_UNCLOSED_QUOTE)
+ *			=> caller prints message about quotes and exit or return to prompt
+ *		else if (returned_code == TOKEN_MALLOC_ERROR)
+ *			=> caller prints perror("malloc") and exit
  *	}
- *
  * @param s The input command line string
  * @param error_code Pointer to store error code (set to TOKEN_OK on success)
  * @return Array of tokens (NULL terminated) or NULL on failure
@@ -150,12 +179,11 @@ char	**ft_split_tokens(char const *s, t_token_error *error_code)
 {
 	size_t			num_of_tokens;
 	char			**final_tokens_tab;
-	t_token_error	returned_error_code;
+	t_token_error	returned_code;
 
 	if (has_unclosed_quotes(s))
 	{
 		*error_code = TOKEN_UNCLOSED_QUOTE;
-		print_error("$Hell: ", "unclosed quote detected");
 		return (NULL);
 	}
 	num_of_tokens = count_shell_tokens(s);
@@ -165,12 +193,13 @@ char	**ft_split_tokens(char const *s, t_token_error *error_code)
 		*error_code = TOKEN_MALLOC_ERROR;
 		return (NULL);
 	}
-	returned_error_code = extract_tokens_to_tab(s, final_tokens_tab);
-	if (returned_error_code != TOKEN_OK)
+	returned_code = extract_tokens_to_tab(s, final_tokens_tab);
+	if (returned_code != TOKEN_OK)
 	{
-		*error_code = returned_error_code;
+		*error_code = returned_code;
 		free(final_tokens_tab);
 		return (NULL);
 	}
-	return (*error_code = TOKEN_OK, final_tokens_tab);
+	*error_code = TOKEN_OK;
+	return (final_tokens_tab);
 }

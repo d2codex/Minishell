@@ -19,7 +19,7 @@
 /*           ENUMS             */
 /* =========================== */
 
-/* enum to track the quote current state */
+/* enum to track the quote current state - used inside the tokeniser */
 typedef enum e_quote
 {
 	STATE_NORMAL,
@@ -27,7 +27,7 @@ typedef enum e_quote
 	STATE_IN_DOUBLE_QUOTE
 }	t_quote;
 
-/* enum to track token state at the end of the tokeniser */
+/* enum to track token state at the end of the tokeniser step */
 typedef enum e_token_error
 {
 	TOKEN_OK,
@@ -59,19 +59,20 @@ int		prompt_user(char *prompt);
 /* src/parser/tokeniser_utils.c */
 t_quote	update_quote_state(t_quote current_quote_state, char c);
 bool	is_a_shell_separator(t_quote current_quote_state, char c);
-int		count_shell_tokens(char const *s);
 bool	has_unclosed_quotes(char const *s);
 
+/* src/parser/tokeniser_count_tokens.c */
+int		count_shell_tokens(char const *s);
+void	skip_whitespace(char const *s, size_t *i);
 
 /* src/parser/tokeniser_smart_split.c */
 char	**ft_split_tokens(char const *s, t_token_error *error_code);
-void	skip_whitespace(char const *s, size_t *i);
 
 /* =========================== */
 /*           UTILS             */
 /* =========================== */
+void	free_string_array(char **tab, size_t count);
 bool	is_whitespace(char c);
-void	free_string_array(char **tab, int count);
 void	print_error(char *pre_msg, char *main_msg);
 
 #endif

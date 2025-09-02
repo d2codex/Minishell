@@ -1,12 +1,17 @@
 #include "minishell.h"
 
 /**
- * @brief Skip whitespace characters in the string.
+ * @brief Skip consecutive whitespace characters in a string.
  *
- * Advances the index until a non whitespace character is found.
+ * Advances the index pointer until a non-whitespace character is found.
+ * This ensures that no empty tokens are counted when parsing shell input.
  *
- * @param s The string to parse
- * @param i Pointer to the current index in the string
+ * @note This function is intentionally not static (but should be) because it is
+ * shared between count_shell_tokens() and extract_tokens_to_tab()
+ * both on different C files because of 42 norm.
+ *
+ * @param s The input string to parse.
+ * @param i Pointer to the current index in the string. Will be updated.
  */
 void	skip_whitespace(char const *s, size_t *i)
 {
@@ -15,85 +20,88 @@ void	skip_whitespace(char const *s, size_t *i)
 }
 
 /**
- * @brief Count a token if it is a shell operator.
+ * @brief Count a shell operator token at the current index.
  *
- * Handles |, <, >, <<, >> as single tokens and advances the index.
- * Only counts as operator if we're in STATE_NORMAL.
+ * Recognizes the following operators as single tokens:
+ *  - Pipe: |
+ *  - Redirections: <, >, <<, >>
  *
- * @param s The string to parse
- * @param i Pointer to the current index
- * @return 1 if an operator token was found, 0 otherwise
+ * Advances the index past the operator.
+ *
+ * @param s The input string to parse.
+ * @param i Pointer to the current index in the string. Will be updated.
+ * @return int 1 if an operator token was counted, 0 otherwise.
  */
-static int	count_operator_token(char const *s, size_t *i,
-	t_quote current_quote_state)
+static int	count_operator_at_index(const char *s, size_t *i)
 {
-	int	count;
-
-	count = 0;
-	if (current_quote_state == STATE_NORMAL &&
-		(s[*i] == '|' || s[*i] == '<' || s[*i] == '>'))
+	if (s[*i] == '|' || s[*i] == '<' || s[*i] == '>')
 	{
-		count = 1;
 		if ((s[*i] == '<' || s[*i] == '>') && s[*i + 1] == s[*i])
 			*i += 2;
 		else
 			(*i)++;
+		return (1);
 	}
-	return (count);
+	return (0);
 }
 
 /**
- * @brief Count a word token or quoted sequence.
+ * @brief Count a word or quoted token starting at the current index.
  *
- * Advances the index until a shell separator is found.
+ * A word token is a sequence of characters that is not a shell separator.
+ * Handles quoted strings, updating the quote state as it parses.
+ * Advances the index until a shell separator or the end of the string.
  *
- * @param s The string to parse
- * @param i Pointer to the current index
- * @param current_quote_state Current quote state
- * @return 1 token counted
+ * @param s The input string to parse.
+ * @param i Pointer to the current index in the string.
+ * @return int Always returns 1 token counted.
  */
-static int	count_word_token(char const *s, size_t *i,
-	t_quote current_quote_state)
+static int	count_word_at_index(const char *s, size_t *i)
 {
-	while (s[*i] && !is_a_shell_separator(current_quote_state, s[*i]))
+	t_quote	quote_state;
+
+	quote_state = STATE_NORMAL;
+	while (s[*i] && !is_a_shell_separator(quote_state, s[*i]))
 	{
-		current_quote_state = update_quote_state(current_quote_state, s[*i]);
+		quote_state = update_quote_state(quote_state, s[*i]);
 		(*i)++;
 	}
 	return (1);
 }
 
 /**
- * @brief Count the total number of shell tokens in a command line.
+ * @brief Count the total number of shell tokens in a command string.
  *
- * Tokens include words, quoted sequences, and operators: |, <, >, <<, >>.
- * Spaces are ignored, quotes are respected.
+ * Parses the input string character by character:
+ * 1. Skips leading whitespace.
+ * 2. Checks for operators and counts them as tokens.
+ * 3. Counts word tokens (including quoted strings) as tokens.
+ * 4. Repeats until the end of the string.
  *
- * @param s The command line string
- * @return The total number of tokens
+ * This function ensures that the token count is in sync with
+ * extract_tokens_to_tab() to avoid desynchronization.
+ *
+ * @param s The input shell command string.
+ * @return int Total number of tokens found.
  */
-int	count_shell_tokens(char const *s)
+int	count_shell_tokens(const char *s)
 {
 	size_t	i;
 	size_t	count;
-	t_quote	current_quote_state;
-	int		tmp;
 
-	if (!s)
-		return (0);
 	i = 0;
 	count = 0;
-	current_quote_state = STATE_NORMAL;
+	if (!s)
+		return (0);
 	while (s[i])
 	{
 		skip_whitespace(s, &i);
 		if (!s[i])
 			break ;
-		current_quote_state = update_quote_state(current_quote_state, s[i]);
-		tmp = count_operator_token(s, &i, current_quote_state);
-		if (tmp == 0)
-			tmp = count_word_token(s, &i, current_quote_state);
-		count += tmp;
+		if (count_operator_at_index(s, &i))
+			count++;
+		else
+			count += count_word_at_index(s, &i);
 	}
 	return (count);
 }

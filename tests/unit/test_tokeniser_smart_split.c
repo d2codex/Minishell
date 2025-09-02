@@ -123,6 +123,30 @@ void	test_error_cases(void)
 	print_tokens_safe(tokens);
 	printf(CYN " (error: %d)" RESET "\n\n", error);
 	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo	 hello   world", &error);
+	printf(YEL "Input: " RESET "\"echo	 hello   world\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo \"\" ''", &error);
+	printf(YEL "Input: " RESET "\"echo \"\" ''\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("<<< >>> ||", &error);
+	printf(YEL "Input: " RESET "\"<<< >>> ||\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 }
 
 void	test_complex_cases(void)
@@ -149,7 +173,7 @@ void	test_complex_cases(void)
 	free_tokens_safe(tokens);
 }
 
-void	test_tricky_metachar_cases(void)
+void	test_ugly_metachars(void)
 {
 	char			**tokens;
 	t_token_error	error;
@@ -187,17 +211,48 @@ void	test_tricky_metachar_cases(void)
 	print_tokens_safe(tokens);
 	printf(CYN " (error: %d)" RESET "\n\n", error);
 	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo'hello'>file", &error);
+	printf(YEL "Input: " RESET "\"echo'hello'>file\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("\"cat<file\"|grep", &error);
+	printf(YEL "Input: " RESET "\"\\\"cat<file\\\"|grep\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo>>>\"file>name\"|grep", &error);
+	printf(YEL "Input: " RESET "\"echo>>>\\\"file>name\\\"|grep\"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("><|<>", &error);
+	printf(YEL "Input: " RESET "\" ><|<> \"\n");
+	printf(CYN "Tokens: " RESET);
+	print_tokens_safe(tokens);
+	printf(CYN " (error: %d)" RESET "\n\n", error);
+	free_tokens_safe(tokens);
 }
 
 int	main(void)
 {
-	printf(MAG "=== TOKENIZER COMPREHENSIVE TESTS ===" RESET "\n\n");
+	printf(MAG "=== TOKENIZER TESTS ===" RESET "\n\n");
 
 	test_basic_tokenization();
 	test_quotes_handling();
 	test_error_cases();
 	test_complex_cases();
-	test_tricky_metachar_cases();
-
+	test_ugly_metachars();
 	return (0);
 }

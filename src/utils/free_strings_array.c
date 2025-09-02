@@ -9,10 +9,12 @@
  * @param tab The array of strings to free
  * @param count Number of strings in the array
  */
-void	free_string_array(char **tab, int count)
+void	free_string_array(char **tab, size_t count)
 {
-	int	i;
+	size_t	i;
 
+	if (!tab)
+		return ;
 	i = 0;
 	while (i < count)
 	{

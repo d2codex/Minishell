@@ -94,7 +94,7 @@ void	test_is_whitespace(void)
 
 void	test_is_a_shell_separator(void)
 {
-	printf(BR_BLU "*** TEST 4: is_a_shell_separator function ***" RESET "\n");
+	printf(BR_BLU "*** TEST 4: is_a_shell_separator ***" RESET "\n");
 
 	bool result = is_a_shell_separator(STATE_NORMAL, ' ');
 	printf(YEL "[space + STATE_NORMAL] \nexpected: \ttrue" RESET "\n");
@@ -114,47 +114,109 @@ void	test_is_a_shell_separator(void)
 	printf("\n");
 }
 
+void test_count_vs_extract(void)
+{
+	printf(BR_BLU "*** TEST 5: count_shell_tokens function vs extracted tokens num ***" RESET "\n");
+
+	t_token_error error;
+	char **tokens;
+	int counted, extracted;
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo hello", &error);
+	counted = count_shell_tokens("echo hello");
+	extracted = 0;
+	if (tokens)
+	{
+		while (tokens[extracted])
+		extracted++;
+		free_string_array(tokens, extracted);
+	}
+	printf(YEL "Test 1: \"echo hello\"\ncount_shell_tokens = %d, \nextract_tokens_to_tab = %d\n\n" RESET,
+		 counted, extracted);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo 'hello world'", &error);
+	counted = count_shell_tokens("echo 'hello world'");
+	extracted = 0;
+	if (tokens)
+	{
+		while (tokens[extracted])
+			extracted++;
+		free_string_array(tokens, extracted);
+	}
+	printf(YEL "Test 2: \"echo 'hello world'\"\ncount_shell_tokens = %d, \nextract_tokens_to_tab = %d\n\n" RESET,
+		counted, extracted);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("cat < input.txt | grep hello >> output.txt", &error);
+	counted = count_shell_tokens("cat < input.txt | grep hello >> output.txt");
+	extracted = 0;
+	if (tokens)
+	{
+		while (tokens[extracted])
+			extracted++;
+		free_string_array(tokens, extracted);
+	}
+	printf(YEL "Test 3: \"cat < input.txt | grep hello >> output.txt\"\ncount_shell_tokens = %d, \nextract_tokens_to_tab = %d\n\n" RESET,
+		 counted, extracted);
+
+	error = TOKEN_OK;
+	tokens = ft_split_tokens("echo hello>file.txt", &error);
+	counted = count_shell_tokens("echo hello>file.txt");
+	extracted = 0;
+	if (tokens)
+	{
+		while (tokens[extracted])
+			extracted++;
+		free_string_array(tokens, extracted);
+	}
+	printf(YEL "Test 4: \"echo hello>file.txt\"\ncount_shell_tokens = %d, \nextract_tokens_to_tab = %d\n\n" RESET,
+		counted, extracted);
+}
+
+
 void	test_count_shell_tokens(void)
 {
-	printf(BR_BLU "*** TEST 5: count_shell_tokens function ***" RESET "\n");
+
+	printf(BR_BLU "*** TEST 6: count_shell_tokens function ***" RESET "\n");
 
 	int count = count_shell_tokens("echo hello");
 	printf(YEL "\"echo hello\" expected: 2, actual: %d %s\n" RESET,
-		count, count==2 ? GRN "PASS" : RED "FAIL");
+		count, count == 2 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("echo \"hello world\"");
 	printf(YEL "\"echo \\\"hello world\\\"\" expected: 2, actual: %d %s\n" RESET,
-		count, count==2 ? GRN "PASS" : RED "FAIL");
+		count, count == 2 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("echo 'hello world'");
 	printf(YEL "\"echo 'hello world'\" expected: 2, actual: %d %s\n" RESET,
-		count, count==2 ? GRN "PASS" : RED "FAIL");
+		count, count == 2 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("echo hello > file.txt");
 	printf(YEL "\"echo hello > file.txt\" expected: 4, actual: %d %s\n" RESET,
-		count, count==4 ? GRN "PASS" : RED "FAIL");
+		count, count == 4 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("ls | grep main");
 	printf(YEL "\"ls | grep main\" expected: 4, actual: %d %s\n" RESET,
-		count, count==4 ? GRN "PASS" : RED "FAIL");
+		count, count == 4 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("");
 	printf(YEL "\"\" expected: 0, actual: %d %s\n" RESET,
-		count, count==0 ? GRN "PASS" : RED "FAIL");
+		count, count == 0 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("   ");
 	printf(YEL "\"   \" expected: 0, actual: %d %s\n" RESET,
-		count, count==0 ? GRN "PASS" : RED "FAIL");
+		count, count == 0 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("echo \"hello 'nested' quotes\"");
 	printf(YEL "\"echo \\\"hello 'nested' quotes\\\"\" expected: 2, actual: %d %s\n" RESET,
-		count, count==2 ? GRN "PASS" : RED "FAIL");
+		count, count == 2 ? GRN "PASS" : RED "FAIL");
 
 	count = count_shell_tokens("echo 'hello \"nested\" quotes'");
 	printf(YEL "\"echo 'hello \\\"nested\\\" quotes'\" expected: 2, actual: %d %s\n" RESET,
-		count, count==2 ? GRN "PASS" : RED "FAIL");
+		count, count == 2 ? GRN "PASS" : RED "FAIL");
 }
-
 
 int	main(void)
 {
@@ -164,7 +226,7 @@ int	main(void)
 	test_update_quote_state_nested();
 	test_is_whitespace();
 	test_is_a_shell_separator();
+	test_count_vs_extract();
 	test_count_shell_tokens();
-
 	return (0);
 }

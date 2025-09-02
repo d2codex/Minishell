@@ -1,10 +1,14 @@
 #include "minishell.h"
 
 /**
- * @brief Update the current quote state based on a character.
+ * @brief "State machine" for the quotes.
+ * Update the current quote state based on a character.
  *
  * This function updates the shell's quote state when encountering
  * single or double quote characters.
+ *
+ * Used by: has_unclosed_quotes(), extract_operator(), extract_word(),
+ * count_word_token(), count_shell_tokens()
  *
  * @param current_quote_state The current state (NORMAL, SINGLE, DOUBLE)
  * @param c The character to process
@@ -27,7 +31,10 @@ t_quote	update_quote_state(t_quote current_quote_state, char c)
  * @brief Check if a character is a shell separator.
  *
  * A separator is a whitespace or a special shell operator (|, <, >)
- * when not inside quotes.
+ * when not inside quotes. Inside quotes, metacharacters are preserved
+ * and not treated as separators.
+ *
+ * Helper for: extract_word(), count_word_token()
  *
  * @param current_quote_state The current quote state
  * @param c The character to check
@@ -49,6 +56,8 @@ bool	is_a_shell_separator(t_quote current_quote_state, char c)
  *
  * Scans the string and checks if there is any quote that is
  * not closed at the end of the string.
+ *
+ * Used in: ft_split_tokens() to reject invalid input early
  *
  * @param s The string to check
  * @return true if there are unclosed quotes, false otherwise
