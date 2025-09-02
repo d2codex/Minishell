@@ -10,7 +10,7 @@ LIBFT_DIR = libft
 
 # src files
 SRC = src/builtins/pwd.c \
-	  src/env/env.c
+	  src/env/env.c 
 
 # object files preserving subdirectory structure
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)

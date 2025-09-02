@@ -1,0 +1,25 @@
+# Ignore Vim/NeoVim swap files
+*.swp
+*.swo
+
+# Ignore directories
+docs/
+latex/
+tests/bin/
+
+# Ignore object files
+*.o
+*.a
+*.out
+*.so
+*.exe
+
+# Ignore compiled executables
+a.out
+
+# Ignore Doxygen config file
+Doxyfile
+
+# VS Code settings
+.vscode/
+*.code-workspace
