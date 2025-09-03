@@ -87,6 +87,8 @@ bool	has_unclosed_quotes(char const *s)
  * Advances the index pointer until a non-whitespace character is found.
  * This ensures that no empty tokens are counted when parsing shell input.
  *
+ * Used by : count_shell_tokens(), extract_tokens_to_tab()
+ *
  * @param s The input string to parse.
  * @param i Pointer to the current index in the string. Will be updated.
  */
