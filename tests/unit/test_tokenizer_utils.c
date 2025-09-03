@@ -8,7 +8,7 @@
  * quote state transitions, whitespace detection, shell separator identification,
  * and synchronization between token counting and extraction functions.
  *
- * Compile: make build TEST=unit/test_tokenizer_utils.c
+ * Compile: make build TEST=unit/test_tokeniser_utils.c
  *
  * Usage examples:
  * 1. Basic functionality test:
@@ -217,6 +217,7 @@ void test_count_vs_extract(void)
 	}
 	printf(YEL "\"echo hello>file.txt\" count: %d, extract: %d %s\n" RESET,
 		counted, extracted, counted == extracted ? GRN "PASS" : RED "FAIL");
+	
 	printf("\n");
 }
 

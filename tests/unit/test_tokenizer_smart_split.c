@@ -8,7 +8,7 @@
  * including quote handling, operator recognition, error detection, and
  * complex edge cases that could break shell parsing.
  *
- * Compile: make build TEST=unit/test_tokenizer_smart_split.c
+ * Compile: make build TEST=unit/test_tokeniser_smart_split.c
  *
  * Usage examples:
  * 1. Run complete test suite:
@@ -19,14 +19,39 @@
  *      - Error detection for unclosed quotes
  *      - Complex operator sequences parsed properly
  *
- * 2. Error handling verification:
+ * 2. Test categories and key cases:
+ *    Basic tokenization:
+ *      "echo hello" → ["echo", "hello"]
+ *      "echo hello > file.txt" → ["echo", "hello", ">", "file.txt"]
+ *      "cat input.txt >> output.txt" → ["cat", "input.txt", ">>", "output.txt"]
+ *
+ *    Quote handling:
+ *      "echo 'hello world'" → ["echo", "'hello world'"]
+ *      "echo 'hello|world'" → ["echo", "'hello|world'"] (pipe protected)
+ *      "echo \"hello 'nested' quotes\"" → ["echo", "\"hello 'nested' quotes\""]
+ *
+ *    Error cases:
+ *      "echo 'unclosed" → NULL with TOKEN_UNCLOSED_QUOTE error
+ *      Empty/whitespace-only strings handled gracefully
+ *      Multiple consecutive operators: "<<< >>> ||"
+ *
+ *    Complex cases:
+ *      "cat < input.txt | grep hello >> output.txt" → 8 tokens
+ *      "echo hello>file.txt" → ["echo", "hello", ">", "file.txt"]
+ *
+ *    Tricky metacharacter cases:
+ *      "echo hello>>>file" → ["echo", "hello", ">>", ">", "file"]
+ *      "cat<file|grep>out" → ["cat", "<", "file", "|", "grep", ">", "out"]
+ *      "echo'hello'>file" → ["echo'hello'", ">", "file"]
+ *      "\"cat<file\"|grep" → ["\"cat<file\"", "|", "grep"]
+ *
+ * 3. Error handling verification:
  *    - TOKEN_OK: successful tokenization
  *    - TOKEN_UNCLOSED_QUOTE: detected before processing
  *    - TOKEN_MALLOC_ERROR: memory allocation failures
- *    - TOKEN_NOT_OPERATOR: not used here for the tests, used by the functions
  *    - Proper cleanup on all error paths
  *
- * 3. Memory management:
+ * 4. Memory management:
  *    All test cases use free_tokens_safe() to prevent memory leaks.
  *    The tokenizer properly handles memory allocation failures and
  *    cleans up partial allocations.

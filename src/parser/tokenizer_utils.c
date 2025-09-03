@@ -8,7 +8,6 @@
  * single or double quote characters.
  *
  * Used by: has_unclosed_quotes(), extract_operator(), extract_word(),
- * count_word_token()
  *
  * @param current_quote_state The current state (NORMAL, SINGLE, DOUBLE)
  * @param c The character to process
