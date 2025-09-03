@@ -8,7 +8,7 @@
  * including quote handling, operator recognition, error detection, and
  * complex edge cases that could break shell parsing.
  *
- * Compile: make build TEST=unit/test_tokeniser_smart_split.c
+ * Compile: make build TEST=unit/test_tokenizer_smart_split.c
  *
  * Usage examples:
  * 1. Run complete test suite:

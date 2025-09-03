@@ -1,25 +1,6 @@
 #include "minishell.h"
 
 /**
- * @brief Skip consecutive whitespace characters in a string.
- *
- * Advances the index pointer until a non-whitespace character is found.
- * This ensures that no empty tokens are counted when parsing shell input.
- *
- * @note This function is intentionally not static (but should be) because it is
- * shared between count_shell_tokens() and extract_tokens_to_tab()
- * both on different C files because of 42 norm.
- *
- * @param s The input string to parse.
- * @param i Pointer to the current index in the string. Will be updated.
- */
-void	skip_whitespace(char const *s, size_t *i)
-{
-	while (s[*i] && is_whitespace(s[*i]))
-		(*i)++;
-}
-
-/**
  * @brief Count a shell operator token at the current index.
  *
  * Recognizes the following operators as single tokens:
@@ -27,6 +8,8 @@ void	skip_whitespace(char const *s, size_t *i)
  *  - Redirections: <, >, <<, >>
  *
  * Advances the index past the operator.
+ *
+ * Helper for: count_shell_tokens()
  *
  * @param s The input string to parse.
  * @param i Pointer to the current index in the string. Will be updated.
@@ -36,7 +19,7 @@ static int	count_operator_at_index(const char *s, size_t *i)
 {
 	if (s[*i] == '|' || s[*i] == '<' || s[*i] == '>')
 	{
-		if ((s[*i] == '<' || s[*i] == '>') && s[*i + 1] == s[*i])
+		if ((s[*i] == '<' || s[*i] == '>') && s[*i + 1] && s[*i + 1] == s[*i])
 			*i += 2;
 		else
 			(*i)++;
@@ -51,6 +34,8 @@ static int	count_operator_at_index(const char *s, size_t *i)
  * A word token is a sequence of characters that is not a shell separator.
  * Handles quoted strings, updating the quote state as it parses.
  * Advances the index until a shell separator or the end of the string.
+ *
+ * Helper for: count_shell_tokens()
  *
  * @param s The input string to parse.
  * @param i Pointer to the current index in the string.

@@ -80,3 +80,18 @@ bool	has_unclosed_quotes(char const *s)
 	else
 		return (false);
 }
+
+/**
+ * @brief Skip consecutive whitespace characters in a string.
+ *
+ * Advances the index pointer until a non-whitespace character is found.
+ * This ensures that no empty tokens are counted when parsing shell input.
+ *
+ * @param s The input string to parse.
+ * @param i Pointer to the current index in the string. Will be updated.
+ */
+void	skip_whitespace(char const *s, size_t *i)
+{
+	while (s[*i] && is_whitespace(s[*i]))
+		(*i)++;
+}

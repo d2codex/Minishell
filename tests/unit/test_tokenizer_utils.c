@@ -8,7 +8,7 @@
  * quote state transitions, whitespace detection, shell separator identification,
  * and synchronization between token counting and extraction functions.
  *
- * Compile: make build TEST=unit/test_tokeniser_utils.c
+ * Compile: make build TEST=unit/test_tokenizer_utils.c
  *
  * Usage examples:
  * 1. Basic functionality test:
@@ -24,11 +24,11 @@
  *      - STATE_NORMAL + ' → STATE_IN_SINGLE_QUOTE
  *      - Nested quotes: "hello 'nested' quotes" handled correctly
  *      - Quote isolation: single quotes ignore double quotes and vice versa
- *    
+ *
  *    Shell separators:
  *      - Whitespace and operators (|<>) are separators in STATE_NORMAL
  *      - Same chars are NOT separators inside quotes
- *    
+ *
  *    Count vs Extract synchronization:
  *      - "echo hello" → both functions return 2
  *      - "cat < input.txt | grep hello >> output.txt" → both return 8
@@ -217,7 +217,7 @@ void test_count_vs_extract(void)
 	}
 	printf(YEL "\"echo hello>file.txt\" count: %d, extract: %d %s\n" RESET,
 		counted, extracted, counted == extracted ? GRN "PASS" : RED "FAIL");
-	
+
 	printf("\n");
 }
 
