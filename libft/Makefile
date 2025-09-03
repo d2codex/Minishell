@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: diade-so <diade-so@student.42.fr>          +#+  +:+       +#+         #
+#    By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/15 15:16:47 by diade-so          #+#    #+#              #
-#    Updated: 2025/08/07 18:20:30 by diade-so         ###   ########.fr        #
+#    Updated: 2025/08/27 13:49:42 by pafroidu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,6 @@ SRC_CHAR = \
 
 SRC_CONV = \
 	src/conv/ft_itoa.c \
-	src/conv/ft_atof.c \
 	src/conv/ft_safe_atoi.c \
 	src/conv/ft_atosize.c \
 
