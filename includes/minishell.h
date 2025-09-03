@@ -9,19 +9,18 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <errno.h>
-
-// structs
-typedef struct s_env
-{
-	char	*key;
-	char	*value;
-}	t_env;
 # include <stdbool.h>
 
 /* =========================== */
 /*        STRUCTURES           */
 /* =========================== */
 
+/* env import structure to emulate KEY=VALUE behavior */
+typedef struct s_env
+{
+	char	*key;
+	char	*value;
+}	t_env;
 
 /* =========================== */
 /*           ENUMS             */
@@ -49,9 +48,12 @@ typedef enum e_token_error
 /* =========================== */
 
 /* pwd.c */
-int				builtin_pwd(char **args);
+int			builtin_pwd(char **args);
 
-/* import environment */
+/* =========================== */
+/*     ENVIRONMENT IMPORT      */
+/* =========================== */
+
 /* src/env/env.c      */
 void		del_env(void *content);
 void		print_env_list(t_list *env_list);
@@ -63,31 +65,31 @@ t_list		*init_env_from_envp(char **envp);
 /* =========================== */
 
 /* minishell_loop.c */
-void	process_line(char *line);
-int		prompt_user(char *prompt);
-
+void		process_line(char *line);
+int			prompt_user(char *prompt);
 
 /* =========================== */
 /*           PARSER            */
 /* =========================== */
 
 /* src/parser/tokeniser_utils.c */
-t_quote	update_quote_state(t_quote current_quote_state, char c);
-bool	is_a_shell_separator(t_quote current_quote_state, char c);
-bool	has_unclosed_quotes(char const *s);
+t_quote		update_quote_state(t_quote current_quote_state, char c);
+bool		is_a_shell_separator(t_quote current_quote_state, char c);
+bool		has_unclosed_quotes(char const *s);
 
 /* src/parser/tokeniser_count_tokens.c */
-int		count_shell_tokens(char const *s);
-void	skip_whitespace(char const *s, size_t *i);
+int			count_shell_tokens(char const *s);
+void		skip_whitespace(char const *s, size_t *i);
 
 /* src/parser/tokeniser_smart_split.c */
-char	**ft_split_tokens(char const *s, t_token_error *error_code);
+char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
 /* =========================== */
 /*           UTILS             */
 /* =========================== */
-void	free_string_array(char **tab, size_t count);
-bool	is_whitespace(char c);
-void	print_error(char *pre_msg, char *main_msg);
+
+void		free_string_array(char **tab, size_t count);
+bool		is_whitespace(char c);
+void		print_error(char *pre_msg, char *main_msg);
 
 #endif

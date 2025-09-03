@@ -9,14 +9,14 @@ OBJ_DIR = obj
 LIBFT_DIR = libft
 
 # src files
-SRC =	src/builtins/pwd.c \
-		src/parser/tokeniser_smart_split.c \
-		src/parser/tokeniser_count_tokens.c \
-		src/parser/tokeniser_utils.c \
+SRC =	src/env/env.c \
+		src/builtins/pwd.c \
+		src/parser/tokenizer_smart_split.c \
+		src/parser/tokenizer_count_tokens.c \
+		src/parser/tokenizer_utils.c \
 		src/utils/free_strings_array.c \
 		src/utils/print_error.c \
-		src/utils/is_whitespace.c \
-		src/env/env.c
+		src/utils/is_whitespace.c
 
 # object files preserving subdirectory structure
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
