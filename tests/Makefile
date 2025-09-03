@@ -5,8 +5,12 @@ INCLUDES = -I../includes -I../libft/includes
 # Directories
 UNIT_DIR = unit
 INTEG_DIR = integration
-LIB = ../obj/libminishell.a
 BIN_DIR = bin
+
+# Libraries
+LIBFT = ../libft/libft.a
+LIBMS = ../obj/libminishell.a
+LIBS = $(LIBMS) $(LIBFT)
 
 # Find all test files
 UNIT_TESTS := $(wildcard $(UNIT_DIR)/test_*.c)
@@ -24,30 +28,43 @@ all: $(UNIT_BIN) $(INTEG_BIN)
 	done
 
 # Rule to build unit test binaries
-$(BIN_DIR)/%: %.c $(LIB)
+$(BIN_DIR)/%: %.c $(LIBS)
 	@mkdir -p $(dir $@)
-	$(CC) $(FLAGS) $(INCLUDES) $< $(LIB) -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $< $(LIBS) -o $@
 
-# Build library  from parent Makefile
-$(LIB):
+# Build dependent libraries without building main executable
+$(LIBFT):
+	$(MAKE) -C ../libft
+
+$(LIBMS):
 	$(MAKE) -C .. libminishell.a
 
 # Clean test binaries
 clean:
 	rm -rf $(BIN_DIR)
 
-# Full clean including library
+# Full clean including libraries
 fclean: clean
+	$(MAKE) -C .. fclean
 	$(MAKE) -C .. clean
 
 # Rebuild all tests
 re: fclean all
 
-# Optional: run a single test
-# Usage: make run TEST=unit/test_cd
-run: $(LIB)
+# --- Single test helpers ---
+
+# Build a single test binary
+# Usage: make build TEST=unit/test_name.c
+# Execute from root: ./test.test_name.c
+build: $(BIN_DIR)/$(basename $(notdir $(TEST)))
+
+$(BIN_DIR)/$(basename $(notdir $(TEST))): $(TEST) $(LIBS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(FLAGS) $(INCLUDES) $(TEST).c $(LIB) ../libft/libft.a -o $(BIN_DIR)/$(notdir $(TEST))
-	./$(BIN_DIR)/$(notdir $(TEST))
+	$(CC) $(FLAGS) $(INCLUDES) $(TEST) $(LIBS) -o $@
+
+# Optional: run a single test
+# Usage: make run TEST=unit/test_name.c
+run: build
+	./$(BIN_DIR)/$(basename $(notdir $(TEST)))
 
 .PHONY: all clean fclean re run
