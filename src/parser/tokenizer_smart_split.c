@@ -121,7 +121,7 @@ static bool	is_operator_extracted(t_token_error error_code)
  * @param tab Preallocated token array
  * @return TOKEN_OK on success, TOKEN_MALLOC_ERROR if allocation failed
  */
-static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
+/* static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
 {
 	size_t			i;
 	size_t			token;
@@ -139,6 +139,8 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
 			break ;
 		quote_state = update_quote_state(quote_state, s[i]);
 		returned_code = extract_operator(s, tab, &i, &token);
+		if (returned_code == TOKEN_MALLOC_ERROR)
+			return (returned_code);
 		token_counted = is_operator_extracted(returned_code);
 		if (token_counted == 0)
 			returned_code = extract_word(s, tab, &i, &token);
@@ -146,9 +148,36 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
 			&& returned_code != TOKEN_NOT_OPERATOR)
 			return (returned_code);
 	}
+	return (tab[token] = NULL, TOKEN_OK);
+} */
+static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
+{
+	size_t			i;
+	size_t			token;
+	t_quote			quote_state;
+	t_token_error	code;
+
+	i = 0;
+	token = 0;
+	quote_state = STATE_NORMAL;
+	while (s[i])
+	{
+		skip_whitespace(s, &i);
+		if (!s[i])
+			break ;
+		quote_state = update_quote_state(quote_state, s[i]);
+		code = extract_operator(s, tab, &i, &token);
+		if (code == TOKEN_MALLOC_ERROR)
+			return (code);
+		if (!is_operator_extracted(code))
+			code = extract_word(s, tab, &i, &token);
+		if (code != TOKEN_OK && code != TOKEN_NOT_OPERATOR)
+			return (code);
+	}
 	tab[token] = NULL;
 	return (TOKEN_OK);
 }
+
 
 /**
  * @brief Allocate array and split shell input into tokens.
