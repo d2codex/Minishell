@@ -59,23 +59,23 @@ void	print_env_list(t_list *env_list)
 t_env	*create_env_node(const char *str)
 {
 	t_env	*env;
-	char	*eq;
+	char	*equal;
 
 	if (!str)
 		return (NULL);
-	eq = ft_strchr(str, '=');
-	if (!eq || eq == str)
+	equal = ft_strchr(str, '=');
+	if (!equal || equal == str)
 		return (NULL);
 	env = malloc(sizeof (t_env));
 	if (!env)
 		return (NULL);
-	env->key = ft_substr(str, 0, eq - str);
+	env->key = ft_substr(str, 0, equal - str);
 	if (!env->key)
 	{
 		free(env);
 		return (NULL);
 	}
-	env->value = ft_strdup(eq + 1);
+	env->value = ft_strdup(equal + 1);
 	if (!env->value)
 	{
 		free(env->key);

@@ -8,7 +8,11 @@
  * of environment strings, instead of relying on the shell's environment.
  * 
  * Usage:
- *    Comment out your other `main()` function that tests the real environment.
+ * 1. Compile: make build TEST=unit/test_env_manual.c
+ *    Run: ./bin/test_env_manual
+ *    
+ * 2. To compile and run all tests(optional):
+ *    Compile: make
  */
 int	main(void)
 {
