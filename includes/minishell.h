@@ -20,6 +20,7 @@ typedef struct s_env
 {
 	char	*key;
 	char	*value;
+	bool	in_env;
 }	t_env;
 
 /* =========================== */
