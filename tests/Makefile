@@ -1,5 +1,6 @@
 CC = cc
 FLAGS = -Wall -Wextra -Werror -g3
+READLINE_FLAGS = -lreadline
 INCLUDES = -I../includes -I../libft/includes
 
 # Directories
@@ -30,7 +31,7 @@ all: $(UNIT_BIN) $(INTEG_BIN)
 # Rule to build unit test binaries
 $(BIN_DIR)/%: %.c $(LIBS)
 	@mkdir -p $(dir $@)
-	$(CC) $(FLAGS) $(INCLUDES) $< $(LIBS) -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $< $(LIBS) $(READLINE_FLAGS) -o $@
 
 # Build dependent libraries without building main executable
 $(LIBFT):
@@ -60,7 +61,7 @@ build: $(BIN_DIR)/$(basename $(notdir $(TEST)))
 
 $(BIN_DIR)/$(basename $(notdir $(TEST))): $(TEST) $(LIBS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(FLAGS) $(INCLUDES) $(TEST) $(LIBS) -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $(TEST) $(LIBS) $(READLINE_FLAGS) -o $@
 
 # Optional: run a single test
 # Usage: make run TEST=unit/test_name.c
