@@ -7,7 +7,7 @@ void	test_builtin_pwd_basic(void)
 	int	return_code;
 
 	printf(BR_BLU "*** TEST 1: basic pwd functionality ***" RESET "\n");
-	
+
 	printf(YEL "expected: current directory path" RESET "\n");
 	printf(CYN "actual:	" RESET);
 
@@ -56,6 +56,8 @@ void	test_builtin_pwd_comparison(void)
 
 int	main(void)
 {
+	printf(MAG "=== PWD BUILTIN FUNCTIONS TESTS ===" RESET "\n\n");
+
 	test_builtin_pwd_basic();
 	test_builtin_pwd_with_args();
 	test_builtin_pwd_comparison();
