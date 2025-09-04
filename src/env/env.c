@@ -38,7 +38,7 @@ void	print_env_list(t_list *env_list)
 	while (current)
 	{
 		env = (t_env *)current->content;
-		if (env)
+		if (env && env->in_env)
 			printf("%s=%s\n", env->key, env->value);
 		current = current->next;
 	}
@@ -71,10 +71,7 @@ t_env	*create_env_node(const char *str)
 		return (NULL);
 	env->key = ft_substr(str, 0, equal - str);
 	if (!env->key)
-	{
-		free(env);
-		return (NULL);
-	}
+		return (free(env), NULL);
 	env->value = ft_strdup(equal + 1);
 	if (!env->value)
 	{
@@ -82,6 +79,7 @@ t_env	*create_env_node(const char *str)
 		free(env);
 		return (NULL);
 	}
+	env->in_env = true;
 	return (env);
 }
 
