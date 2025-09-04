@@ -4,10 +4,10 @@
  * @brief Extract a special operator token (<, >, <<, >> and single |)
  * from the string.
  *
- * Only extracts if we're in STATE_NORMAL (not in quotes).
- * For mandatory part: treats << and >> as double tokens, || as two separate
- * | tokens. (if we want || to be interpreted as a double char for the bonus,
- * we would need another implementation)
+ * Only extracts if we're in STATE_NOT_IN_QUOTE.
+ * For mandatory part: treats << and >> as single double char tokens,
+ * || as two separate tokens. (if we want || to be interpreted as a
+ * double char for the bonus, we would need another implementation)
  *
  * Note: Recalculate quote state from start of string due to 42 norm
  * limitation (max 4 function parameters could not pass the enum as a 5th param)
@@ -28,14 +28,14 @@ static t_token_error	extract_operator(const char *s, char **tab,
 	size_t	j;
 	size_t	len;
 
-	quote_state = STATE_NORMAL;
+	quote_state = STATE_NOT_IN_QUOTE;
 	j = 0;
 	while (j < *i)
 	{
 		quote_state = update_quote_state(quote_state, s[j]);
 		j++;
 	}
-	if (quote_state != STATE_NORMAL
+	if (quote_state != STATE_NOT_IN_QUOTE
 		|| (s[*i] != '|' && s[*i] != '<' && s[*i] != '>'))
 		return (TOKEN_NOT_OPERATOR);
 	len = 1;
@@ -72,7 +72,7 @@ static t_token_error	extract_word(const char *s, char **tab, size_t *i,
 	t_quote	current_quote_state;
 
 	start = *i;
-	current_quote_state = STATE_NORMAL;
+	current_quote_state = STATE_NOT_IN_QUOTE;
 	while (s[*i] && !is_a_shell_separator(current_quote_state, s[*i]))
 	{
 		current_quote_state = update_quote_state(current_quote_state, s[*i]);

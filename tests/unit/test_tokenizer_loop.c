@@ -46,6 +46,7 @@ int	main(void)
 		NULL
 	};
 
+	printf("=====================TOKENIZER LOOP TEST========================\n");
 	i = 0;
 	while (tests[i] != NULL)
 	{
@@ -64,5 +65,6 @@ int	main(void)
 		}
 		i++;
 	}
+	printf("=====================END TOKENIZER LOOP TEST=====================\n");
 	return (0);
 }

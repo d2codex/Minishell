@@ -45,7 +45,7 @@ static int	count_word_at_index(const char *s, size_t *i)
 {
 	t_quote	quote_state;
 
-	quote_state = STATE_NORMAL;
+	quote_state = STATE_NOT_IN_QUOTE;
 	while (s[*i] && !is_a_shell_separator(quote_state, s[*i]))
 	{
 		quote_state = update_quote_state(quote_state, s[*i]);

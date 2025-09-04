@@ -9,20 +9,20 @@
  *
  * Used by: has_unclosed_quotes(), extract_operator(), extract_word(),
  *
- * @param current_quote_state The current state (NORMAL, SINGLE, DOUBLE)
+ * @param current_quote_state The current state (NOT_IN_QUOTE, SINGLE, DOUBLE)
  * @param c The character to process
  * @return The updated quote state
  */
 t_quote	update_quote_state(t_quote current_quote_state, char c)
 {
-	if (c == '\'' && current_quote_state == STATE_NORMAL)
+	if (c == '\'' && current_quote_state == STATE_NOT_IN_QUOTE)
 		current_quote_state = STATE_IN_SINGLE_QUOTE;
-	else if (c == '"' && current_quote_state == STATE_NORMAL)
+	else if (c == '"' && current_quote_state == STATE_NOT_IN_QUOTE)
 		current_quote_state = STATE_IN_DOUBLE_QUOTE;
 	else if (c == '\'' && current_quote_state == STATE_IN_SINGLE_QUOTE)
-		current_quote_state = STATE_NORMAL;
+		current_quote_state = STATE_NOT_IN_QUOTE;
 	else if (c == '"' && current_quote_state == STATE_IN_DOUBLE_QUOTE)
-		current_quote_state = STATE_NORMAL;
+		current_quote_state = STATE_NOT_IN_QUOTE;
 	return (current_quote_state);
 }
 
@@ -41,7 +41,7 @@ t_quote	update_quote_state(t_quote current_quote_state, char c)
  */
 bool	is_a_shell_separator(t_quote current_quote_state, char c)
 {
-	if (current_quote_state != STATE_NORMAL)
+	if (current_quote_state != STATE_NOT_IN_QUOTE)
 		return (false);
 	if (is_whitespace(c))
 		return (true);
@@ -69,13 +69,13 @@ bool	has_unclosed_quotes(char const *s)
 	if (!s)
 		return (false);
 	i = 0;
-	current_quote_state = STATE_NORMAL;
+	current_quote_state = STATE_NOT_IN_QUOTE;
 	while (s[i])
 	{
 		current_quote_state = update_quote_state(current_quote_state, s[i]);
 		i++;
 	}
-	if (current_quote_state != STATE_NORMAL)
+	if (current_quote_state != STATE_NOT_IN_QUOTE)
 		return (true);
 	else
 		return (false);

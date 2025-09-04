@@ -29,7 +29,7 @@ typedef struct s_env
 /* enum to track the quote current state - used inside the tokeniser */
 typedef enum e_quote
 {
-	STATE_NORMAL,
+	STATE_NOT_IN_QUOTE,
 	STATE_IN_SINGLE_QUOTE,
 	STATE_IN_DOUBLE_QUOTE
 }	t_quote;

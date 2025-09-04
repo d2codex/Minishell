@@ -14,19 +14,19 @@
  * 1. Basic functionality test:
  *      ./bin/test_tokeniser_utils
  *    Expected output:
- *      - SUCCESS for all quote state transitions (NORMAL ↔ SINGLE ↔ DOUBLE)
+ *      - SUCCESS for all quote state transitions (NOT_IN_QUOTE ↔ SINGLE ↔ DOUBLE)
  *      - Correct whitespace detection for all 6 standard whitespace chars
  *      - Proper shell separator behavior with different quote states
  *      - Perfect synchronization between count_shell_tokens() and extraction
  *
  * 2. Key test cases verified:
  *    Quote state machine:
- *      - STATE_NORMAL + ' → STATE_IN_SINGLE_QUOTE
+ *      - STATE_NOT_IN_QUOTE + ' → STATE_IN_SINGLE_QUOTE
  *      - Nested quotes: "hello 'nested' quotes" handled correctly
  *      - Quote isolation: single quotes ignore double quotes and vice versa
  *
  *    Shell separators:
- *      - Whitespace and operators (|<>) are separators in STATE_NORMAL
+ *      - Whitespace and operators (|<>) are separators in STATE_NOT_IN_QUOTE
  *      - Same chars are NOT separators inside quotes
  *
  *    Count vs Extract synchronization:
@@ -51,27 +51,27 @@ void	test_update_quote_state_basic(void)
 
 	printf(BR_BLU "*** TEST 1: update_quote_state basic transitions ***" RESET "\n");
 
-	state = STATE_NORMAL;
+	state = STATE_NOT_IN_QUOTE;
 	state = update_quote_state(state, '\'');
-	printf(YEL "[STATE_NORMAL + '] \nexpected: \tSTATE_IN_SINGLE_QUOTE" RESET "\n");
+	printf(YEL "[STATE_NOT_IN_QUOTE + '] \nexpected: \tSTATE_IN_SINGLE_QUOTE" RESET "\n");
 	printf(CYN "actual: \t%s" RESET "\n\n",
 		state == STATE_IN_SINGLE_QUOTE ? GRN "STATE_IN_SINGLE_QUOTE" : RED "FAILED");
 
 	state = update_quote_state(state, '\'');
-	printf(YEL "[STATE_IN_SINGLE_QUOTE + '] \nexpected: \tSTATE_NORMAL" RESET "\n");
+	printf(YEL "[STATE_IN_SINGLE_QUOTE + '] \nexpected: \tSTATE_NOT_IN_QUOTE" RESET "\n");
 	printf(CYN "actual: \t%s" RESET "\n\n",
-		state == STATE_NORMAL ? GRN "STATE_NORMAL" : RED "FAILED");
+		state == STATE_NOT_IN_QUOTE ? GRN "STATE_NOT_IN_QUOTE" : RED "FAILED");
 
-	state = STATE_NORMAL;
+	state = STATE_NOT_IN_QUOTE;
 	state = update_quote_state(state, '"');
-	printf(YEL "[STATE_NORMAL + \"] \nexpected: \tSTATE_IN_DOUBLE_QUOTE" RESET "\n");
+	printf(YEL "[STATE_NOT_IN_QUOTE + \"] \nexpected: \tSTATE_IN_DOUBLE_QUOTE" RESET "\n");
 	printf(CYN "actual: \t%s" RESET "\n\n",
 		state == STATE_IN_DOUBLE_QUOTE ? GRN "STATE_IN_DOUBLE_QUOTE" : RED "FAILED");
 
 	state = update_quote_state(state, '"');
-	printf(YEL "[STATE_IN_DOUBLE_QUOTE + \"] \nexpected: \tSTATE_NORMAL" RESET "\n");
+	printf(YEL "[STATE_IN_DOUBLE_QUOTE + \"] \nexpected: \tSTATE_NOT_IN_QUOTE" RESET "\n");
 	printf(CYN "actual: \t%s" RESET "\n\n",
-		state == STATE_NORMAL ? GRN "STATE_NORMAL" : RED "FAILED");
+		state == STATE_NOT_IN_QUOTE ? GRN "STATE_NOT_IN_QUOTE" : RED "FAILED");
 
 	state = STATE_IN_SINGLE_QUOTE;
 	state = update_quote_state(state, '"');
@@ -94,7 +94,7 @@ void	test_update_quote_state_nested(void)
 
 	printf(BR_BLU "*** TEST 2: update_quote_state nested quotes ***" RESET "\n");
 
-	state = STATE_NORMAL;
+	state = STATE_NOT_IN_QUOTE;
 	state = update_quote_state(state, '"');
 	printf(YEL "test: \"hello 'nested' quotes\"" RESET "\n");
 	printf(CYN "after \": %s" RESET "\n",
@@ -110,7 +110,7 @@ void	test_update_quote_state_nested(void)
 
 	state = update_quote_state(state, '"');
 	printf(CYN "after \": %s" RESET "\n",
-		state == STATE_NORMAL ? GRN "back to NORMAL" : RED "FAILED");
+		state == STATE_NOT_IN_QUOTE ? GRN "back to NOT_IN_QUOTE" : RED "FAILED");
 	printf("\n");
 }
 
@@ -141,8 +141,8 @@ void	test_is_a_shell_separator(void)
 {
 	printf(BR_BLU "*** TEST 4: is_a_shell_separator ***" RESET "\n");
 
-	bool result = is_a_shell_separator(STATE_NORMAL, ' ');
-	printf(YEL "[space + STATE_NORMAL] \nexpected: \ttrue" RESET "\n");
+	bool result = is_a_shell_separator(STATE_NOT_IN_QUOTE, ' ');
+	printf(YEL "[space + STATE_NOT_IN_QUOTE] \nexpected: \ttrue" RESET "\n");
 	printf(CYN "actual: \t%s" RESET "\n\n", result ? GRN "true" : RED "false");
 
 	result = is_a_shell_separator(STATE_IN_SINGLE_QUOTE, ' ');
@@ -153,8 +153,8 @@ void	test_is_a_shell_separator(void)
 	printf(YEL "[space + STATE_IN_DOUBLE_QUOTE] \nexpected: \tfalse" RESET "\n");
 	printf(CYN "actual: \t%s" RESET "\n\n", !result ? GRN "false" : RED "true");
 
-	result = is_a_shell_separator(STATE_NORMAL, 'a');
-	printf(YEL "['a' + STATE_NORMAL] \nexpected: \tfalse" RESET "\n");
+	result = is_a_shell_separator(STATE_NOT_IN_QUOTE, 'a');
+	printf(YEL "['a' + STATE_NOT_IN_QUOTE] \nexpected: \tfalse" RESET "\n");
 	printf(CYN "actual: \t%s" RESET "\n\n", !result ? GRN "false" : RED "true");
 }
 
