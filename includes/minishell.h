@@ -56,8 +56,11 @@ typedef enum e_token_error
 /*          BUILTINS           */
 /* =========================== */
 
-/* pwd.c */
+/* src/builtins/pwd.c */
 int		builtin_pwd(char **args);
+
+/* src/builtins/export.c */
+bool	is_valid_key(const char *token);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
