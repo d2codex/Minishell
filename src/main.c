@@ -3,7 +3,7 @@
 /**
 * @brief Entry point of minishell.
 *
-* Initializes environment, shows ASCII art, starts shell loop
+* Initializes environment, shows ASCII art, starts shell loop, clear history
 * and frees env resources before exiting.
 *
 * @param argc Argument count (unused for now)
