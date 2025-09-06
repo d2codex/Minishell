@@ -11,10 +11,16 @@ OBJ_DIR = obj
 LIBFT_DIR = libft
 
 # src files
-SRC =	src/builtins/pwd.c \
-		src/env/env.c \
+SRC =	src/env/env.c \
 		src/core/minishell_loop.c \
-		src/core/print_ascii_art.c
+		src/core/print_ascii_art.c \
+		src/builtins/pwd.c \
+		src/parser/tokenizer_smart_split.c \
+		src/parser/tokenizer_count_tokens.c \
+		src/parser/tokenizer_utils.c \
+		src/utils/free_strings_array.c \
+		src/utils/print_error.c \
+		src/utils/is_whitespace.c \
 
 # object files preserving subdirectory structure
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
@@ -56,7 +62,7 @@ valgrind: $(NAME) $(SUPP_FILE)
 valgrind: $(SUPP_FILE)
 	@echo "valgrind rule ready, but no main program yet"
 	@echo "Use: cd tests && make valgrind TEST=your_test.c"
-# uncomment this rule when you're ready to test on main.c and delete the 2 lines @echo
+# uncomment this rule when you're ready to test on main.c and delete the 2 lines @echo above
 # valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(NAME)
 
 # clean objects

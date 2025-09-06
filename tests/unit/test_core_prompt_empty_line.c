@@ -8,7 +8,7 @@
 * Compile: make build TEST=unit/test_core_prompt_empty_line.c
 * Run:		./bin/test_core_prompt_empty_line
 * valgrind (ignore leaks from readline library):
-* 
+*			make valgrind TEST=unit/test_core_prompt_empty_line.c
 *
 * Expected:
 * - Prompt shows up
