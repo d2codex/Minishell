@@ -1,6 +1,8 @@
 CC = cc
 FLAGS = -Wall -Wextra -Werror -g3
+READLINE_FLAGS = -lreadline
 INCLUDES = -I../includes -I../libft/includes
+SUPP_FILE = ../valgrind_readline_leaks_ignore.supp
 
 # Directories
 UNIT_DIR = unit
@@ -30,7 +32,7 @@ all: $(UNIT_BIN) $(INTEG_BIN)
 # Rule to build unit test binaries
 $(BIN_DIR)/%: %.c $(LIBS)
 	@mkdir -p $(dir $@)
-	$(CC) $(FLAGS) $(INCLUDES) $< $(LIBS) -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $< $(LIBS) $(READLINE_FLAGS) -o $@
 
 # Build dependent libraries without building main executable
 $(LIBFT):
@@ -60,11 +62,30 @@ build: $(BIN_DIR)/$(basename $(notdir $(TEST)))
 
 $(BIN_DIR)/$(basename $(notdir $(TEST))): $(TEST) $(LIBS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(FLAGS) $(INCLUDES) $(TEST) $(LIBS) -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $(TEST) $(LIBS) $(READLINE_FLAGS) -o $@
 
 # Optional: run a single test
 # Usage: make run TEST=unit/test_name.c
 run: build
 	./$(BIN_DIR)/$(basename $(notdir $(TEST)))
 
-.PHONY: all clean fclean re run
+# Run valgrind with the .supp file + right flags on a specific test
+# Usage: make valgrind TEST=unit/test_core_process_line.c
+valgrind:
+	@if [ -z "$(TEST)" ]; then \
+		echo "Usage: make valgrind TEST=unit/test_name.c"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(SUPP_FILE)" ]; then \
+		echo "Creating valgrind suppression file..."; \
+		echo "{" > $(SUPP_FILE); \
+		echo "   ignore_libreadline_leaks" >> $(SUPP_FILE); \
+		echo "   Memcheck:Leak" >> $(SUPP_FILE); \
+		echo "   ..." >> $(SUPP_FILE); \
+		echo "   obj:*/libreadline.so.*" >> $(SUPP_FILE); \
+		echo "}" >> $(SUPP_FILE); \
+	fi
+	@make build TEST=$(TEST)
+	valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(BIN_DIR)/$(basename $(notdir $(TEST)))
+
+.PHONY: all clean fclean re run valgrind

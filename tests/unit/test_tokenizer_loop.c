@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "minishell.h"
 
 void	print_tokens(const char *input, char **av, t_token_error error)
