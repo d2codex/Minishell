@@ -52,6 +52,7 @@ $(SUPP_FILE):
 	@echo "}" >> $(SUPP_FILE)
 
 valgrind: $(NAME) $(SUPP_FILE)
+
 valgrind: $(SUPP_FILE)
 	@echo "valgrind rule ready, but no main program yet"
 	@echo "Use: cd tests && make valgrind TEST=your_test.c"

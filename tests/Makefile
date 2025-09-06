@@ -71,7 +71,6 @@ run: build
 
 # Run valgrind with the .supp file + right flags on a specific test
 # Usage: make valgrind TEST=unit/test_core_process_line.c
-# Launch: 
 valgrind:
 	@if [ -z "$(TEST)" ]; then \
 		echo "Usage: make valgrind TEST=unit/test_name.c"; \
