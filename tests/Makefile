@@ -2,6 +2,7 @@ CC = cc
 FLAGS = -Wall -Wextra -Werror -g3
 READLINE_FLAGS = -lreadline
 INCLUDES = -I../includes -I../libft/includes
+SUPP_FILE = ../valgrind_readline_leaks_ignore.supp
 
 # Directories
 UNIT_DIR = unit
@@ -68,4 +69,24 @@ $(BIN_DIR)/$(basename $(notdir $(TEST))): $(TEST) $(LIBS)
 run: build
 	./$(BIN_DIR)/$(basename $(notdir $(TEST)))
 
-.PHONY: all clean fclean re run
+# Run valgrind with the .supp file + right flags on a specific test
+# Usage: make valgrind TEST=unit/test_core_process_line.c
+# Launch: 
+valgrind:
+	@if [ -z "$(TEST)" ]; then \
+		echo "Usage: make valgrind TEST=unit/test_name.c"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(SUPP_FILE)" ]; then \
+		echo "Creating valgrind suppression file..."; \
+		echo "{" > $(SUPP_FILE); \
+		echo "   ignore_libreadline_leaks" >> $(SUPP_FILE); \
+		echo "   Memcheck:Leak" >> $(SUPP_FILE); \
+		echo "   ..." >> $(SUPP_FILE); \
+		echo "   obj:*/libreadline.so.*" >> $(SUPP_FILE); \
+		echo "}" >> $(SUPP_FILE); \
+	fi
+	@make build TEST=$(TEST)
+	valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(BIN_DIR)/$(basename $(notdir $(TEST)))
+
+.PHONY: all clean fclean re run valgrind
