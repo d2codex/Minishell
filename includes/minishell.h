@@ -60,7 +60,17 @@ typedef enum e_token_error
 int		builtin_pwd(char **args);
 
 /* src/builtins/export.c */
+void	print_export_error(const char *token);
+t_env	*create_new_env_node(char *key, const char *token);
+int		update_existing_env_node(t_env *env_node, const char *token);
+int		set_env_node(t_list **env_list, const char *token);
+
+/* src/builtins/export_utils.c */
+bool	has_equal(const char *token);
 bool	is_valid_key(const char *token);
+char	*get_env_key(const char *token);
+char	*get_env_value(const char *token);
+t_env	*get_env_node_by_key(t_list *env_list, const char *key);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
