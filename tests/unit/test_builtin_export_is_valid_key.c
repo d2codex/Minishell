@@ -1,37 +1,7 @@
-/**
- * @file test_is_valid_key.c
- * @brief Test program for is_valid_key() function.
- *
- * This test verifies that the is_valid_key() function correctly identifies
- * valid and invalid environment variable identifiers. Tokens are assumed
- * to have been passed through a tokenizer and normalized.
- *
- * The test covers:
- * - Valid keys with uppercase/lowercase letters, digits, and underscores
- * - Invalid keys starting with digits, containing spaces, '=' at start,
- *   or illegal characters (e.g., '-')
- * - Edge cases such as empty strings or "=" only
- *
- * Compile:
- *      make build TEST=unit/test_is_valid_key.c
- *
- * Usage:
- *      ./bin/test_is_valid_key
- *
- * Expected output:
- * - For each token, prints:
- *      - Token itself
- *      - Result of is_valid_key() (TRUE/FALSE)
- *      - Expected result
- * - Colored output using RED/GRN/BLU macros
- *
- * Notes:
- * - Boolean results are printed as TRUE/FALSE strings.
- * - Sentinel NULL at the end of the test array terminates the loop.
- */
-
 #include "minishell.h"
-
+// this test assums all tokens have already been passed through tokenizer
+// and normalized
+//
 typedef struct s_test
 {
 	const char	*token;

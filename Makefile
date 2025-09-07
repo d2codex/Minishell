@@ -19,6 +19,7 @@ SRC =	src/env/env.c \
 		src/core/print_ascii_art.c \
 		src/builtins/pwd.c \
 		src/builtins/export.c \
+		src/builtins/export_utils.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_count_tokens.c \
 		src/parser/tokenizer_utils.c \
