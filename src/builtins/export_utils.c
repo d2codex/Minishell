@@ -1,5 +1,12 @@
 #include "minishell.h"
 
+/**
+ * @brief Check if a token contains an '=' character.
+ *
+ * @param token The string to check.
+ *
+ * @return true if '=' is found, false otherwise.
+ */
 bool	has_equal(const char *token)
 {
 	if (ft_strchr(token, '=') != NULL)
@@ -42,8 +49,14 @@ bool	is_valid_key(const char *token)
 	return (true);
 }
 
-// extract the key from the token
-// remember to FREE it when done
+/**
+ * @brief Extract the key part from a token (before '=').
+ *
+ * @param token Input string in the form KEY=VALUE or KEY.
+ *
+ * @return A malloc'ed copy of the key, or NULL on invalid key or malloc failure.
+ *         Caller must free the returned string.
+ */
 char	*get_env_key(const char *token)
 {
 	char	*key;
@@ -64,6 +77,14 @@ char	*get_env_key(const char *token)
 	return (key);
 }
 
+/**
+ * @brief Extract the value part from a token (after '=').
+ *
+ * @param token Input string in the form KEY=VALUE.
+ *
+ * @return A malloc'ed copy of the value, or NULL if no '=' found or malloc fails.
+ *         Caller must free the returned string.
+ */
 char	*get_env_value(const char *token)
 {
 	char	*value;
@@ -78,29 +99,30 @@ char	*get_env_value(const char *token)
 	return (value);
 }
 
-// check if the key exists in the env table
-// return the node so it can be updated later
+/**
+ * @brief Find an environment node by key in the list.
+ *
+ * @param env_list The linked list of environment variables.
+ * @param key The key to search for.
+ *
+ * @return Pointer to the matching t_env node, or NULL if not found.
+ */
 t_env	*get_env_node_by_key(t_list *env_list, const char *key)
 {
-	t_list	*current;
 	t_env	*env_node;
-	int		key_len;
 
 	if (!env_list || !key)
 		return (NULL);
 	// need this for ft_strncmp (since strcmp is not in libft)
-	key_len = ft_strlen(key);
-	current = env_list;
-	while (current)
+	while (env_list)
 	{
 		// we need to cast the t_list to t_env since t_list is void arg
-		env_node = (t_env *)current->content;
+		env_node = env_list->content;
 		// if env_node, just a defensive check making sure
 		// current->content isn't NULL
-		if (env_node && ft_strncmp(env_node->key, key, key_len) == 0
-			&& ((int)ft_strlen(env_node->key) == key_len))
+		if (env_node && ft_strcmp(env_node->key, key) == 0)
 			return (env_node);
-		current = current->next;
+		env_list = env_list->next;
 	}
 	return (NULL);
 }

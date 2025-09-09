@@ -35,7 +35,6 @@
  * Notes:
  * - The environment list is initially empty and grows dynamically.
  * - Caller is responsible for freeing the list using ft_lstclear().
- * - Colored output uses RED/GRN/BLU/MAG/CYN/RESET macros.
  * - Boolean flags are printed as raw 0/1 values.
  */
 

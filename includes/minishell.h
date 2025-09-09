@@ -60,10 +60,26 @@ typedef enum e_token_error
 int		builtin_pwd(char **args);
 
 /* src/builtins/export.c */
-void	print_export_error(const char *token);
+int		handle_invalid_key(const char *token);
 t_env	*create_new_env_node(char *key, const char *token);
 int		update_existing_env_node(t_env *env_node, const char *token);
 int		set_env_node(t_list **env_list, const char *token);
+int		builtin_export(t_list **env_list, char **tokens);
+
+/* src/builtins/export_array.c */
+t_env	**export_list_to_array(t_list *list, int *size);
+void	print_sorted_export(t_env **array, int size);
+
+/* src/builtins/export_sort.c */
+void	quicksort(t_env **array, int low, int high);
+void	insertion_sort_env(t_env **array, int size);
+void	sort_export_array(t_env **array, int size);
+
+/* src/builtins/export_sort_utils.c */
+int		compare_keys(const char *s1, const char *s2);
+int		median_of_three(t_env **array, int low, int high);
+void	swap_env(t_env **a, t_env **b);
+int		partition(t_env **array, int low, int high);
 
 /* src/builtins/export_utils.c */
 bool	has_equal(const char *token);
