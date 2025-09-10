@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diade-so <diade-so@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 14:39:49 by diade-so          #+#    #+#             */
-/*   Updated: 2025/08/07 18:23:18 by diade-so         ###   ########.fr       */
+/*   Updated: 2025/09/10 16:05:43 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ int		ft_toupper(int c);
 int		ft_atosize(const char *str, size_t *out);
 char	*ft_itoa(int n);
 int		ft_safe_atoi(const char *str, int *out);
+int		ft_safe_atol(const char *str, long *out);
 
 //io
 void	ft_putchar_fd(char c, int fd);

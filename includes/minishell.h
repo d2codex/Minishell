@@ -22,6 +22,15 @@ typedef struct s_env
 	char	*value;
 }	t_env;
 
+/* holds important shell informations */
+typedef	struct s_shell
+{
+	t_list	*env_list;
+	int		last_exit_code;
+	bool	is_interactive_mode;
+	bool	is_child;
+}	t_shell;
+
 /* =========================== */
 /*           ENUMS             */
 /* =========================== */
