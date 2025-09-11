@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_safe_atol.c                                     :+:      :+:    :+:   */
+/*   ft_safe_atoll.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/31 18:21:39 by diade-so          #+#    #+#             */
-/*   Updated: 2025/09/10 16:05:03 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/09/11 14:47:25 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,19 +36,36 @@ static int	parse_sign(const char **str)
 }
 
 /**
- * @brief Safely converts a string to a long.
+ * @brief Check if adding a digit would cause overflow.
+ * @param result Current accumulated result
+ * @param digit Character digit to add ('0' to '9')
+ * @param sign Sign of the number (1 for positive, -1 for negative)
+ * @return 1 if safe to add, 0 if would overflow
+ */
+static int	check_overflow_before_add(long long result, char digit, int sign)
+{
+	if (sign == 1 && result > (LLONG_MAX - (digit - '0')) / 10)
+		return (0);
+	if (sign == -1 && (unsigned long long)result >
+		((unsigned long long)LLONG_MAX + 1 - (digit - '0')) / 10)
+		return (0);
+	return (1);
+}
+
+/**
+ * @brief Safely converts a string to a long long.
  *
  * Allows leading and trailing whitespace, supports an optional '+' or '-'
- * and ensures the input is a valid long within `LONG_MIN` to `LONG_MAX`.
+ * and ensures the input is a valid long long within `LLONG_MIN` to `LLONG_MAX`.
  *
  * @param str Input string to convert.
  * @param out Pointer to store the result.
  * @return 1 on success, 0 on failure.
  */
-int	ft_safe_atol(const char *str, long *out)
+int	ft_safe_atoll(const char *str, long long *out)
 {
-	long	result;
-	int		sign;
+	long long	result;
+	int			sign;
 
 	if (!str || !out)
 		return (0);
@@ -59,11 +76,9 @@ int	ft_safe_atol(const char *str, long *out)
 	result = 0;
 	while (ft_isdigit(*str))
 	{
-		result = result * 10 + (*str - '0');
-		if ((sign == 1 && result > LONG_MAX)
-			|| (sign == -1
-				&& (unsigned long)result > (unsigned long)LONG_MAX + 1))
+		if (!check_overflow_before_add(result, *str, sign))
 			return (0);
+		result = result * 10 + (*str - '0');
 		str++;
 	}
 	str = skip_spaces(str);

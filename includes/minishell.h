@@ -26,8 +26,8 @@ typedef struct s_env
 typedef	struct s_shell
 {
 	t_list	*env_list;
-	int		last_exit_code;
-	bool	is_interactive_mode;
+	int		status;
+	bool	is_tty;
 	bool	is_child;
 }	t_shell;
 

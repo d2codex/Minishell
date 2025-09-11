@@ -6,7 +6,7 @@
 #    By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/15 15:16:47 by diade-so          #+#    #+#              #
-#    Updated: 2025/09/10 14:52:02 by pafroidu         ###   ########.fr        #
+#    Updated: 2025/09/11 12:23:59 by pafroidu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,7 +34,7 @@ SRC_CONV = \
 	src/conv/ft_itoa.c \
 	src/conv/ft_safe_atoi.c \
 	src/conv/ft_atosize.c \
-	src/conv/ft_safe_atol.c
+	src/conv/ft_safe_atoll.c
 
 SRC_IO = \
 	src/io/ft_putchar_fd.c \
