@@ -30,6 +30,15 @@ typedef struct s_env
 	char	*value;
 }	t_env;
 
+/* shell state and configuration */
+typedef struct s_shell
+{
+	t_list	*env_list;
+	int		status;
+	bool	is_tty;
+	bool	is_child;
+}	t_shell;
+
 /* =========================== */
 /*           ENUMS             */
 /* =========================== */
@@ -56,7 +65,10 @@ typedef enum e_token_error
 /* =========================== */
 
 /* pwd.c */
-int		builtin_pwd(char **args);
+int		builtin_pwd(char **args, t_shell *data);
+
+/* execute_builtins.c */
+int		execute_builtin(char **tokens, t_shell *data);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
@@ -73,9 +85,9 @@ t_list	*init_env_from_envp(char **envp);
 /* =========================== */
 
 /* minishell_loop.c */
-void	minishell_loop(t_list *env_list);
-bool	prompt_user(char *prompt, t_list *env_list);
-void	process_line(char *line, t_list *env_list);
+int		minishell_loop(t_shell *data);
+bool	prompt_user(char *prompt, t_shell *data);
+int		process_line(char *line, t_shell *data);
 
 /* print_ascii_art.c */
 void	print_ascii_art(void);
@@ -99,7 +111,7 @@ char	**ft_split_tokens(char const *s, t_token_error *error_code);
 /* =========================== */
 /*         EXECUTION           */
 /* =========================== */
-/* TODO: Add execution module functions when implemented */
+/* TODO: add execution module functions when implemented */
 
 /* =========================== */
 /*           UTILS             */

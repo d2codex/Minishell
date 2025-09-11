@@ -10,6 +10,12 @@
 * @param argv Argument values (unused for now)
 * @param envp System environment variables
 * @return Exit status from shell execution
+*
+* Compile:	make build TEST=integration/test_core_shell_loop_refactored.c
+* Run:		./bin/test_core_shell_loop
+* valgrind (ignore leaks from readline library):
+*			make valgrind TEST=integration/test_core_shell_loop_refactored.c
+*
 */
 int	main(int argc, char **argv, char **envp)
 {
@@ -26,9 +32,9 @@ int	main(int argc, char **argv, char **envp)
 	if (!data.env_list)
 		return (1);
 	print_ascii_art();
-	// run shell and get final exit code, better error propagation system
+	// run shell and get final exit code
 	exit_code = minishell_loop(&data);
-	// I think the clean up should go in a dedicated function that we could call with some conditions (if this exists, clean this etc)	
+	// cleanup resources
 	ft_lstclear(&data.env_list, del_env);
 	rl_clear_history();
 	return (exit_code);
