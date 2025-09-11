@@ -32,17 +32,17 @@ bool	prompt_user(char *prompt, t_list *env_list)
 {
 	char	*line;
 
+	if (!isatty(STDIN_FILENO))
+	{
+		printf("exit\n");
+		return (false);
+	}
 	line = readline(prompt);
-	// EOF (Ctrl+D) detected on empty line
-	// Note: Ctrl+D on non-empty line is ignored by readline (bash behavior)
 	if (!line)
 	{
 		printf("exit\n");
 		return (false);
 	}
-	// special case: user just hits ENTER
-	// special treatment: we don't want to waste time calling process_line()
-	// the shell should still run (true) and prompts the user again
 	if (line[0] == '\0')
 	{
 		free(line);
@@ -68,7 +68,8 @@ void	process_line(char *line, t_list *env_list)
 {
 	// not used yet, delete this line when env is used
 	(void)env_list;
-	add_history(line);
+	if (line)
+		add_history(line);
 	/*
 	 * architecture proposal - 1000% open to discussion !
 	 *
@@ -82,7 +83,8 @@ void	process_line(char *line, t_list *env_list)
 	 *	}
 	 *
 	 * 2. PARSING PHASE:
-	 *	commands = parse_tokens(tokens); -- handle pipes, redirections...
+	 * *	commands = parse_tokens(tokens); -- handle pipes, redirections,
+	 *	    expansions
 	 *	if (!commands)
 	 *	{
 	 *		- function to handle printing error message and assigning right exit

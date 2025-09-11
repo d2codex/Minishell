@@ -21,6 +21,7 @@ SRC =	src/env/env.c \
 		src/utils/free_strings_array.c \
 		src/utils/print_error.c \
 		src/utils/is_whitespace.c \
+		src/main.c
 
 # object files preserving subdirectory structure
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
@@ -60,10 +61,7 @@ $(SUPP_FILE):
 valgrind: $(NAME) $(SUPP_FILE)
 
 valgrind: $(SUPP_FILE)
-	@echo "valgrind rule ready, but no main program yet"
-	@echo "Use: cd tests && make valgrind TEST=your_test.c"
-# uncomment this rule when you're ready to test on main.c and delete the 2 lines @echo above
-# valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(NAME)
+	valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(NAME)
 
 # clean objects
 clean:
