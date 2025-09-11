@@ -10,6 +10,14 @@
 # include <unistd.h>
 # include <errno.h>
 # include <stdbool.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+
+/* =========================== */
+/*         CONSTANTS           */
+/* =========================== */
+
+# define SHELL_PROMPT "[mini$HELL] "
 
 /* =========================== */
 /*        STRUCTURES           */
@@ -61,12 +69,16 @@ t_env	*create_env_node(const char *str);
 t_list	*init_env_from_envp(char **envp);
 
 /* =========================== */
-/*            LOOP             */
+/*            CORE             */
 /* =========================== */
 
 /* minishell_loop.c */
-void	process_line(char *line);
-int		prompt_user(char *prompt);
+void	minishell_loop(t_list *env_list);
+bool	prompt_user(char *prompt, t_list *env_list);
+void	process_line(char *line, t_list *env_list);
+
+/* print_ascii_art.c */
+void	print_ascii_art(void);
 
 /* =========================== */
 /*           PARSER            */
@@ -79,10 +91,15 @@ bool	has_unclosed_quotes(char const *s);
 void	skip_whitespace(char const *s, size_t *i);
 
 /* src/parser/tokeniser_count_tokens.c */
-int		count_shell_tokens(char const *s);
+int		count_shell_tokens(const char *s);
 
 /* src/parser/tokeniser_smart_split.c */
 char	**ft_split_tokens(char const *s, t_token_error *error_code);
+
+/* =========================== */
+/*         EXECUTION           */
+/* =========================== */
+/* TODO: Add execution module functions when implemented */
 
 /* =========================== */
 /*           UTILS             */
