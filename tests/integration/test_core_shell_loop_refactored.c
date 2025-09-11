@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 /**
-* @brief Entry point of minishell.
+* @brief Entry point of [minis$Hell].
 *
 * Initializes shell data structure, shows ASCII art, starts shell loop,
 * cleans up resources and exits with proper code.
@@ -15,7 +15,6 @@
 * Run:		./bin/test_core_shell_loop
 * valgrind (ignore leaks from readline library):
 *			make valgrind TEST=integration/test_core_shell_loop_refactored.c
-*
 */
 int	main(int argc, char **argv, char **envp)
 {
@@ -24,7 +23,7 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
-	// initialize shell data structure, I'm letting you do the init function
+	// initialize shell data structure - this will be a function
 	data.env_list = init_env_from_envp(envp);
 	data.status = 0;
 	data.is_tty = isatty(STDIN_FILENO);
@@ -32,10 +31,9 @@ int	main(int argc, char **argv, char **envp)
 	if (!data.env_list)
 		return (1);
 	print_ascii_art();
-	// run shell and get final exit code
+	// new error code system => run shell and get final exit code
 	exit_code = minishell_loop(&data);
-	// cleanup resources
-	ft_lstclear(&data.env_list, del_env);
-	rl_clear_history();
+	// clean up all resources
+	cleanup_shell(&data);
 	return (exit_code);
 }

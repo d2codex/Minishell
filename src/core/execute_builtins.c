@@ -3,8 +3,8 @@
 /**
  * @brief Execute builtin commands.
  *
- * I'm not sure it will work like this !! But I need something to show you how
- * I imagined error code propagation from here
+ * Placeholder function trying to demonstrate the new error code propagation system.
+ * Will be extended with actual builtin lookup and execution.
  *
  * @param tokens Tokens array from the command line
  * @param data Shell data structure
@@ -21,7 +21,7 @@ int	execute_builtin(char **tokens, t_shell *data)
 	// data->status stores actual error codes for the system
 
 	// For now: just print the command
-	printf("fakely executing this line: %s\n", tokens[0]);
+	printf("I am a fake command, I just return your line: %s\n", tokens[0]);
 
 	// fake update of the status
 	data->status = 0;

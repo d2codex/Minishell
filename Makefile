@@ -13,15 +13,16 @@ LIBFT_DIR = libft
 # src files
 SRC =	src/env/env.c \
 		src/core/minishell_loop.c \
+		src/core/execute_tokenizer.c \
+		src/core/execute_builtins.c \
 		src/core/print_ascii_art.c \
 		src/builtins/pwd.c \
-		src/builtins/execute_builtins.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_count_tokens.c \
 		src/parser/tokenizer_utils.c \
-		src/utils/free_strings_array.c \
-		src/utils/print_error.c \
 		src/utils/is_whitespace.c \
+		src/utils/memory_cleanup.c \
+		src/utils/print_error.c \
 		src/main.c
 
 # object files preserving subdirectory structure

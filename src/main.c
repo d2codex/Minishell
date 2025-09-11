@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 /**
-* @brief Entry point of minishell.
+* @brief Entry point of [minis$Hell].
 *
 * Initializes shell data structure, shows ASCII art, starts shell loop,
 * cleans up resources and exits with proper code.
@@ -18,7 +18,7 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
-	// initialize shell data structure, I'm letting you do the init function
+	// initialize shell data structure - this will be a function
 	data.env_list = init_env_from_envp(envp);
 	data.status = 0;
 	data.is_tty = isatty(STDIN_FILENO);
@@ -26,10 +26,9 @@ int	main(int argc, char **argv, char **envp)
 	if (!data.env_list)
 		return (1);
 	print_ascii_art();
-	// run shell and get final exit code, better error propagation system
+	// new error code system => run shell and get final exit code
 	exit_code = minishell_loop(&data);
-	// I think the clean up should go in a dedicated function that we could call with some conditions (if this exists, clean this etc)	
-	ft_lstclear(&data.env_list, del_env);
-	rl_clear_history();
+	// clean up all resources
+	cleanup_shell(&data);
 	return (exit_code);
 }

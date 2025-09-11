@@ -31,12 +31,15 @@ bool	prompt_user(char *prompt, t_shell *data)
 	char	*line;
 	int		result;
 
-	if (!data->is_tty)
-		return (false);
-	line = readline(prompt);
+	// adapt prompt based on mode: interactive shows prompt, scripts don't
+	if (data->is_tty)
+		line = readline(prompt);
+	else
+		line = readline(NULL);
 	if (!line)
 	{
-		printf("exit\n");
+		if (data->is_tty)
+			printf("exit\n");
 		return (false);
 	}
 	if (line[0] == '\0')
@@ -52,41 +55,10 @@ bool	prompt_user(char *prompt, t_shell *data)
 }
 
 /**
- * @brief Tokenize input and handle tokenization errors.
- * Helper for process_line()
- *
- * @param line Input line to tokenize
- * @param data Shell data for error status updates
- * @return Tokenized array or NULL on error
- */
-static char	**execute_tokenizer(char *line, t_shell *data)
-{
-	t_token_error	error_code;
-	char			**tokens;
-
-	tokens = ft_split_tokens(line, &error_code);
-	if (error_code != TOKEN_OK)
-	{
-		if (error_code == TOKEN_UNCLOSED_QUOTE)
-		{
-			print_error("mini$Hell: ", "syntax error: unclosed quotes");
-			data->status = 2;
-		}
-		else if (error_code == TOKEN_MALLOC_ERROR)
-		{
-			print_error("mini$Hell: ", "memory allocation failed");
-			data->status = 1;
-		}
-		return (NULL);
-	}
-	return (tokens);
-}
-
-/**
  * @brief Process a command line through the shell pipeline.
  *
- * Tokenizes input, executes builtins, and handles error propagation.
- * Will be extended for full parsing and external command execution.
+ * Clean interface function that orchestrates the full command processing:
+ * tokenization → validation → execution → cleanup
  *
  * @param line User input command line
  * @param data Shell data structure
@@ -96,37 +68,26 @@ int	process_line(char *line, t_shell *data)
 {
 	char	**tokens;
 	int		result;
-	int		token_count;
 
-	// I think we can get rid of our lovely check added yesterday if we are short on lines
 	if (line)
 		add_history(line);
 	tokens = execute_tokenizer(line, data);
-	// post check after execute_tokenizer could be shortened of put in a function
-	if (!tokens)
-	{
-		free(line);
+	// validate tokens (handles cleanup on error)
+	if (!validate_tokens(tokens, line))
 		return (0);
-	}
-	if (!tokens[0])
-	{
-		free_string_array(tokens, 0);
-		free(line);
-		return (0);
-	}
+
 	// TODO: Parsing phase (AST generation, syntax validation)
 	// TODO: Variable expansion ($VAR, $?, etc.)
 	// TODO: Quote removal
 	// TODO: Redirection setup (<, >, <<, >>)
 	// TODO: Pipe setup and process management
+
 	// Execute command
 	result = execute_builtin(tokens, data);
 	// TODO: External commands if not builtin...
-	// cleanup - should be a dedicated function I think
-	token_count = 0;
-	while (tokens[token_count])
-		token_count++;
-	free_string_array(tokens, token_count);
-	free(line);
+
+	// clean up resources
+	cleanup_process_line(tokens, line);
+
 	return (result);
 }

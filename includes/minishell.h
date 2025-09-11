@@ -43,7 +43,7 @@ typedef struct s_shell
 /*           ENUMS             */
 /* =========================== */
 
-/* enum to track the quote current state - used inside the tokeniser */
+/* enum to track the quote current state - used inside the tokenizer */
 typedef enum e_quote
 {
 	STATE_NOT_IN_QUOTE,
@@ -51,7 +51,7 @@ typedef enum e_quote
 	STATE_IN_DOUBLE_QUOTE
 }	t_quote;
 
-/* enum to track token state at the end of the tokeniser step */
+/* enum to track token state at the end of the tokenizer step */
 typedef enum e_token_error
 {
 	TOKEN_OK,
@@ -65,10 +65,7 @@ typedef enum e_token_error
 /* =========================== */
 
 /* pwd.c */
-int		builtin_pwd(char **args, t_shell *data);
-
-/* execute_builtins.c */
-int		execute_builtin(char **tokens, t_shell *data);
+int		builtin_pwd(char **tokens, t_shell *data);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
@@ -89,6 +86,13 @@ int		minishell_loop(t_shell *data);
 bool	prompt_user(char *prompt, t_shell *data);
 int		process_line(char *line, t_shell *data);
 
+/* execute_tokenizer */
+char	**execute_tokenizer(char *line, t_shell *data);
+bool	validate_tokens(char **tokens, char *line);
+
+/* execute_builtins.c */
+int		execute_builtin(char **tokens, t_shell *data);
+
 /* print_ascii_art.c */
 void	print_ascii_art(void);
 
@@ -96,16 +100,16 @@ void	print_ascii_art(void);
 /*           PARSER            */
 /* =========================== */
 
-/* src/parser/tokeniser_utils.c */
+/* src/parser/tokenizer_utils.c */
 t_quote	update_quote_state(t_quote current_quote_state, char c);
 bool	is_a_shell_separator(t_quote current_quote_state, char c);
 bool	has_unclosed_quotes(char const *s);
 void	skip_whitespace(char const *s, size_t *i);
 
-/* src/parser/tokeniser_count_tokens.c */
+/* src/parser/tokenizer_count_tokens.c */
 int		count_shell_tokens(const char *s);
 
-/* src/parser/tokeniser_smart_split.c */
+/* src/parser/tokenizer_smart_split.c */
 char	**ft_split_tokens(char const *s, t_token_error *error_code);
 
 /* =========================== */
@@ -117,11 +121,13 @@ char	**ft_split_tokens(char const *s, t_token_error *error_code);
 /*           UTILS             */
 /* =========================== */
 
-/* src/utils/free_strings_array.c */
-void	free_string_array(char **tab, size_t count);
-
 /* src/utils/is_whitespace.c */
 bool	is_whitespace(char c);
+
+/* src/utils/memory_cleanup.c */
+void	free_string_array(char **tab, size_t count);
+void	cleanup_shell(t_shell *data);
+void	cleanup_process_line(char **tokens, char *line);
 
 /* src/utils/print_error.c */
 void	print_error(char *pre_msg, char *main_msg);
