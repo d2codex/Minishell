@@ -1,34 +1,27 @@
 #include "minishell.h"
 
 /**
-* @brief Entry point of minishell.
+* @brief Entry point of [minis$Hell].
 *
-* Initializes environment, shows ASCII art, starts shell loop, clear history
-* and frees env resources before exiting.
+* Initializes shell data structure, shows ASCII art, starts shell loop,
+* cleans up resources and exits with proper code.
 *
 * @param argc Argument count (unused for now)
 * @param argv Argument values (unused for now)
 * @param envp System environment variables
-* @return Exit status (0 on success, 1 error)
-*
-* @note we need to think about the error codes propagation system and how the
-* user will be able to print them with $? (they will be compared to actual bash
-* codes during correction)
-*
-* not used for now, used the integration test test_core_shell_loop.c to emulate
+* @return Exit status from shell execution
 */
 int	main(int argc, char **argv, char **envp)
 {
-	t_list	*env_list;
+	t_shell	data;
 
 	(void)argc;
 	(void)argv;
-	env_list = init_env_from_envp(envp);
-	if (!env_list)
+	if (init_shell(&data, envp))
 		return (1);
-	print_ascii_art();
-	minishell_loop(env_list);
-	ft_lstclear(&env_list, del_env);
-	rl_clear_history();
-	return (0);
+	if (data.is_tty)
+		print_ascii_art();
+	data.status = minishell_loop(&data);
+	cleanup_shell(&data);
+	return (data.status);
 }

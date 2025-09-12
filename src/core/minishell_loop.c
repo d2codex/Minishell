@@ -1,46 +1,51 @@
 #include "minishell.h"
 
 /**
-* @brief Main interactive loop of minishell.
-*
-* Repeatedly calls prompt_user() until EOF (Ctrl+D) or exit command.
-* Exit command will be handled later in the execution phase.
-*
-* @param env_list Environment variables list
-*/
-void	minishell_loop(t_list *env_list)
+ * @brief Main interactive loop of minishell.
+ *
+ * Continuously prompts user and processes commands until exit or EOF.
+ * Propagates final exit code to main.
+ *
+ * @param data Shell configuration and state
+ * @return Final exit code for the shell
+ */
+int	minishell_loop(t_shell *data)
 {
-	int	running;
-
-	running = 1;
-	while (running)
-		running = prompt_user(BR_CYN SHELL_PROMPT RESET, env_list);
+	while (1)
+	{
+		if (data->is_tty)
+		{
+			if (!prompt_user(BR_CYN SHELL_PROMPT RESET, data))
+				return (data->status);
+		}
+		else
+		{
+			if (!prompt_user(NULL, data))
+				return (data->status);
+		}
+	}
 }
 
 /**
-* @brief Show the prompt, read input and process it.
-*
-* Handles EOF (Ctrl+D → exit) and ignores empty lines.
-* For now, signals (Ctrl+C) are left to readline, not fully subject
-* compliant yet. Signal handling will be added later.
-*
-* @param prompt Prompt string to display
-* @param env_list Environment variables
-* @return true to continue shell loop, false to exit
-*/
-bool	prompt_user(char *prompt, t_list *env_list)
+ * @brief Show prompt, read input and process it.
+ *
+ * @param prompt Prompt string to display
+ * @param data Shell data structure
+ * @return true to continue, false to break the loop on EOF or exit signal
+ */
+bool	prompt_user(char *prompt, t_shell *data)
 {
 	char	*line;
+	int		result;
 
-	if (!isatty(STDIN_FILENO))
-	{
-		printf("exit\n");
-		return (false);
-	}
-	line = readline(prompt);
+	if (data->is_tty)
+		line = readline(prompt);
+	else
+		line = readline(NULL);
 	if (!line)
 	{
-		printf("exit\n");
+		if (data->is_tty)
+			printf("exit\n");
 		return (false);
 	}
 	if (line[0] == '\0')
@@ -48,64 +53,47 @@ bool	prompt_user(char *prompt, t_list *env_list)
 		free(line);
 		return (true);
 	}
-	process_line(line, env_list);
+	result = process_line(line, data);
+	// check for exit signal -1 returned from the builtins
+	if (result == -1)
+		return (false);
 	return (true);
 }
 
 /**
-* @brief Process a command line through the shell pipeline.
-*
-* Planned pipeline:
-* 1) Tokenize 2) Parse 3) Execute 4) Cleanup
-* For now for the basic loop, just printf the input to
-* demonstrate how the shell loop work without the parsing, exe, cleanup part.
-*
-* @param line User input
-* @param env_list Environment variables
-* @todo Add tokenizer, parser, execution and error handling
-*/
-void	process_line(char *line, t_list *env_list)
+ * @brief Process a command line through the shell pipeline.
+ *
+ * Clean interface function that orchestrates the full command processing:
+ * tokenization → validation → execution → cleanup
+ *
+ * @param line User input command line
+ * @param data Shell data structure
+ * @return -1 for exit signal, 0 for continue, >0 for error codes
+ */
+int	process_line(char *line, t_shell *data)
 {
-	// not used yet, delete this line when env is used
-	(void)env_list;
+	char	**tokens;
+	int		result;
+
 	if (line)
 		add_history(line);
-	/*
-	 * architecture proposal - 1000% open to discussion !
-	 *
-	 * 1. TOKENIZATION PHASE:
-	 *	tokens = ft_split_tokens(line, &error_code);
-	 *	if (error_code != TOKEN_OK)
-	 *	{
-	 *		- function to handle printing error message and assigning right exit
-	 *		codes, unclosed quotes, malloc errors...
-	 *		- function for cleanup and return/exit
-	 *	}
-	 *
-	 * 2. PARSING PHASE:
-	 * *	commands = parse_tokens(tokens); -- handle pipes, redirections,
-	 *	    expansions
-	 *	if (!commands)
-	 *	{
-	 *		- function to handle printing error message and assigning right exit
-	 *		codes, malloc errors, etc.
-	 *		- function for cleanup and return/exit
-	 *	}
-	 *
-	 * 3. EXECUTION PHASE:
-	 *	execute_commands(commands, env_list);
-	 *
-	 *	Where execute_commands() will:
-	 *	- Check if command is builtin (pwd, cd, env, ...)
-	 *	- if builtin: call execute_builtin(command, env_list)
-	 *	- if external: call execute_external(command, env_list) - fork + execve
-	 *
-	 * 4. CLEANUP PHASE:
-	 *	- free tokens related resources
-	 *	- free command related resources
-	 */
-	// because we have nothing integrated here yet, just a little printf so that
-	// the shell does something while waiting to be a real grown up shell
-	printf("%s\n", line);
-	free(line);
+	tokens = execute_tokenizer(line, data);
+	// validate tokens (handles cleanup on error)
+	if (!validate_tokens(tokens, line))
+		return (0);
+
+	// TODO: Parsing phase (AST generation, syntax validation)
+	// TODO: Variable expansion ($VAR, $?, etc.)
+	// TODO: Quote removal
+	// TODO: Redirection setup (<, >, <<, >>)
+	// TODO: Pipe setup and process management
+
+	// Execute command
+	result = execute_builtin(tokens, data);
+	// TODO: External commands if not builtin...
+
+	// clean up resources
+	cleanup_process_line(tokens, line);
+
+	return (result);
 }
