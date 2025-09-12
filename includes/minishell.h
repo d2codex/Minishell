@@ -101,7 +101,7 @@ bool	validate_tokens(char **tokens, char *line);
 int		execute_builtin(char **tokens, t_shell *data);
 
 /* init_shell.c */
-int	init_shell(t_shell *data, char **envp);
+int		init_shell(t_shell *data, char **envp);
 
 /* print_ascii_art.c */
 void	print_ascii_art(void);

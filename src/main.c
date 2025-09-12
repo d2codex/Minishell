@@ -19,10 +19,9 @@ int	main(int argc, char **argv, char **envp)
 	(void)argv;
 	if (init_shell(&data, envp))
 		return (1);
-	print_ascii_art();
-	// new error code system => run shell and get final exit code
+	if (data.is_tty)
+		print_ascii_art();
 	data.status = minishell_loop(&data);
-	// clean up all resources
 	cleanup_shell(&data);
 	return (data.status);
 }

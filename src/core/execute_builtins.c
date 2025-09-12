@@ -1,11 +1,6 @@
 #include "minishell.h"
 //if this is illegal here we can put it inside the actual execute function
-//which is ugly but whatever
-static const t_builtin	builtins[] = {
-{"pwd", builtin_pwd},
-//add more here as it grows
-{NULL, NULL}
-};
+//which is ugly but whatever - put inside the execute builtin for the norm
 
 /**
  * @brief Execute builtin commands.
@@ -21,6 +16,11 @@ static const t_builtin	builtins[] = {
 int	execute_builtin(char **tokens, t_shell *data)
 {
 	int	i;
+	static const t_builtin	builtins[] = {
+	{"pwd", builtin_pwd},
+	//add more here as it grows
+	{NULL, NULL}
+	};
 
 	i = 0;
 	while (builtins[i].cmd != NULL)

@@ -13,9 +13,16 @@ int	minishell_loop(t_shell *data)
 {
 	while (1)
 	{
-		// better way of managing the error codes, the old version was not returning anything
-		if (!prompt_user(BR_CYN SHELL_PROMPT RESET, data))
-			return (data->status);
+		if (data->is_tty)
+		{
+			if (!prompt_user(BR_CYN SHELL_PROMPT RESET, data))
+				return (data->status);
+		}
+		else
+		{
+			if (!prompt_user(NULL, data))
+				return (data->status);
+		}
 	}
 }
 
@@ -31,7 +38,6 @@ bool	prompt_user(char *prompt, t_shell *data)
 	char	*line;
 	int		result;
 
-	// adapt prompt based on mode: interactive shows prompt, scripts don't
 	if (data->is_tty)
 		line = readline(prompt);
 	else
