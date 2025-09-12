@@ -14,21 +14,15 @@
 int	main(int argc, char **argv, char **envp)
 {
 	t_shell	data;
-	int		exit_code;
 
 	(void)argc;
 	(void)argv;
-	// initialize shell data structure - this will be a function
-	data.env_list = init_env_from_envp(envp);
-	data.status = 0;
-	data.is_tty = isatty(STDIN_FILENO);
-	data.is_child = false;
-	if (!data.env_list)
+	if (init_shell(&data, envp))
 		return (1);
 	print_ascii_art();
 	// new error code system => run shell and get final exit code
-	exit_code = minishell_loop(&data);
+	data.status = minishell_loop(&data);
 	// clean up all resources
 	cleanup_shell(&data);
-	return (exit_code);
+	return (data.status);
 }

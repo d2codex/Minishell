@@ -15,6 +15,7 @@ SRC =	src/env/env.c \
 		src/core/minishell_loop.c \
 		src/core/execute_tokenizer.c \
 		src/core/execute_builtins.c \
+		src/core/init_shell.c \
 		src/core/print_ascii_art.c \
 		src/builtins/pwd.c \
 		src/parser/tokenizer_smart_split.c \

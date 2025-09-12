@@ -39,6 +39,13 @@ typedef struct s_shell
 	bool	is_child;
 }	t_shell;
 
+/* for builtin functions array, stores cmd and function's pointer*/
+typedef struct s_builtin
+{
+	char	*cmd;
+	int		(*f)(char **tokens, t_shell *data);
+}	t_builtin;
+
 /* =========================== */
 /*           ENUMS             */
 /* =========================== */
@@ -92,6 +99,9 @@ bool	validate_tokens(char **tokens, char *line);
 
 /* execute_builtins.c */
 int		execute_builtin(char **tokens, t_shell *data);
+
+/* init_shell.c */
+int	init_shell(t_shell *data, char **envp);
 
 /* print_ascii_art.c */
 void	print_ascii_art(void);
