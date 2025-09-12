@@ -76,11 +76,10 @@ typedef enum e_token_error
 int		builtin_pwd(char **tokens, t_shell *data);
 
 /* src/builtins/export.c */
-int		handle_invalid_key(const char *token);
 t_env	*create_new_env_node(char *key, const char *token);
 int		update_existing_env_node(t_env *env_node, const char *token);
 int		set_env_node(t_list **env_list, const char *token);
-int		builtin_export(t_list **env_list, char **tokens);
+int		builtin_export(char **tokens, t_shell *data);
 
 /* src/builtins/export_array.c */
 t_env	**export_list_to_array(t_list *list, int *size);

@@ -15,12 +15,11 @@
  */
 int	execute_builtin(char **tokens, t_shell *data)
 {
-	int	i;
+	int						i;
 	static const t_builtin	builtins[] = {
-	{"pwd", builtin_pwd},
+	{"pwd", builtin_pwd}, {"export", builtin_export},
 	//add more here as it grows
-	{NULL, NULL}
-	};
+	{NULL, NULL}};
 
 	i = 0;
 	while (builtins[i].cmd != NULL)

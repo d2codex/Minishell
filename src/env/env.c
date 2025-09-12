@@ -35,6 +35,7 @@ void	print_env_list(t_list *env_list)
 
 	while (env_list)
 	{
+		env = (t_env *)env_list->content;
 		if (env && env->in_env && env->key && env->value)
 			printf("%s=%s\n", env->key, env->value);
 		env_list = env_list->next;

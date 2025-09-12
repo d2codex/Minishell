@@ -9,7 +9,7 @@
  *
  * @return 0 if error was printed, -1 otherwise.
  */
-int	handle_invalid_key(const char *token)
+static int	handle_invalid_key(const char *token)
 {
 	if (errno == EINVAL)
 	{
@@ -135,7 +135,6 @@ int	set_env_node(t_list **env_list, const char *token)
 	return (1);
 }
 
-
 /**
  * @brief Implements the `export` builtin command.
  *
@@ -158,17 +157,16 @@ int	set_env_node(t_list **env_list, const char *token)
  * - 0 on success (even if some identifiers were invalid).
  * - 1 if a fatal error occurs (e.g., malloc failure).
  */
-int	builtin_export(t_list **env_list, char **tokens)
+int	builtin_export(char **tokens, t_shell *data)
 {
 	int		i;
 	int		size;
-	int		status;
 	t_env	**env_array;
 
 	size = 0;
 	if (tokens[1] == NULL)
 	{
-		env_array = export_list_to_array(*env_list, &size);
+		env_array = export_list_to_array(data->env_list, &size);
 		if (!env_array)
 			return (1);
 		sort_export_array(env_array, size);
@@ -179,8 +177,7 @@ int	builtin_export(t_list **env_list, char **tokens)
 	i = 1;
 	while (tokens[i])
 	{
-		status = set_env_node(env_list, tokens[i]);
-		if (status == -1)
+		if (set_env_node(&data->env_list, tokens[i]) == -1)
 			return (1);
 		i++;
 	}
