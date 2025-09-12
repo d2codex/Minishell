@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 /**
- * @file test_tokeniser_utils.c
+ * @file test_tokenizer_utils.c
  * @brief Test program for tokenizer utility functions and quote state management.
  *
  * This test suite validates the core utility functions used by the tokenizer:
@@ -12,7 +12,7 @@
  *
  * Usage examples:
  * 1. Basic functionality test:
- *      ./bin/test_tokeniser_utils
+ *      ./bin/test_tokenizer_utils
  *    Expected output:
  *      - SUCCESS for all quote state transitions (NOT_IN_QUOTE ↔ SINGLE ↔ DOUBLE)
  *      - Correct whitespace detection for all 6 standard whitespace chars

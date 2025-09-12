@@ -1,7 +1,7 @@
 #include "minishell.h"
 
 /**
- * @file test_tokeniser_smart_split.c
+ * @file test_tokenizer_smart_split.c
  * @brief Test program for the main tokenization function ft_split_tokens().
  *
  * This comprehensive test suite validates the complete tokenization process,
@@ -12,7 +12,7 @@
  *
  * Usage examples:
  * 1. Run complete test suite:
- *      ./bin/test_tokeniser_smart_split
+ *      ./bin/test_tokenizer_smart_split
  *    Expected output:
  *      - All basic cases tokenize correctly
  *      - Quote preservation and metacharacter protection
