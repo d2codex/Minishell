@@ -21,26 +21,23 @@ void	del_env(void *content)
 }
 
 /**
- * @brief Print all environment variables in the list.
+ * @brief Print environment variables in the list if in_env = true.
  *
  * @param env_list Pointer to the head of the environment list.
  *
  * @note Format is KEY=VALUE per line.  
  *       If a variable has an empty value, it prints KEY= with nothing after
- *       the '='. Skips NULL nodes.
+ *       the '='.
  */
 void	print_env_list(t_list *env_list)
 {
-	t_list	*current;
 	t_env	*env;
 
-	current = env_list;
-	while (current)
+	while (env_list)
 	{
-		env = (t_env *)current->content;
-		if (env && env->in_env)
+		if (env && env->in_env && env->key && env->value)
 			printf("%s=%s\n", env->key, env->value);
-		current = current->next;
+		env_list = env_list->next;
 	}
 }
 
