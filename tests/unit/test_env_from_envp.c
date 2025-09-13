@@ -1,5 +1,3 @@
-#include "minishell.h"
-
 /**
  * @file test_env.c
  * @brief Test program for init_env_from_envp() and environment list handling.
@@ -44,6 +42,9 @@
  * - Caller is responsible for freeing the environment list with ft_lstclear().
  * - This test prints colored output using RED/GRN/BLU macros from colors.h.
  */
+
+#include "minishell.h"
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_list	*env_list;
