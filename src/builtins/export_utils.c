@@ -1,17 +1,34 @@
 #include "minishell.h"
 
 /**
- * @brief Check if a token contains an '=' character.
+ * @brief Detects the type of export operation in a token.
  *
- * @param token The string to check.
+ * Scans the input string to determine whether it represents:
+ * - No operation (`EXPORT_NONE`) if there is no '=' or '+=' present.
+ * - Assignment (`EXPORT_ASSIGN`) if there is a '=' not preceded by '+'.
+ * - Append (`EXPORT_APPEND`) if there is a '+=' sequence.
  *
- * @return true if '=' is found, false otherwise.
+ * @param token The input string to analyze.
+ * @return The detected export operation as a t_export_op enum value.
  */
-bool	has_equal(const char *token)
+t_export_op	detect_operation(const char *token)
 {
-	if (ft_strchr(token, '=') != NULL)
-		return (true);
-	return (false);
+	int	i;
+
+	if (!token)
+		return (EXPORT_NONE);
+	i = 0;
+	while (token[i] &&  token[i] != '=' && token[i] != '+')
+		i++; // only skips the key part
+	if (token[i] == '\0')
+		return (EXPORT_NONE);
+	if (token[i] == '=')
+		return (EXPORT_ASSIGN);
+	// second condition checks token[i + i] actually exists
+	// before accessing it.
+	if (token[i] == '+' && token[i + 1] && token[i + 1] == '=')
+		return (EXPORT_APPEND);
+	return (EXPORT_ASSIGN);
 }
 
 /**
@@ -21,7 +38,7 @@ bool	has_equal(const char *token)
  *  - Not be NULL or empty
  *  - Start with a letter (a-z, A-Z) or underscore (_)
  *  - Contain only alphanumeric characters (a-z, A-Z, 0-9) or underscores (_) 
- *    up to an optional '=' character
+ *    up to an optional '=' or '+' character.
  *
  * @param token The input string representing the token to validate.
  * @return true if the token is a valid key according to the rules, false
@@ -40,7 +57,7 @@ bool	is_valid_key(const char *token)
 		return (false);
 	// remaining can be alphanumeric or '_'
 	i = 1;
-	while (token[i] && token[i] != '=')
+	while (token[i] && token[i] != '=' && token[i] != '+')
 	{
 		if (!ft_isalnum(token[i]) && token[i] != '_')
 			return (false);
@@ -49,13 +66,17 @@ bool	is_valid_key(const char *token)
 	return (true);
 }
 
+
 /**
- * @brief Extract the key part from a token (before '=').
+ * @brief Extracts the key part from an environment token.
  *
- * @param token Input string in the form KEY=VALUE or KEY.
+ * Scans the input string until the first '=' or '+' character (for append
+ * operations), returning a newly allocated string containing only the key.
  *
- * @return A malloc'ed copy of the key, or NULL on invalid key or malloc failure.
- *         Caller must free the returned string.
+ * @param token Input string in the form KEY=VALUE, KEY+=VALUE, or KEY.
+ * 
+ * @return A malloc'ed copy of the key, or NULL if the key is invalid or on
+ * malloc failure. Caller is responsible for freeing the returned string.
  */
 char	*get_env_key(const char *token)
 {
@@ -68,7 +89,7 @@ char	*get_env_key(const char *token)
 		return (NULL);
 	}
 	len = 0;
-	while (token[len] && token[len] != '=')
+	while (token[len] && token[len] != '+' && token[len] != '=')
 		len++;
 	key = malloc(len + 1);
 	if (!key) //malloc failure, errno is already set to ENOMEM
@@ -90,6 +111,8 @@ char	*get_env_value(const char *token)
 	char	*value;
 	char	*equal;
 
+	if (!token)
+		return (NULL);
 	equal = ft_strchr(token, '=');
 	if (!equal)
 		return (NULL);

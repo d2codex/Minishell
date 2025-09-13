@@ -22,6 +22,7 @@ SRC =	src/env/env.c \
 		src/builtins/export_array.c \
 		src/builtins/export_sort.c \
 		src/builtins/export_sort_utils.c \
+		src/builtins/export_update.c \
 		src/builtins/export_utils.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_count_tokens.c \

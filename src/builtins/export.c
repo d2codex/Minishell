@@ -22,112 +22,81 @@ static int	handle_invalid_key(const char *token)
 }
 
 /**
- * @brief Create and initialize a new env node.
+ * @brief Handle environment variable updates for an existing key.
  *
- * Takes ownership of `key` and builds a `t_env` from `token`.
- * If `token` has '=', a value is stored and `in_env` is true.
- * Otherwise value is NULL and `in_env` is false.
+ * Applies the correct action depending on the detected export operation:
+ *  - EXPORT_NONE: mark the variable as declared but not exported
+ *                 (env_node->in_env = false).
+ *  - EXPORT_ASSIGN: replace the current value with the new one.
+ *  - EXPORT_APPEND: concatenate the new value onto the existing one.
  *
- * @param key   Allocated key (freed on failure).
- * @param token String like "KEY=value" or "KEY".
+ * @param env_node The environment node to update.
+ * @param token    The input string containing the assignment or declaration.
+ * @param op       The detected operation type (none, assign, append).
  *
- * @return New env node, or NULL on allocation failure.
+ * @return 1 on success, 0 on failure (e.g., malloc error).
  */
-t_env	*create_new_env_node(char *key, const char *token)
+static int	handle_env_ops(t_env *env_node, const char *token, t_export_op op)
 {
-	t_env	*new_node;
-	char	*value;
-
-	value = NULL;
-	new_node = malloc(sizeof (t_env));
-	if (!new_node)
-		return (free(key), NULL);
-	new_node->key = key;
-	if (has_equal(token))
-	{
-		value = get_env_value(token);
-		if (!value)
-			return (free(key), free(new_node), NULL);
-		new_node->value = value;
-		new_node->in_env = true;
-	}
-	else
-	{
-		new_node->value = NULL;
-		new_node->in_env = false;
-	}
-	return (new_node);
-}
-
-/**
- * @brief Update an existing env node with a new token.
- *
- * If `token` has '=', the node's value is replaced and `in_env` is set true.
- * If no '=', only `in_env` is set false. Old value is freed if replaced.
- *
- * @param env_node Target node to update.
- * @param token    String like "KEY=value" or "KEY".
- *
- * @return 1 on success, 0 on malloc failure or invalid args.
- */
-int	update_existing_env_node(t_env *env_node, const char *token)
-{
-	char	*new_value;
-
-	if (!env_node || !token)
-		return (0);
-	if (!has_equal(token))
-	{
-		// if no '=' will not be in env table
+	if (op == EXPORT_NONE)
 		env_node->in_env = false;
-		return (1);
+	if (op == EXPORT_ASSIGN)
+	{
+		if (!update_existing_env_node(env_node, token))
+			return (0);
 	}
-	new_value = get_env_value(token);
-	if (!new_value)
-		return (0); //malloc failure free key set_env_node()
-	free(env_node->value); // free old value
-	env_node->value = new_value;
-	env_node->in_env = true;
+	else if (op == EXPORT_APPEND)
+	{
+		if (!append_env_value(env_node, token))
+			return (0);
+	}
 	return (1);
 }
 
 /**
- * @brief Adds or updates an environment variable node in the list.
+ * @brief Add or update an environment variable in the list.
  *
- * Given a token in the form of `KEY=value` or `KEY`, this function:
- * - Validates and extracts the key.
- * - If the key exists in the environment list, updates the corresponding node.
- * - If the key does not exist, creates and appends a new node.
- * - If the token is invalid, an error is printed and the operation is skipped.
+ * This function handles both creation of new environment nodes and updating
+ * of existing ones based on the detected operation (assignment, append, or
+ * none).
+ *
+ * Steps:
+ *  - Detect the export operation type (assignment, append, or none).
+ *  - Extract and validate the key from the given token.
+ *  - If a node with the key already exists, update or append its value.
+ *  - Otherwise, create and append a new environment node to the list.
  *
  * @param env_list Pointer to the environment list (linked list of t_env).
- * @param token    The string token to parse (e.g., "FOO=bar").
+ * @param token    The input string containing the assignment or declaration.
  *
- * @return int
- * - 1 on success (node created or updated).
- * - 0 on invalid identifier (error printed, but not fatal).
- * - -1 on fatal error (malloc failure or invalid arguments).
+ * @return 1 on success
+ *         0 on invalid key (error printed, but not fatal)
+ *        -1 on malloc failure
+ *
+ * @note The @p key is freed internally after being used.
  */
 int	set_env_node(t_list **env_list, const char *token)
 {
-	char	*key;
-	t_env	*env_node;
+	char		*key;
+	t_env		*env_node;
+	t_export_op	op;
 
 	if (!token || !env_list)
 		return (-1);
+	op = detect_operation(token);
 	key = get_env_key(token); // extract and validate key
 	if (!key)
 		return (handle_invalid_key(token));
 	env_node = get_env_node_by_key(*env_list, key);
-	if (env_node)
+	if (env_node) // if we found existing key
 	{
 		free(key);
-		if (!update_existing_env_node(env_node, token))
+		if (!handle_env_ops(env_node, token, op))
 			return (-1);
 	}
 	else // no key found so we create a new node
 	{
-		env_node = create_new_env_node(key, token);
+		env_node = create_new_env_node(key, token, op);
 		if (!env_node)
 			return (-1);
 		ft_lstadd_back(env_list, ft_lstnew(env_node));
@@ -138,24 +107,23 @@ int	set_env_node(t_list **env_list, const char *token)
 /**
  * @brief Implements the `export` builtin command.
  *
- * This function handles the `export` builtin for updating or displaying
- * environment variables.
+ * Handles the `export` builtin for displaying or updating environment
+ * variables.
  *
  * Behavior:
- * - If called with no additional tokens (only "export"), it prints the
+ * - If called with no additional tokens (only "export"), prints the
  *   environment in sorted format (`declare -x` style).
- * - If called with key/value assignments or variable names, it validates
- *   and updates the environment list:
- *   - Valid identifiers are added or updated.
- *   - Invalid identifiers are rejected with an error message, but execution
- *     continues for the remaining tokens.
+ * - If called with key/value assignments or variable names:
+ *   - Valid identifiers are added or updated in the environment list.
+ *   - Invalid identifiers produce an error message but do not stop
+ *     processing the remaining tokens.
  *
- * @param env_list Pointer to the environment list (linked list of t_env).
- * @param tokens   Array of command arguments (first token is "export").
+ * @param tokens Array of command arguments (first token is "export").
+ * @param data   Pointer to shell data containing the environment list.
  *
  * @return int
- * - 0 on success (even if some identifiers were invalid).
- * - 1 if a fatal error occurs (e.g., malloc failure).
+ * - 0 on success (including if some identifiers were invalid).
+ * - 1 if a fatal error occurs (e.g., malloc failure in `set_env_node`).
  */
 int	builtin_export(char **tokens, t_shell *data)
 {

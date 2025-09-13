@@ -32,7 +32,6 @@ static void	update_shlvl(t_list *env_list)
 		set_env_node(&env_list, "SHLVL=1");
 }
 
-
 /**
  * @brief Initialize the shell data structure.
  *
