@@ -15,14 +15,16 @@ int	ft_strcmp(const char *s1, const char *s2)
 /**
  * @brief Execute builtin commands.
  *
- * Placeholder function trying to demonstrate the new error code propagation
- * system.
- * NOTE: I added a simple look up function, but that will change when we take
- * into account if is_child.  We can test any builtins that are in the parent.
+ * Looks up and executes the appropriate builtin command from the builtin table.
+ * Handles different return code semantics:
+ * - exit: returns its result directly (-1 for shell exit, 0 for continue)
+ * - other builtins: their return code becomes data->status,
+ * always continue shell
  *
- * @param tokens Tokens array from the command line
+ * @param tokens Tokens array from the command line where tokens[0] is the
+ * command
  * @param data Shell data structure
- * @return -1 for exit signal, 0 for continue
+ * @return -1 for exit signal (exit builtin only), 0 to continue shell execution
  */
 int	execute_builtin(char **tokens, t_shell *data)
 {
