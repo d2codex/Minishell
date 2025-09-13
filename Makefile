@@ -18,11 +18,13 @@ SRC =	src/env/env.c \
 		src/core/init_shell.c \
 		src/core/print_ascii_art.c \
 		src/builtins/pwd.c \
+		src/builtins/exit.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_count_tokens.c \
 		src/parser/tokenizer_utils.c \
 		src/utils/is_whitespace.c \
 		src/utils/memory_cleanup.c \
+		src/utils/print_error_multi.c \
 		src/utils/print_error.c \
 		src/main.c
 
