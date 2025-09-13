@@ -29,6 +29,7 @@ SRC =	src/env/env.c \
 		src/parser/tokenizer_utils.c \
 		src/utils/is_whitespace.c \
 		src/utils/memory_cleanup.c \
+		src/utils/print_error_multi.c \
 		src/utils/print_error.c \
 		src/main.c
 

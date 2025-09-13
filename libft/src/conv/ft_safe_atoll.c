@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/31 18:21:39 by diade-so          #+#    #+#             */
-/*   Updated: 2025/09/11 14:47:25 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/09/13 15:53:36 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ static int	check_overflow_before_add(long long result, char digit, int sign)
 {
 	if (sign == 1 && result > (LLONG_MAX - (digit - '0')) / 10)
 		return (0);
-	if (sign == -1 && (unsigned long long)result >
-		((unsigned long long)LLONG_MAX + 1 - (digit - '0')) / 10)
+	if (sign == -1 && (unsigned long long)result
+		> ((unsigned long long)LLONG_MAX + 1 - (digit - '0')) / 10)
 		return (0);
 	return (1);
 }
