@@ -106,7 +106,7 @@ int builtin_exit(char **tokens, t_shell *data)
 	if (tokens[2] != NULL)
 		return (handle_exit_too_many_args(data));
 
-	// case 4: Single valid numeric argument
+	// single valid numeric argument
 	// cast to unsigned char for automatic modulo 256 (handles negatives correctly)
 	data->status = (unsigned char)(exit_code);
 	// child process: terminate immediately with the computed code
