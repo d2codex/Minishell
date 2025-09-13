@@ -17,7 +17,14 @@
 /*         CONSTANTS           */
 /* =========================== */
 
+/* used in minishell_loop.c */
 # define SHELL_PROMPT "[mini$HELL] "
+
+/* used in exit_bultin.c */
+# define ERR_PREFIX "[mini$Hell]: "
+# define ERR_EXIT "exit: "
+# define ERR_NUMERIC_ARG ": numeric argument required"
+# define ERR_TOO_MANY_ARGS "too many arguments"
 
 /* =========================== */
 /*        STRUCTURES           */
@@ -73,6 +80,9 @@ typedef enum e_token_error
 
 /* pwd.c */
 int		builtin_pwd(char **tokens, t_shell *data);
+
+/* exit.c */
+int		builtin_exit(char **tokens, t_shell *data);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
@@ -138,6 +148,9 @@ bool	is_whitespace(char c);
 void	free_string_array(char **tab, size_t count);
 void	cleanup_shell(t_shell *data);
 void	cleanup_process_line(char **tokens, char *line);
+
+/* src/utils/print_errors_multi.c */
+void	print_error_multi(char *part1, char *part2, char *part3, char *part4);
 
 /* src/utils/print_error.c */
 void	print_error(char *pre_msg, char *main_msg);
