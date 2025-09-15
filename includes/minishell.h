@@ -97,7 +97,6 @@ void		insertion_sort_env(t_env **array, int size);
 void		sort_export_array(t_env **array, int size);
 
 /* src/builtins/export_sort_utils.c */
-int			compare_keys(const char *s1, const char *s2);
 int			median_of_three(t_env **array, int low, int high);
 void		swap_env(t_env **a, t_env **b);
 int			partition(t_env **array, int low, int high);

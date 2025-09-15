@@ -34,7 +34,7 @@ static int	handle_env_ops(t_env *env_node, const char *token, t_export_op op)
 {
 	if (op == EXPORT_NONE)
 		env_node->in_env = false;
-	if (op == EXPORT_ASSIGN)
+	else if (op == EXPORT_ASSIGN)
 	{
 		if (!update_existing_env_node(env_node, token))
 			return (0);
@@ -132,17 +132,10 @@ int	builtin_export(char **tokens, t_shell *data)
 	{
 		result = set_env_node(&data->env_list, tokens[i]);
 		if (result == -1)
-		{
-			printf("DEBUG: fatal error, returning 1\n");
 			return (1);
-		}
 		if (result == 1)
-		{
 			data->status = 1;
-			printf("DEBUG: invalid key detected, data->status set to %d\n", data->status);
-		}
 		i++;
 	}
-	printf("DEBUG: builtin_export finished, final data->status = %d\n", data->status);
 	return (data->status);
 }

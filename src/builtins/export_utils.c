@@ -84,10 +84,7 @@ char	*get_env_key(const char *token)
 	int		len;
 
 	if (!is_valid_key(token))
-	{
-		errno = EINVAL; // to disginguis between malloc and input error
 		return (NULL);
-	}
 	len = 0;
 	while (token[len] && token[len] != '+' && token[len] != '=')
 		len++;
