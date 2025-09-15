@@ -3,22 +3,16 @@
 /**
  * @brief Print an error for an invalid export key.
  *
- * Writes an error message to stderr if `errno == EINVAL`.
- *
  * @param token The invalid token.
  *
- * @return 0 if error was printed, -1 otherwise.
+ * @return 1 always to indicate an invalid key.
  */
 static int	handle_invalid_key(const char *token)
 {
-	if (errno == EINVAL)
-	{
-		write(2, "$Hell: export: `", 17);
-		write(2, token, ft_strlen(token));
-		write(2, "': not a valid identifier\n", 26);
-		return (0);
-	}
-	return (-1);
+	write(2, "$Hell: export: `", 17);
+	write(2, token, ft_strlen(token));
+	write(2, "': not a valid identifier\n", 26);
+	return (1);
 }
 
 /**
@@ -101,37 +95,29 @@ int	set_env_node(t_list **env_list, const char *token)
 			return (-1);
 		ft_lstadd_back(env_list, ft_lstnew(env_node));
 	}
-	return (1);
+	return (0);
 }
 
 /**
- * @brief Implements the `export` builtin command.
+ * @brief Implements the `export` builtin.
  *
- * Handles the `export` builtin for displaying or updating environment
- * variables.
+ * Without arguments, prints all environment variables in sorted order.
+ * With arguments, sets or appends variables. Invalid keys are skipped,
+ * and `data->status` is updated if any errors occur.
  *
- * Behavior:
- * - If called with no additional tokens (only "export"), prints the
- *   environment in sorted format (`declare -x` style).
- * - If called with key/value assignments or variable names:
- *   - Valid identifiers are added or updated in the environment list.
- *   - Invalid identifiers produce an error message but do not stop
- *     processing the remaining tokens.
+ * @param tokens Array of command tokens, with `tokens[0]` being "export".
+ * @param data   Pointer to shell state containing the environment and status.
  *
- * @param tokens Array of command arguments (first token is "export").
- * @param data   Pointer to shell data containing the environment list.
- *
- * @return int
- * - 0 on success (including if some identifiers were invalid).
- * - 1 if a fatal error occurs (e.g., malloc failure in `set_env_node`).
+ * @return 0 on success, 1 on fatal errors (e.g., malloc failure).
+ *         Invalid keys do not stop execution but set `data->status`.
  */
 int	builtin_export(char **tokens, t_shell *data)
 {
 	int		i;
 	int		size;
 	t_env	**env_array;
+	int		result;
 
-	size = 0;
 	if (tokens[1] == NULL)
 	{
 		env_array = export_list_to_array(data->env_list, &size);
@@ -139,15 +125,24 @@ int	builtin_export(char **tokens, t_shell *data)
 			return (1);
 		sort_export_array(env_array, size);
 		print_sorted_export(env_array, size);
-		free(env_array);
-		return (0);
+		return (free(env_array), 0);
 	}
 	i = 1;
 	while (tokens[i])
 	{
-		if (set_env_node(&data->env_list, tokens[i]) == -1)
+		result = set_env_node(&data->env_list, tokens[i]);
+		if (result == -1)
+		{
+			printf("DEBUG: fatal error, returning 1\n");
 			return (1);
+		}
+		if (result == 1)
+		{
+			data->status = 1;
+			printf("DEBUG: invalid key detected, data->status set to %d\n", data->status);
+		}
 		i++;
 	}
-	return (0);
+	printf("DEBUG: builtin_export finished, final data->status = %d\n", data->status);
+	return (data->status);
 }
