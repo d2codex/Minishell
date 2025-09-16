@@ -1,0 +1,148 @@
+#include "minishell.h"
+
+/**
+ * @brief Detects the type of export operation in a token.
+ *
+ * Scans the input string to determine whether it represents:
+ * - No operation (`EXPORT_NONE`) if there is no '=' or '+=' present.
+ * - Assignment (`EXPORT_ASSIGN`) if there is a '=' not preceded by '+'.
+ * - Append (`EXPORT_APPEND`) if there is a '+=' sequence.
+ *
+ * @param token The input string to analyze.
+ * @return The detected export operation as a t_export_op enum value.
+ */
+t_export_op	detect_operation(const char *token)
+{
+	int	i;
+
+	if (!token)
+		return (EXPORT_NONE);
+	i = 0;
+	while (token[i] &&  token[i] != '=' && token[i] != '+')
+		i++; // only skips the key part
+	if (token[i] == '\0')
+		return (EXPORT_NONE);
+	if (token[i] == '=')
+		return (EXPORT_ASSIGN);
+	// second condition checks token[i + i] actually exists
+	// before accessing it.
+	if (token[i] == '+' && token[i + 1] && token[i + 1] == '=')
+		return (EXPORT_APPEND);
+	return (EXPORT_ASSIGN);
+}
+
+/**
+ * @brief Checks if a given token is a valid shell environment variable key.
+ *
+ * A valid key must:
+ *  - Not be NULL or empty
+ *  - Start with a letter (a-z, A-Z) or underscore (_)
+ *  - Contain only alphanumeric characters (a-z, A-Z, 0-9) or underscores (_) 
+ *    up to an optional '=' or '+' character.
+ *
+ * @param token The input string representing the token to validate.
+ * @return true if the token is a valid key according to the rules, false
+ * otherwise.
+ */
+bool	is_valid_key(const char *token)
+{
+	int	i;
+
+	// if token is null or empty
+	if (!token || token[0] == '\0')
+		return (false);
+	// first character can only be letters or '_'
+	// therefore the '=' check is included here if its the first char
+	if (!ft_isalpha(token[0]) && token[0] != '_')
+		return (false);
+	// remaining can be alphanumeric or '_'
+	i = 1;
+	while (token[i] && token[i] != '=' && token[i] != '+')
+	{
+		if (!ft_isalnum(token[i]) && token[i] != '_')
+			return (false);
+		i++;
+	}
+	return (true);
+}
+
+
+/**
+ * @brief Extracts the key part from an environment token.
+ *
+ * Scans the input string until the first '=' or '+' character (for append
+ * operations), returning a newly allocated string containing only the key.
+ *
+ * @param token Input string in the form KEY=VALUE, KEY+=VALUE, or KEY.
+ * 
+ * @return A malloc'ed copy of the key, or NULL if the key is invalid or on
+ * malloc failure. Caller is responsible for freeing the returned string.
+ */
+char	*get_env_key(const char *token)
+{
+	char	*key;
+	int		len;
+
+	if (!is_valid_key(token))
+		return (NULL);
+	len = 0;
+	while (token[len] && token[len] != '+' && token[len] != '=')
+		len++;
+	key = malloc(len + 1);
+	if (!key) //malloc failure, errno is already set to ENOMEM
+		return (NULL);
+	ft_strlcpy(key, token, len + 1);
+	return (key);
+}
+
+/**
+ * @brief Extract the value part from a token (after '=').
+ *
+ * @param token Input string in the form KEY=VALUE.
+ *
+ * @return A malloc'ed copy of the value, or NULL if no '=' found or malloc fails.
+ *         Caller must free the returned string.
+ */
+char	*get_env_value(const char *token)
+{
+	char	*value;
+	char	*equal;
+
+	if (!token)
+		return (NULL);
+	equal = ft_strchr(token, '=');
+	if (!equal)
+		return (NULL);
+	value = ft_strdup(equal + 1);
+	if (!value)
+		return (NULL);
+	return (value);
+}
+
+/**
+ * @brief Find an environment node by key in the list.
+ *
+ * @param env_list The linked list of environment variables.
+ * @param key The key to search for.
+ *
+ * @return Pointer to the matching t_env node, or NULL if not found.
+ */
+t_env	*get_env_node_by_key(t_list *env_list, const char *key)
+{
+	t_env	*env_node;
+
+	if (!env_list || !key)
+		return (NULL);
+	// need this for ft_strncmp (since strcmp is not in libft)
+	while (env_list)
+	{
+		// we need to cast the t_list to t_env since t_list is void arg
+		env_node = env_list->content;
+		// if env_node, just a defensive check making sure
+		// current->content isn't NULL
+		if (env_node && ft_strcmp(env_node->key, key) == 0)
+			return (env_node);
+		env_list = env_list->next;
+	}
+	return (NULL);
+}

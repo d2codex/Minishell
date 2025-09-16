@@ -35,6 +35,7 @@ typedef struct s_env
 {
 	char	*key;
 	char	*value;
+	bool	in_env;
 }	t_env;
 
 /* shell state and configuration */
@@ -74,12 +75,50 @@ typedef enum e_token_error
 	TOKEN_NOT_OPERATOR
 }	t_token_error;
 
+/* detects operation: assign, append, or key only mode */
+typedef enum e_export_op
+{
+	EXPORT_NONE,
+	EXPORT_ASSIGN,
+	EXPORT_APPEND
+}	t_export_op;
+
 /* =========================== */
 /*          BUILTINS           */
 /* =========================== */
 
 /* pwd.c */
-int		builtin_pwd(char **tokens, t_shell *data);
+int			builtin_pwd(char **tokens, t_shell *data);
+
+/* src/builtins/export.c */
+int			set_env_node(t_list **env_list, const char *token);
+int			builtin_export(char **tokens, t_shell *data);
+
+/* src/builtins/export_array.c */
+t_env		**export_list_to_array(t_list *list, int *size);
+void		print_sorted_export(t_env **array, int size);
+
+/* src/builtins/export_sort.c */
+void		quicksort(t_env **array, int low, int high);
+void		insertion_sort_env(t_env **array, int size);
+void		sort_export_array(t_env **array, int size);
+
+/* src/builtins/export_sort_utils.c */
+int			median_of_three(t_env **array, int low, int high);
+void		swap_env(t_env **a, t_env **b);
+int			partition(t_env **array, int low, int high);
+
+/* src/export_update.c */
+t_env		*create_new_env_node(char *key, const char *token, t_export_op op);
+int			update_existing_env_node(t_env *env_node, const char *token);
+int			append_env_value(t_env *env_node, const char *token);
+
+/* src/builtins/export_utils.c */
+t_export_op	detect_operation(const char *token);
+bool		is_valid_key(const char *token);
+char		*get_env_key(const char *token);
+char		*get_env_value(const char *token);
+t_env		*get_env_node_by_key(t_list *env_list, const char *key);
 
 /* exit.c */
 int		builtin_exit(char **tokens, t_shell *data);
@@ -89,48 +128,48 @@ int		builtin_exit(char **tokens, t_shell *data);
 /* =========================== */
 
 /* src/env/env.c      */
-void	del_env(void *content);
-void	print_env_list(t_list *env_list);
-t_env	*create_env_node(const char *str);
-t_list	*init_env_from_envp(char **envp);
+void		del_env(void *content);
+void		print_env_list(t_list *env_list);
+t_env		*create_env_node(const char *str);
+t_list		*init_env_from_envp(char **envp);
 
 /* =========================== */
 /*            CORE             */
 /* =========================== */
 
 /* minishell_loop.c */
-int		minishell_loop(t_shell *data);
-bool	prompt_user(char *prompt, t_shell *data);
-int		process_line(char *line, t_shell *data);
+int			minishell_loop(t_shell *data);
+bool		prompt_user(char *prompt, t_shell *data);
+int			process_line(char *line, t_shell *data);
 
 /* execute_tokenizer */
-char	**execute_tokenizer(char *line, t_shell *data);
-bool	validate_tokens(char **tokens, char *line);
+char		**execute_tokenizer(char *line, t_shell *data);
+bool		validate_tokens(char **tokens, char *line);
 
 /* execute_builtins.c */
-int		execute_builtin(char **tokens, t_shell *data);
+int			execute_builtin(char **tokens, t_shell *data);
 
 /* init_shell.c */
-int		init_shell(t_shell *data, char **envp);
+int			init_shell(t_shell *data, char **envp);
 
 /* print_ascii_art.c */
-void	print_ascii_art(void);
+void		print_ascii_art(void);
 
 /* =========================== */
 /*           PARSER            */
 /* =========================== */
 
 /* src/parser/tokenizer_utils.c */
-t_quote	update_quote_state(t_quote current_quote_state, char c);
-bool	is_a_shell_separator(t_quote current_quote_state, char c);
-bool	has_unclosed_quotes(char const *s);
-void	skip_whitespace(char const *s, size_t *i);
+t_quote		update_quote_state(t_quote current_quote_state, char c);
+bool		is_a_shell_separator(t_quote current_quote_state, char c);
+bool		has_unclosed_quotes(char const *s);
+void		skip_whitespace(char const *s, size_t *i);
 
 /* src/parser/tokenizer_count_tokens.c */
-int		count_shell_tokens(const char *s);
+int			count_shell_tokens(const char *s);
 
 /* src/parser/tokenizer_smart_split.c */
-char	**ft_split_tokens(char const *s, t_token_error *error_code);
+char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
 /* =========================== */
 /*         EXECUTION           */
@@ -142,17 +181,17 @@ char	**ft_split_tokens(char const *s, t_token_error *error_code);
 /* =========================== */
 
 /* src/utils/is_whitespace.c */
-bool	is_whitespace(char c);
+bool		is_whitespace(char c);
 
 /* src/utils/memory_cleanup.c */
-void	free_string_array(char **tab, size_t count);
-void	cleanup_shell(t_shell *data);
-void	cleanup_process_line(char **tokens, char *line);
+void		free_string_array(char **tab, size_t count);
+void		cleanup_shell(t_shell *data);
+void		cleanup_process_line(char **tokens, char *line);
 
 /* src/utils/print_errors_multi.c */
 void	print_error_multi(char *part1, char *part2, char *part3, char *part4);
 
 /* src/utils/print_error.c */
-void	print_error(char *pre_msg, char *main_msg);
+void		print_error(char *pre_msg, char *main_msg);
 
 #endif
