@@ -10,13 +10,13 @@
  * @param env_list Environment list where SHLVL is stored.
  * @return 0 on success, 1 on error.
  */
-static void	update_shlvl(t_list *env_list)
+static void	update_shlvl(t_list **env_list)
 {
 	t_env	*shlvl;
 	int		level;
 	int		out;
 	//look for the key in the list
-	shlvl = get_env_node_by_key(env_list, "SHLVL");
+	shlvl = get_env_node_by_key(*env_list, "SHLVL");
 	// if found
 	if (shlvl)
 	{
@@ -27,9 +27,11 @@ static void	update_shlvl(t_list *env_list)
 		free(shlvl->value);
 		//set the value
 		shlvl->value = ft_itoa(level);
+		if (!shlvl->value)
+			ft_putendl_fd("failed to update SHLVL", 2);
 	}
 	else  //add the node to the list and set the value 
-		set_env_node(&env_list, "SHLVL=1");
+		set_env_node(env_list, "SHLVL=1");
 }
 
 /**
@@ -50,12 +52,10 @@ static void	update_shlvl(t_list *env_list)
 int	init_shell(t_shell *data, char **envp)
 {
 	data->env_list = init_env_from_envp(envp);
-	if (!data->env_list)
-		return (1);
+	update_shlvl(&data->env_list);
 	data->status = 0;
 	data->is_tty = isatty(STDIN_FILENO);
 	data->is_child = false;
-	update_shlvl(data->env_list);
 	// add more inits here if necessary
 	return (0);
 }
