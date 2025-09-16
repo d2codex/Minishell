@@ -22,6 +22,7 @@ int	execute_builtin(char **tokens, t_shell *data)
 	{"pwd", builtin_pwd},
 	{"export", builtin_export},
 	{"exit", builtin_exit},
+	{"env", builtin_env},
 		// other builtins
 	{NULL, NULL}};
 
