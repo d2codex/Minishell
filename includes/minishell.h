@@ -145,7 +145,12 @@ int			execute_builtin(char **tokens, t_shell *data);
 int			init_shell(t_shell *data, char **envp);
 
 /* src/core/print_ascii_art.c */
-void		print_ascii_art(void);
+void		print_random_ascii_art(void);
+void		print_ascii_art_hell(void);
+void		print_ascii_art_breach(void);
+void		print_ascii_art_skull(void);
+void		print_ascii_art_dark(void);
+void		print_ascii_art_matrix(void);
 
 /* =========================== */
 /*           PARSER            */
