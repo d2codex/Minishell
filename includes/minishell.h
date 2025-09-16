@@ -124,7 +124,7 @@ t_env		*get_env_node_by_key(t_list *env_list, const char *key);
 /* src/builtins/echo.c */
 
 /* exit.c */
-int		builtin_exit(char **tokens, t_shell *data);
+int			builtin_exit(char **tokens, t_shell *data);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
