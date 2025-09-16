@@ -80,7 +80,7 @@ typedef enum e_export_op
 /*          BUILTINS           */
 /* =========================== */
 
-/* pwd.c */
+/* src/builtins/pwd.c */
 int			builtin_pwd(char **tokens, t_shell *data);
 
 /* src/builtins/export.c */
@@ -113,6 +113,8 @@ char		*get_env_key(const char *token);
 char		*get_env_value(const char *token);
 t_env		*get_env_node_by_key(t_list *env_list, const char *key);
 
+/* src/builtins/echo.c */
+
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
 /* =========================== */
@@ -127,22 +129,22 @@ t_list		*init_env_from_envp(char **envp);
 /*            CORE             */
 /* =========================== */
 
-/* minishell_loop.c */
+/* src/core/minishell_loop.c */
 int			minishell_loop(t_shell *data);
 bool		prompt_user(char *prompt, t_shell *data);
 int			process_line(char *line, t_shell *data);
 
-/* execute_tokenizer */
+/* src/core/execute_tokenizer */
 char		**execute_tokenizer(char *line, t_shell *data);
 bool		validate_tokens(char **tokens, char *line);
 
-/* execute_builtins.c */
+/* src/core/execute_builtins.c */
 int			execute_builtin(char **tokens, t_shell *data);
 
-/* init_shell.c */
+/* src/core/init_shell.c */
 int			init_shell(t_shell *data, char **envp);
 
-/* print_ascii_art.c */
+/* src/core/print_ascii_art.c */
 void		print_ascii_art(void);
 
 /* =========================== */
