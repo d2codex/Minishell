@@ -54,8 +54,7 @@ bool	prompt_user(char *prompt, t_shell *data)
 		return (true);
 	}
 	result = process_line(line, data);
-	// check for exit signal -1 returned from the builtins
-	if (result == -1)
+	if (result == SHELL_EXIT_SIGNAL)
 		return (false);
 	return (true);
 }

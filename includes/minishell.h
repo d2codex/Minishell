@@ -21,6 +21,7 @@
 # define SHELL_PROMPT "[mini$HELL] "
 
 /* used in exit_bultin.c */
+# define SHELL_EXIT_SIGNAL -1
 # define ERR_PREFIX "[mini$Hell]: "
 # define ERR_EXIT "exit: "
 # define ERR_NUMERIC_ARG ": numeric argument required"

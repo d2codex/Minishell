@@ -25,7 +25,7 @@ t_env	*create_new_env_node(char *key, const char *token, t_export_op op)
 	new = malloc(sizeof (t_env));
 	if (!new)
 		return (free(key), NULL);
-	new->key = key; // already malloced in set_env_node
+	new->key = key;
 	if (op == EXPORT_ASSIGN)
 	{
 		new->value = get_env_value(token);
@@ -69,7 +69,7 @@ int	update_existing_env_node(t_env *env_node, const char *token)
 		errno = ENOMEM;
 		return (0);
 	}
-	free(env_node->value); // free old value
+	free(env_node->value);
 	env_node->value = new_value;
 	env_node->in_env = true;
 	return (1);
