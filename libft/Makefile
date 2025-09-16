@@ -6,7 +6,7 @@
 #    By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/15 15:16:47 by diade-so          #+#    #+#              #
-#    Updated: 2025/08/27 13:49:42 by pafroidu         ###   ########.fr        #
+#    Updated: 2025/09/09 10:19:52 by diade-so         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,6 +70,7 @@ SRC_PRINTF = \
 SRC_STRING = \
 	src/string/ft_split.c \
 	src/string/ft_strchr.c \
+	src/string/ft_strcmp.c \
 	src/string/ft_strdup.c \
 	src/string/ft_striteri.c \
 	src/string/ft_strjoin.c \
