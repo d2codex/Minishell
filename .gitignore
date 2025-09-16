@@ -16,6 +16,7 @@ tests/bin/
 
 # Ignore compiled executables
 a.out
+minishell
 
 # Ignore Doxygen config file
 Doxyfile
@@ -23,3 +24,6 @@ Doxyfile
 # VS Code settings
 .vscode/
 *.code-workspace
+
+# .supp file for valgrind
+*.supp
