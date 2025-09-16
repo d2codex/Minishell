@@ -78,17 +78,17 @@ int	set_env_node(t_list **env_list, const char *token)
 	if (!token || !env_list)
 		return (-1);
 	op = detect_operation(token);
-	key = get_env_key(token); // extract and validate key
+	key = get_env_key(token);
 	if (!key)
 		return (handle_invalid_key(token));
 	env_node = get_env_node_by_key(*env_list, key);
-	if (env_node) // if we found existing key
+	if (env_node)
 	{
 		free(key);
 		if (!handle_env_ops(env_node, token, op))
 			return (-1);
 	}
-	else // no key found so we create a new node
+	else
 	{
 		env_node = create_new_env_node(key, token, op);
 		if (!env_node)

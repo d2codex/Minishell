@@ -24,7 +24,7 @@ t_env	**export_list_to_array(t_list *list, int *size)
 	*size = (int)ft_lstsize(list);
 	export_array = malloc(sizeof (t_env *) * (*size + 1));
 	if (!export_array)
-		return (NULL); //malloc failure
+		return (NULL);
 	i = 0;
 	current = list;
 	while (i < *size)

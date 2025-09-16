@@ -69,7 +69,7 @@ void	test_builtin_pwd_basic(void)
 	printf(YEL "expected: current directory path" RESET "\n");
 	printf(CYN "actual:	" RESET);
 
-	return_code = builtin_pwd(NULL);
+	return_code = builtin_pwd(NULL, NULL);
 
 	if (return_code == 0)
 		printf(GRN "SUCCESS: return code = %d" RESET "\n", return_code);
@@ -88,7 +88,7 @@ void	test_builtin_pwd_with_args(void)
 	printf(YEL "expected: same as basic pwd (args ignored)" RESET "\n");
 	printf(CYN "actual:	" RESET);
 
-	return_code = builtin_pwd(fake_args);
+	return_code = builtin_pwd(fake_args, NULL);
 
 	if (return_code == 0)
 		printf(GRN "SUCCESS: return code = %d" RESET "\n", return_code);
@@ -108,7 +108,7 @@ void	test_builtin_pwd_comparison(void)
 
 	printf(MAG "minishell pwd builtin:	" RESET);
 	printf("\n");
-	builtin_pwd(NULL);
+	builtin_pwd(NULL, NULL);
 	printf("\n");
 }
 

@@ -4,7 +4,7 @@
  * @brief Select the median of three pivot elements for quicksort.
  *
  * Uses the keys of the first, middle, and last elements in the array to
- * determine the median value for pivot selection. This helps reduce 
+ * determine the median value for pivot selection. This helps reduce
  * worst-case behavior in quicksort.
  *
  * @param array Array of t_env pointers.
@@ -67,11 +67,11 @@ int	partition(t_env **array, int low, int high)
 	pivot = array[high];
 	i = low - 1;
 	j = low;
-	while (j <= high - 1) //dont include last node
+	while (j <= high - 1)
 	{
 		if (ft_strcmp(array[j]->key, pivot->key) <= 0)
 		{
-			i++; // increment first since its -1
+			i++;
 			swap_env(&array[i], &array[j]);
 		}
 		j++;
@@ -79,4 +79,3 @@ int	partition(t_env **array, int low, int high)
 	swap_env(&array[i + 1], &array[high]);
 	return (i + 1);
 }
-

@@ -15,22 +15,18 @@ static void	update_shlvl(t_list **env_list)
 	t_env	*shlvl;
 	int		level;
 	int		out;
-	//look for the key in the list
+
 	shlvl = get_env_node_by_key(*env_list, "SHLVL");
-	// if found
 	if (shlvl)
 	{
-		//get the value (level)
 		level = ft_safe_atoi(shlvl->value, &out);
-		//increase level by 1
 		level++;
 		free(shlvl->value);
-		//set the value
 		shlvl->value = ft_itoa(level);
 		if (!shlvl->value)
 			ft_putendl_fd("failed to update SHLVL", 2);
 	}
-	else  //add the node to the list and set the value 
+	else
 		set_env_node(env_list, "SHLVL=1");
 }
 
