@@ -1,16 +1,4 @@
 #include "minishell.h"
-// delete when included in libft
-int	ft_strcmp(const char *s1, const char *s2)
-{
-	while (*s1 && *s2)
-	{
-		if (*s1 != *s2)
-			return ((unsigned char)*s1 - (unsigned char)*s2);
-		s1++;
-		s2++;
-	}
-	return ((unsigned char)*s1 - (unsigned char)*s2);
-}
 
 /**
  * @brief Execute builtin commands.
@@ -30,13 +18,12 @@ int	execute_builtin(char **tokens, t_shell *data)
 {
 	int						i;
 	int						result;
-	static const t_builtin	builtins[] =
-	{
-		{"pwd", builtin_pwd},
-			// {"exit", builtin_exit},
-			// other builtins
-		{NULL, NULL}
-	};
+	static const t_builtin	builtins[] = {
+	{"pwd", builtin_pwd},
+	{"export", builtin_export},
+	{"exit", builtin_exit},
+		// other builtins
+	{NULL, NULL}};
 
 	i = 0;
 	while (builtins[i].cmd != NULL)
