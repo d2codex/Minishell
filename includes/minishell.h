@@ -24,6 +24,7 @@
 # define SHELL_EXIT_SIGNAL -1
 # define ERR_PREFIX "[mini$Hell]: "
 # define ERR_EXIT "exit: "
+# define ERR_ENV "env: "
 # define ERR_NUMERIC_ARG ": numeric argument required"
 # define ERR_TOO_MANY_ARGS "too many arguments"
 
@@ -125,7 +126,7 @@ char		*get_env_value(const char *token);
 t_env		*get_env_node_by_key(t_list *env_list, const char *key);
 
 /* exit.c */
-int		builtin_exit(char **tokens, t_shell *data);
+int			builtin_exit(char **tokens, t_shell *data);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
@@ -133,7 +134,7 @@ int		builtin_exit(char **tokens, t_shell *data);
 
 /* src/env/env_import.c      */
 void		del_env(void *content);
-void		print_env_list(t_list *env_list);
+int		print_env_list(t_list *env_list);
 t_env		*create_env_node(const char *str);
 t_list		*init_env_from_envp(char **envp);
 
