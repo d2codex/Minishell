@@ -13,9 +13,26 @@
 #include <unistd.h>
 #include "libft.h"
 
-void	ft_putstr_fd(char *s, int fd)
+/**
+ * @brief Writes a null-terminated string to the given file descriptor.
+ *
+ * @param s The string to write. If NULL, nothing is printed.
+ * @param fd The file descriptor (e.g., STDOUT_FILENO).
+ * @return int 0 on success or if s is NULL, -1 on write error.
+ *
+ * @details
+ * - Uses `ssize_t` to capture the return value of write().
+ * - Returns 0 if s is NULL because printing "nothing" is not
+ *   considered an error.
+ */
+int	ft_putstr_fd(char *s, int fd)
 {
+	ssize_t	ret;
+
 	if (!s)
-		return ;
-	write (fd, s, ft_strlen(s));
+		return (0);
+	ret = write (fd, s, ft_strlen(s));
+	if (ret == -1)
+		return (-1);
+	return (0);
 }
