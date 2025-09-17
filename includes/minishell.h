@@ -27,6 +27,9 @@
 # define ERR_NUMERIC_ARG ": numeric argument required"
 # define ERR_TOO_MANY_ARGS "too many arguments"
 
+/* easter_egg.c */
+# define EASTER_EGG "101010"
+
 /* =========================== */
 /*        STRUCTURES           */
 /* =========================== */
@@ -122,6 +125,7 @@ char		*get_env_value(const char *token);
 t_env		*get_env_node_by_key(t_list *env_list, const char *key);
 
 /* src/builtins/echo.c */
+int			builtin_echo(char **tokens, t_shell *data);
 
 /* exit.c */
 int			builtin_exit(char **tokens, t_shell *data);
@@ -156,12 +160,11 @@ int			execute_builtin(char **tokens, t_shell *data);
 int			init_shell(t_shell *data, char **envp);
 
 /* src/core/print_ascii_art.c */
-void		print_random_ascii_art(void);
-void		print_ascii_art_hell(void);
-void		print_ascii_art_breach(void);
-void		print_ascii_art_skull(void);
-void		print_ascii_art_dark(void);
-void		print_ascii_art_matrix(void);
+void		select_random_ascii_art(void);
+
+/* src/core/print_easter_egg.c */
+bool		is_easter_egg(char *line);
+void		display_easter_egg(void);
 
 /* =========================== */
 /*           PARSER            */

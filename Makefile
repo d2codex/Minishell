@@ -17,6 +17,8 @@ SRC =	src/env/env.c \
 		src/core/execute_builtins.c \
 		src/core/init_shell.c \
 		src/core/print_ascii_art.c \
+		src/core/print_easter_egg.c \
+		src/builtins/echo.c \
 		src/builtins/exit.c \
 		src/builtins/export.c \
 		src/builtins/export_array.c \
