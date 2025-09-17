@@ -21,25 +21,38 @@ void	del_env(void *content)
 }
 
 /**
- * @brief Print environment variables in the list if in_env = true.
+ * @brief Prints all environment variables in a linked list to STDOUT.
  *
- * @param env_list Pointer to the head of the environment list.
+ * @param env_list Pointer to the head of the environment list
+ * (t_list of t_env).
+ * 
+ * @return int 0 on success, -1 if a write error occurs.
  *
- * @note Format is KEY=VALUE per line.  
- *       If a variable has an empty value, it prints KEY= with nothing after
- *       the '='.
+ * @details
+ * - Iterates through the list and prints each variable as "key=value\n" using
+ *   ft_putstr_fd, ft_putchar_fd, and ft_putendl_fd.
+ * - Only prints variables where env->in_env == true, and both key and value
+ *   exist.
+ * - If any write() fails during printing, the function returns -1 immediately.
+ * - Does not modify the list or the shell state.
  */
-void	print_env_list(t_list *env_list)
+int	print_env_list(t_list *env_list)
 {
 	t_env	*env;
 
 	while (env_list)
 	{
 		env = (t_env *)env_list->content;
-		if (env && env->in_env && env->key && env->value)
-			printf("%s=%s\n", env->key, env->value);
+		if (env && env->in_env == true && env->key && env->value)
+		{
+			if (ft_putstr_fd(env->key, STDOUT_FILENO) == -1
+				|| ft_putchar_fd('=', STDOUT_FILENO) == -1
+				|| ft_putendl_fd(env->value, STDOUT_FILENO == -1))
+				return (-1);
+		}
 		env_list = env_list->next;
 	}
+	return (0);
 }
 
 /**

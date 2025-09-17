@@ -24,6 +24,7 @@
 # define SHELL_EXIT_SIGNAL -1
 # define ERR_PREFIX "[mini$Hell]: "
 # define ERR_EXIT "exit: "
+# define ERR_ENV "env: "
 # define ERR_NUMERIC_ARG ": numeric argument required"
 # define ERR_TOO_MANY_ARGS "too many arguments"
 
@@ -94,6 +95,9 @@ typedef enum e_export_op
 /* src/builtins/pwd.c */
 int			builtin_pwd(char **tokens, t_shell *data);
 
+/* env.c */
+int			builtin_env(char **tokens, t_shell *data);
+
 /* src/builtins/export.c */
 int			set_env_node(t_list **env_list, const char *token);
 int			builtin_export(char **tokens, t_shell *data);
@@ -134,9 +138,9 @@ int			builtin_exit(char **tokens, t_shell *data);
 /*     ENVIRONMENT IMPORT      */
 /* =========================== */
 
-/* src/env/env.c      */
+/* src/env/env_import.c      */
 void		del_env(void *content);
-void		print_env_list(t_list *env_list);
+int			print_env_list(t_list *env_list);
 t_env		*create_env_node(const char *str);
 t_list		*init_env_from_envp(char **envp);
 

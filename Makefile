@@ -11,7 +11,7 @@ OBJ_DIR = obj
 LIBFT_DIR = libft
 
 # src files
-SRC =	src/env/env.c \
+SRC =	src/env/env_import.c \
 		src/core/minishell_loop.c \
 		src/core/execute_tokenizer.c \
 		src/core/execute_builtins.c \
@@ -19,6 +19,7 @@ SRC =	src/env/env.c \
 		src/core/print_ascii_art.c \
 		src/core/print_easter_egg.c \
 		src/builtins/echo.c \
+		src/builtins/env.c \
 		src/builtins/exit.c \
 		src/builtins/export.c \
 		src/builtins/export_array.c \
