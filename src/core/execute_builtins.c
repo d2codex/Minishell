@@ -23,7 +23,7 @@ int	execute_builtin(char **tokens, t_shell *data)
 	{"export", builtin_export},
 	{"exit", builtin_exit},
 	{"echo", builtin_echo},
-	// env
+	{"env", builtin_env},
 	// unset
 	// cd
 	{NULL, NULL}};

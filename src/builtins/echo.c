@@ -10,15 +10,15 @@
  * @param tokens Array of string tokens to print
  * @param i Starting index in the tokens array
  */
-static void	print_echo_cmd(char **tokens, int i)
+static void	print_echo_cmd(char **tokens, int start_print_index)
 {
-	while (tokens[i] != NULL)
+	while (tokens[start_print_index] != NULL)
 	{
-		printf("%s", tokens[i]);
+		printf("%s", tokens[start_print_index]);
 		// only print space if you are NOT at the end of the argument list
-		if (tokens[i + 1])
+		if (tokens[start_print_index + 1])
 			printf(" ");
-		i++;
+		start_print_index++;
 	}
 }
 
@@ -63,10 +63,10 @@ int	builtin_echo(char **tokens, t_shell *data)
 	while (tokens[start_print_index]
 		&& ft_strcmp(tokens[start_print_index], "-n") == 0)
 	{
-		print_new_line = false;  // at least one -n found, means we want no \n
+		print_new_line = false; // at least one -n found, means we want no \n
 		start_print_index++;
 	}
-	// printing helper because of the norm, right index for any cases
+	// printing helper because of the norm, right index is passed for any cases
 	print_echo_cmd(tokens, start_print_index);
 	if (print_new_line)
 		printf("\n");
