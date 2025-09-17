@@ -34,9 +34,9 @@ void	print_ascii_art_fire_colors(void)
 	printf("welcome to \n");
 	printf(BR_YEL "▄▄███▄▄·██╗  ██╗███████╗██╗	 ██╗\n" RESET);
 	printf(BR_YEL "██╔════╝██║  ██║██╔════╝██║	 ██║\n" RESET);
-	printf(YEL	"███████╗███████║█████╗  ██║	 ██║\n" RESET);
-	printf(RED	"╚════██║██╔══██║██╔══╝  ██║	 ██║ \n" RESET);
-	printf(RED	"███████║██║  ██║███████╗███████╗███████╗ \n" RESET);
+	printf(YEL "███████╗███████║█████╗  ██║	 ██║\n" RESET);
+	printf(RED "╚════██║██╔══██║██╔══╝  ██║	 ██║ \n" RESET);
+	printf(RED "███████║██║  ██║███████╗███████╗███████╗ \n" RESET);
 	printf(BR_RED "╚═▀▀▀══╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
 	printf(YEL "such a lovely place, such a lovely interface...\n" RESET);
 }
