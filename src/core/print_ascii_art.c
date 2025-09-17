@@ -1,8 +1,8 @@
 #include "minishell.h"
 
-void	print_ascii_art_hell(void)
+static void	print_ascii_art_hell_simple(void)
 {
-	printf(" > Welcome to\n");
+	printf(" > welcome to\n");
 	printf(CYN "▄▄███▄▄·██╗  ██╗███████╗██╗	 ██╗\n" RESET);
 	printf(CYN "██╔════╝██║  ██║██╔════╝██║	 ██║\n" RESET);
 	printf(CYN "███████╗███████║█████╗  ██║	 ██║\n" RESET);
@@ -12,7 +12,7 @@ void	print_ascii_art_hell(void)
 	printf("such a lovely place, such a lovely interface...\n");
 }
 
-void	print_ascii_art_breach(void)
+static void	print_ascii_art_green_breach(void)
 {
 	printf(BR_GRN "> SYSTEM BREACH DETECTED\n" RESET);
 	printf(BR_GRN "> ACCESSING $HELL TERMINAL...\n" RESET);
@@ -25,13 +25,13 @@ void	print_ascii_art_breach(void)
 	printf(GRN "   $" BR_GRN "██║  ██║███████╗███████╗███████╗\n" RESET);
 	printf(GRN "   $" BR_GRN "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
 	printf("\n");
-	printf(BR_GRN "> REMEMBER: " RESET "\"You can check out any time..\"\n");
-	printf(BR_RED "> WARNING: " RESET "\"But you can never leave!\"\n");
+	printf(BR_GRN "> REMEMBER: " RESET "\"you can check out any time...\"\n");
+	printf(BR_RED "> WARNING: " RESET "\"but you can never leave!\"\n");
 }
 
-void	print_ascii_art_skull(void)
+static void	print_ascii_art_fire_colors(void)
 {
-	printf("💀 Welcome to 💀\n");
+	printf("welcome to \n");
 	printf(BR_YEL "▄▄███▄▄·██╗  ██╗███████╗██╗	 ██╗\n" RESET);
 	printf(BR_YEL "██╔════╝██║  ██║██╔════╝██║	 ██║\n" RESET);
 	printf(YEL	"███████╗███████║█████╗  ██║	 ██║\n" RESET);
@@ -41,36 +41,51 @@ void	print_ascii_art_skull(void)
 	printf(YEL "such a lovely place, such a lovely interface...\n" RESET);
 }
 
-void	print_ascii_art_matrix(void)
+static void	print_ascii_art_easter_egg(void)
 {
 	printf(BR_GRN "> CONNECTION ESTABLISHED\n" RESET);
 	printf(GRN "> LOADING INTERFACE...\n" RESET);
-	printf(GRN "00100100 01101000 01100101 01101100 01101100\n" RESET);
+	printf(GRN "> don't panic, type: 101010 in case of emergency\n");
 	printf("\n");
-	printf(GRN "    ████" BR_GRN "██╗  ██╗███████╗██╗     ██╗\n" RESET);
-	printf(GRN "    ████" BR_GRN "██║  ██║██╔════╝██║     ██║\n" RESET);
-	printf(BR_GRN "    ████" GRN "███████║█████╗  ██║     ██║\n" RESET);
-	printf(BR_GRN "    ████" GRN "██╔══██║██╔══╝  ██║     ██║\n" RESET);
-	printf(GRN "    ████" BR_GRN "██║  ██║███████╗███████╗███████╗\n" RESET);
-	printf(GRN "    ████" BR_GRN "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
+	printf(GRN "    $" BR_GRN "██╗  ██╗███████╗██╗     ██╗\n" RESET);
+	printf(GRN "    $" BR_GRN "██║  ██║██╔════╝██║     ██║\n" RESET);
+	printf(BR_GRN "    $" GRN "███████║█████╗  ██║     ██║\n" RESET);
+	printf(BR_GRN "    $" GRN "██╔══██║██╔══╝  ██║     ██║\n" RESET);
+	printf(GRN "    $" BR_GRN "██║  ██║███████╗███████╗███████╗\n" RESET);
+	printf(GRN "    $" BR_GRN "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
 	printf("\n");
 	printf(BR_GRN "> ...\n" RESET);
 }
 
-void	print_ascii_art_dark(void)
+static void	print_ascii_art_dark(void)
 {
 	printf(BR_BLK "> ENTER...\n" RESET);
 	printf("\n");
-	printf(BLK "   ░▒▓" BR_RED "██╗  ██╗███████╗██╗     ██╗\n" RESET);
-	printf(BLK "   ░▒▓" RED "██║  ██║██╔════╝██║     ██║\n" RESET);
-	printf(BR_BLK "   ░▒▓" BR_RED "███████║█████╗  ██║     ██║\n" RESET);
-	printf(BR_BLK "   ░▒▓" RED "██╔══██║██╔══╝  ██║     ██║\n" RESET);
-	printf(BLK "   ░▒▓" BR_RED "██║  ██║███████╗███████╗███████╗\n" RESET);
-	printf(BLK "   ░▒▓" BR_RED "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
+	printf(BLK "   ░▒▓$" BR_RED "██╗  ██╗███████╗██╗     ██╗\n" RESET);
+	printf(BLK "   ░▒▓$" RED "██║  ██║██╔════╝██║     ██║\n" RESET);
+	printf(BR_BLK "   ░▒▓$" BR_RED "███████║█████╗  ██║     ██║\n" RESET);
+	printf(BR_BLK "   ░▒▓$" RED "██╔══██║██╔══╝  ██║     ██║\n" RESET);
+	printf(BLK "   ░▒▓$" BR_RED "██║  ██║███████╗███████╗███████╗\n" RESET);
+	printf(BLK "   ░▒▓$" BR_RED "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
 	printf("\n");
 }
 
-void	print_random_ascii_art(void)
+/**
+ * @brief Selects and displays a random ASCII art
+ *
+ * Not a lot of ways to achieve randomness with the list of our allowed
+ * functions. The trick is a pseudo random number generator based on memory
+ * addresses and file descriptors to select one of 5 ASCII art variants.
+ * The randomness is derived from:
+ * - Stack variable address (&dummy)
+ * - Heap allocation address (malloc)
+ * - File descriptor value (dup)
+ *
+ * @note This function performs memory allocation and file operations
+ * solely for randomness generation, not for functional purposes.
+ * Everything is freed before continuing the flow.
+ */
+void	select_random_ascii_art(void)
 {
 	int		dummy;
 	void	*ptr;
@@ -79,20 +94,18 @@ void	print_random_ascii_art(void)
 
 	ptr = malloc(1);
 	fd = dup(0);
-	choice = (((unsigned long)&dummy) +
-			  ((unsigned long)ptr) +
-			  fd) % 5;
+	choice = (((unsigned long)&dummy) + ((unsigned long)ptr) + fd) % 5;
 	free(ptr);
-	close(fd);
-
+	if (fd != -1)
+		close(fd);
 	if (choice == 0)
-		print_ascii_art_hell();
+		print_ascii_art_hell_simple();
 	else if (choice == 1)
-		print_ascii_art_breach();
+		print_ascii_art_green_breach();
 	else if (choice == 2)
-		print_ascii_art_skull();
+		print_ascii_art_fire_colors();
 	else if (choice == 3)
-		print_ascii_art_matrix();
+		print_ascii_art_easter_egg();
 	else
 		print_ascii_art_dark();
 }

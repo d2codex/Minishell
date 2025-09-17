@@ -74,6 +74,12 @@ int	process_line(char *line, t_shell *data)
 	char	**tokens;
 	int		result;
 
+	if (is_easter_egg(line))
+	{
+		display_easter_egg();
+		free(line);
+		return (0); // continue shell
+	}
 	if (line)
 		add_history(line);
 	tokens = execute_tokenizer(line, data);
