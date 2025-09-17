@@ -93,9 +93,12 @@ void	select_random_ascii_art(void)
 	int		choice;
 
 	ptr = malloc(1);
+	if (!ptr)
+		return (NULL);
 	fd = dup(0);
 	choice = (((unsigned long)&dummy) + ((unsigned long)ptr) + fd) % 5;
-	free(ptr);
+	if (ptr)
+		free(ptr);
 	if (fd != -1)
 		close(fd);
 	if (choice == 0)
