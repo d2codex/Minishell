@@ -18,10 +18,11 @@ bool	is_easter_egg(char *line)
  */
 void	display_easter_egg(void)
 {
-	printf(BR_RED " SEQUENCE DETECTED! \n" RESET);
+	printf(BR_RED " ! SPECIAL SEQUENCE DETECTED ! \n" RESET);
 	printf(BR_GRN "   decoding: 101010 = 42\n" RESET);
 	printf(BR_YEL "   ┌─────────────────────────────┐\n" RESET);
 	printf(BR_YEL "   │ ! you've found the answer ! │\n" RESET);
 	printf(BR_YEL "   │    ! outstanding move !     │\n" RESET);
 	printf(BR_YEL "   └─────────────────────────────┘\n" RESET);
+	printf(RED "back to work now...\n" RESET);
 }
