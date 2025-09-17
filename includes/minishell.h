@@ -95,7 +95,7 @@ typedef enum e_export_op
 /* src/builtins/pwd.c */
 int			builtin_pwd(char **tokens, t_shell *data);
 
-/* env.c */
+/* src/builtins/env.c */
 int			builtin_env(char **tokens, t_shell *data);
 
 /* src/builtins/export.c */
@@ -131,7 +131,7 @@ t_env		*get_env_node_by_key(t_list *env_list, const char *key);
 /* src/builtins/echo.c */
 int			builtin_echo(char **tokens, t_shell *data);
 
-/* exit.c */
+/* src/builtins/exit.c */
 int			builtin_exit(char **tokens, t_shell *data);
 
 /* =========================== */
