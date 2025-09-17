@@ -21,7 +21,7 @@ int	builtin_env(char **tokens, t_shell *data)
 {
 	if (tokens && tokens[1])
 	{
-		print_error_multi(ERR_PREFIX, ERR_ENV, ERR_TOO_MANY_ARGS, NULL);
+		print_error_multi(ERR_ENV, ERR_TOO_MANY_ARGS, NULL, NULL);
 		data->status = 2;
 		return (1);
 	}
