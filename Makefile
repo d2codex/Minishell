@@ -12,12 +12,12 @@ LIBFT_DIR = libft
 
 # src files
 SRC =	src/env/env_import.c \
+		src/core/ascii_art_themes.c \
 		src/core/minishell_loop.c \
 		src/core/execute_tokenizer.c \
 		src/core/execute_builtins.c \
 		src/core/init_shell.c \
 		src/core/print_ascii_art.c \
-		src/core/print_easter_egg.c \
 		src/builtins/echo.c \
 		src/builtins/env.c \
 		src/builtins/exit.c \

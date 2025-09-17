@@ -1,73 +1,30 @@
 #include "minishell.h"
 
-static void	print_ascii_art_hell_simple(void)
+/**
+ * @brief check if input is the binary easter egg sequence
+ *
+ * @param line input line from user
+ * @return true if it's the easter egg, false otherwise
+ */
+bool	is_easter_egg(char *line)
 {
-	printf(" > welcome to\n");
-	printf(CYN "▄▄███▄▄·██╗  ██╗███████╗██╗	 ██╗\n" RESET);
-	printf(CYN "██╔════╝██║  ██║██╔════╝██║	 ██║\n" RESET);
-	printf(CYN "███████╗███████║█████╗  ██║	 ██║\n" RESET);
-	printf(CYN "╚════██║██╔══██║██╔══╝  ██║	 ██║ \n" RESET);
-	printf(CYN "███████║██║  ██║███████╗███████╗███████╗ \n" RESET);
-	printf(CYN "╚═▀▀▀══╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
-	printf("such a lovely place, such a lovely interface...\n");
+	if (!line)
+		return (false);
+	return (ft_strcmp(line, EASTER_EGG) == 0);
 }
 
-static void	print_ascii_art_green_breach(void)
+/**
+ * @brief display easter egg message
+ */
+void	display_easter_egg(void)
 {
-	printf(BR_GRN "> SYSTEM BREACH DETECTED\n" RESET);
-	printf(BR_GRN "> ACCESSING $HELL TERMINAL...\n" RESET);
-	printf(BR_GRN "> " BR_RED "ERR 666: " RESET BR_GRN "WELCOME TO\n" RESET);
-	printf("\n");
-	printf(BR_RED "   $" BR_YEL "██╗  ██╗███████╗██╗	 ██╗\n" RESET);
-	printf(BR_RED "   $" BR_YEL "██║  ██║██╔════╝██║	 ██║\n" RESET);
-	printf(BR_YEL "   $" GRN "███████║█████╗  ██║	 ██║\n" RESET);
-	printf(BR_YEL "   $" GRN "██╔══██║██╔══╝  ██║	 ██║\n" RESET);
-	printf(GRN "   $" BR_GRN "██║  ██║███████╗███████╗███████╗\n" RESET);
-	printf(GRN "   $" BR_GRN "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
-	printf("\n");
-	printf(BR_GRN "> REMEMBER: " RESET "\"you can check out any time...\"\n");
-	printf(BR_RED "> WARNING: " RESET "\"but you can never leave!\"\n");
-}
-
-static void	print_ascii_art_fire_colors(void)
-{
-	printf("welcome to \n");
-	printf(BR_YEL "▄▄███▄▄·██╗  ██╗███████╗██╗	 ██╗\n" RESET);
-	printf(BR_YEL "██╔════╝██║  ██║██╔════╝██║	 ██║\n" RESET);
-	printf(YEL	"███████╗███████║█████╗  ██║	 ██║\n" RESET);
-	printf(RED	"╚════██║██╔══██║██╔══╝  ██║	 ██║ \n" RESET);
-	printf(RED	"███████║██║  ██║███████╗███████╗███████╗ \n" RESET);
-	printf(BR_RED "╚═▀▀▀══╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
-	printf(YEL "such a lovely place, such a lovely interface...\n" RESET);
-}
-
-static void	print_ascii_art_easter_egg(void)
-{
-	printf(BR_GRN "> CONNECTION ESTABLISHED\n" RESET);
-	printf(GRN "> LOADING INTERFACE...\n" RESET);
-	printf(GRN "> don't panic, type: 101010 in case of emergency\n");
-	printf("\n");
-	printf(GRN "    $" BR_GRN "██╗  ██╗███████╗██╗     ██╗\n" RESET);
-	printf(GRN "    $" BR_GRN "██║  ██║██╔════╝██║     ██║\n" RESET);
-	printf(BR_GRN "    $" GRN "███████║█████╗  ██║     ██║\n" RESET);
-	printf(BR_GRN "    $" GRN "██╔══██║██╔══╝  ██║     ██║\n" RESET);
-	printf(GRN "    $" BR_GRN "██║  ██║███████╗███████╗███████╗\n" RESET);
-	printf(GRN "    $" BR_GRN "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
-	printf("\n");
-	printf(BR_GRN "> ...\n" RESET);
-}
-
-static void	print_ascii_art_dark(void)
-{
-	printf(BR_BLK "> ENTER...\n" RESET);
-	printf("\n");
-	printf(BLK "   ░▒▓$" BR_RED "██╗  ██╗███████╗██╗     ██╗\n" RESET);
-	printf(BLK "   ░▒▓$" RED "██║  ██║██╔════╝██║     ██║\n" RESET);
-	printf(BR_BLK "   ░▒▓$" BR_RED "███████║█████╗  ██║     ██║\n" RESET);
-	printf(BR_BLK "   ░▒▓$" RED "██╔══██║██╔══╝  ██║     ██║\n" RESET);
-	printf(BLK "   ░▒▓$" BR_RED "██║  ██║███████╗███████╗███████╗\n" RESET);
-	printf(BLK "   ░▒▓$" BR_RED "╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝\n" RESET);
-	printf("\n");
+	printf(BR_RED " ! SPECIAL SEQUENCE DETECTED ! \n" RESET);
+	printf(BR_GRN "   decoding: 101010 = 42\n" RESET);
+	printf(BR_YEL "   ┌─────────────────────────────┐\n" RESET);
+	printf(BR_YEL "   │ ! you've found the answer ! │\n" RESET);
+	printf(BR_YEL "   │    ! outstanding move !     │\n" RESET);
+	printf(BR_YEL "   └─────────────────────────────┘\n" RESET);
+	printf(RED "back to work now...\n" RESET);
 }
 
 /**
@@ -94,7 +51,7 @@ void	select_random_ascii_art(void)
 
 	ptr = malloc(1);
 	if (!ptr)
-		return (NULL);
+		return (print_ascii_art_hell_simple());
 	fd = dup(0);
 	choice = (((unsigned long)&dummy) + ((unsigned long)ptr) + fd) % 5;
 	if (ptr)

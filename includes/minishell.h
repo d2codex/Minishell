@@ -148,6 +148,13 @@ t_list		*init_env_from_envp(char **envp);
 /*            CORE             */
 /* =========================== */
 
+/* ascii_art_themes.c */
+void		print_ascii_art_hell_simple(void);
+void		print_ascii_art_green_breach(void);
+void		print_ascii_art_fire_colors(void);
+void		print_ascii_art_easter_egg(void);
+void		print_ascii_art_dark(void);
+
 /* src/core/minishell_loop.c */
 int			minishell_loop(t_shell *data);
 bool		prompt_user(char *prompt, t_shell *data);
@@ -164,11 +171,9 @@ int			execute_builtin(char **tokens, t_shell *data);
 int			init_shell(t_shell *data, char **envp);
 
 /* src/core/print_ascii_art.c */
-void		select_random_ascii_art(void);
-
-/* src/core/print_easter_egg.c */
 bool		is_easter_egg(char *line);
 void		display_easter_egg(void);
+void		select_random_ascii_art(void);
 
 /* =========================== */
 /*           PARSER            */
@@ -205,7 +210,7 @@ void		cleanup_process_line(char **tokens, char *line);
 
 /* src/utils/print_errors_multi.c */
 void		print_error_multi(char *part1, char *part2, char *part3,
-	char *part4);
+				char *part4);
 
 /* src/utils/print_error.c */
 void		print_error(char *pre_msg, char *main_msg);
