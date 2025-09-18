@@ -44,22 +44,17 @@ int	remove_env_node(t_list **env_list, const char *token)
 		return (1);
 	while (curr)
 	{
-		env = (t_env *)curr->content;//env points to the t_env struct that curr is pointing to
+		env = (t_env *)curr->content;
 		if (env && env->key && ft_strcmp(env->key, token) == 0)
 		{
 			if (prev)
-				prev->next = curr->next; //applies on 2nd iteration and onwards only
-				//if a match was found we have the prev point to the currents next node
-				//so we can free the current node (relinking)
+				prev->next = curr->next;
 			else
-				*env_list = curr->next; // removes the head (specia case)
-			//move head pointer to point at the next node
-			//this allows us to free the contents inside and then the current node
-			free_env_node(env, curr); //remove the node
+				*env_list = curr->next;
+			free_env_node(env, curr);
 			return (0);
 		}
-		prev = curr; // this happens when no match is found
-		// we now set the the prev pointer to current.
+		prev = curr;
 		curr = curr->next;
 	}
 	return (1);
@@ -75,11 +70,12 @@ int	remove_env_node(t_list **env_list, const char *token)
  * @param tokens  Array of strings; tokens[0] is "unset", tokens[1..] are keys.
  * @param data    Pointer to the shell state containing env_list.
  *
- * @return int EXIT_SUCCESS (0) on completion, EXIT_FAILURE (1) if shell state is missing.
+ * @return int EXIT_SUCCESS (0) on completion, EXIT_FAILURE (1) if shell state
+ * is missing.
  */
 int	builtin_unset(char **tokens, t_shell *data)
 {
-	int		i;
+	int	i;
 
 	if (!tokens || !data)
 		return (EXIT_FAILURE);
@@ -89,7 +85,7 @@ int	builtin_unset(char **tokens, t_shell *data)
 		if (ft_strchr(tokens[i], '='))
 		{
 			i++;
-			continue ; //invalid identifier, bash just ignores it
+			continue ;
 		}
 		remove_env_node(&data->env_list, tokens[i]);
 		i++;
