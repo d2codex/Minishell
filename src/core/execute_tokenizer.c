@@ -41,12 +41,13 @@ char	**execute_tokenizer(char *line, t_shell *data)
 	{
 		if (error_code == TOKEN_UNCLOSED_QUOTE)
 		{
-			print_error("[mini$Hell]: ", "syntax error: unclosed quotes");
+			print_error(ERR_PREFIX, "syntax error: unclosed quotes",
+				NULL, NULL);
 			data->status = 2;
 		}
 		else if (error_code == TOKEN_MALLOC_ERROR)
 		{
-			print_error("[mini$Hell]: ", "memory allocation failed");
+			print_error(ERR_PREFIX, "memory allocation failed", NULL, NULL);
 			data->status = 1;
 		}
 		return (NULL);

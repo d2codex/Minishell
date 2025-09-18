@@ -34,7 +34,7 @@ static int	handle_exit_no_args(t_shell *data)
 
 static int	handle_exit_too_many_args(t_shell *data)
 {
-	print_error_multi(ERR_PREFIX, ERR_EXIT, ERR_TOO_MANY_ARGS, NULL);
+	print_error(ERR_PREFIX, ERR_EXIT, ERR_TOO_MANY_ARGS, NULL);
 	data->status = 1;
 	return (0);
 }
@@ -57,7 +57,7 @@ static int	handle_exit_too_many_args(t_shell *data)
  */
 static int	handle_exit_invalid_arg(char *arg, t_shell *data)
 {
-	print_error_multi(ERR_PREFIX, ERR_EXIT, arg, ERR_NUMERIC_ARG);
+	print_error(ERR_PREFIX, ERR_EXIT, arg, ERR_NUMERIC_ARG);
 	data->status = 2;
 	if (data->is_child)
 		exit(2);

@@ -76,7 +76,7 @@ int	builtin_echo(char **tokens, t_shell *data)
 	if (tokens[1] == NULL)
 	{
 		printf("\n");
-		return (0);
+		return (EXIT_SUCCESS);
 	}
 	start_print_index = 1;
 	print_new_line = true;
@@ -89,5 +89,5 @@ int	builtin_echo(char **tokens, t_shell *data)
 	print_echo_cmd(tokens, start_print_index);
 	if (print_new_line)
 		printf("\n");
-	return (0);
+	return (EXIT_SUCCESS);
 }

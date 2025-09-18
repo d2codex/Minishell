@@ -21,19 +21,19 @@ int	builtin_env(char **tokens, t_shell *data)
 {
 	if (tokens && tokens[1])
 	{
-		print_error_multi(ERR_ENV, ERR_TOO_MANY_ARGS, NULL, NULL);
+		print_error(ERR_ENV, ERR_TOO_MANY_ARGS, NULL, NULL);
 		data->status = 2;
-		return (1);
+		return (EXIT_FAILURE);
 	}
 	if (!data->env_list)
 	{
 		data->status = 125;
-		return (1);
+		return (EXIT_FAILURE);
 	}
 	if (print_env_list(data->env_list) == -1)
 	{
 		data->status = 125;
-		return (1);
+		return (EXIT_FAILURE);
 	}
-	return (0);
+	return (EXIT_SUCCESS);
 }

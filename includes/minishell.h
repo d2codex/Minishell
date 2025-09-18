@@ -17,18 +17,20 @@
 /*         CONSTANTS           */
 /* =========================== */
 
-/* used in minishell_loop.c */
+/* minishell prompt */
 # define SHELL_PROMPT "[mini$HELL] "
 
-/* used in exit_bultin.c */
+/* errors messages tools */
 # define SHELL_EXIT_SIGNAL -1
 # define ERR_PREFIX "[mini$Hell]: "
 # define ERR_EXIT "exit: "
 # define ERR_ENV "env: "
+# define ERR_EXPORT "export: `"
+# define ERR_NOT_VALID_ID "': not a valid identifier"
 # define ERR_NUMERIC_ARG ": numeric argument required"
 # define ERR_TOO_MANY_ARGS "too many arguments"
 
-/* easter_egg.c */
+/* easter egg */
 # define EASTER_EGG "101010"
 
 /* =========================== */
@@ -63,7 +65,7 @@ typedef struct s_builtin
 /*           ENUMS             */
 /* =========================== */
 
-/* enum to track the quote current state - used inside the tokenizer */
+/* enum to track the quote current state, used inside the tokenizer */
 typedef enum e_quote
 {
 	STATE_NOT_IN_QUOTE,
@@ -80,7 +82,7 @@ typedef enum e_token_error
 	TOKEN_NOT_OPERATOR
 }	t_token_error;
 
-/* detects operation: assign, append, or key only mode */
+/* detects operation: assign, append or key only mode, used in export builtin */
 typedef enum e_export_op
 {
 	EXPORT_NONE,
@@ -208,11 +210,7 @@ void		free_string_array(char **tab, size_t count);
 void		cleanup_shell(t_shell *data);
 void		cleanup_process_line(char **tokens, char *line);
 
-/* src/utils/print_errors_multi.c */
-void		print_error_multi(char *part1, char *part2, char *part3,
-				char *part4);
-
-/* src/utils/print_error.c */
-void		print_error(char *pre_msg, char *main_msg);
+/* src/utils/print_errors.c */
+void		print_error(char *p1, char *p2, char *p3, char *p4);
 
 #endif

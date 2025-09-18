@@ -9,10 +9,8 @@
  */
 static int	handle_invalid_key(const char *token)
 {
-	write(2, "$Hell: export: `", 17);
-	write(2, token, ft_strlen(token));
-	write(2, "': not a valid identifier\n", 26);
-	return (1);
+	print_error(ERR_PREFIX, ERR_EXPORT, (char *)token, ERR_NOT_VALID_ID);
+	return (EXIT_FAILURE);
 }
 
 /**
@@ -122,17 +120,17 @@ int	builtin_export(char **tokens, t_shell *data)
 	{
 		env_array = export_list_to_array(data->env_list, &size);
 		if (!env_array)
-			return (1);
+			return (EXIT_FAILURE);
 		sort_export_array(env_array, size);
 		print_sorted_export(env_array, size);
-		return (free(env_array), 0);
+		return (free(env_array), EXIT_SUCCESS);
 	}
 	i = 1;
 	while (tokens[i])
 	{
 		result = set_env_node(&data->env_list, tokens[i]);
 		if (result == -1)
-			return (1);
+			return (EXIT_FAILURE);
 		if (result == 1)
 			data->status = 1;
 		i++;
