@@ -24,7 +24,7 @@ int	execute_builtin(char **tokens, t_shell *data)
 	{"exit", builtin_exit},
 	{"echo", builtin_echo},
 	{"env", builtin_env},
-	// unset
+	{"unset", builtin_unset},
 	// cd
 	{NULL, NULL}};
 

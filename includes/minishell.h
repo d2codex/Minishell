@@ -136,6 +136,10 @@ int			builtin_echo(char **tokens, t_shell *data);
 /* src/builtins/exit.c */
 int			builtin_exit(char **tokens, t_shell *data);
 
+/* src/builtins/unset.c */
+int			remove_env_node(t_list **env_list, const char *token);
+int			builtin_unset(char**tokens, t_shell *data);
+
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
 /* =========================== */

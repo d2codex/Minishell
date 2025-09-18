@@ -1,0 +1,98 @@
+#include "minishell.h"
+
+/**
+ * @brief Frees an environment variable node and its list node.
+ *
+ * Frees the key and value strings, the t_env struct, and the associated
+ * t_list node. Does nothing if either pointer is NULL.
+ *
+ * @param env_node   Pointer to the environment variable struct to free.
+ * @param list_node  Pointer to the list node containing env_node.
+ */
+static void	free_env_node(t_env *env_node, t_list *list_node)
+{
+	if (!env_node || !list_node)
+		return ;
+	free(env_node->key);
+	free(env_node->value);
+	free(env_node);
+	free(list_node);
+}
+
+/**
+ * @brief Removes an environment variable node from the linked list by key.
+ *
+ * Searches the env_list for a node whose key matches the given string.
+ * If found, the node is unlinked from the list and freed using free_env_node().
+ * Handles removal of the head node as a special case.
+ *
+ * @param env_list  Pointer to the head of the environment list.
+ * @param key       Key string of the environment variable to remove.
+ *
+ * @return int 0 if a node was found and removed,
+ *             1 if the key was not found or list/env_list/key is NULL.
+ */
+int	remove_env_node(t_list **env_list, const char *token)
+{
+	t_list	*prev;
+	t_list	*curr;
+	t_env	*env;
+
+	prev = NULL;
+	curr = *env_list;
+	if (!env_list || !*env_list || !token)
+		return (1);
+	while (curr)
+	{
+		env = (t_env *)curr->content;//env points to the t_env struct that curr is pointing to
+		if (env && env->key && ft_strcmp(env->key, token) == 0)
+		{
+			if (prev)
+				prev->next = curr->next; //applies on 2nd iteration and onwards only
+				//if a match was found we have the prev point to the currents next node
+				//so we can free the current node (relinking)
+			else
+				*env_list = curr->next; // removes the head (specia case)
+			//move head pointer to point at the next node
+			//this allows us to free the contents inside and then the current node
+			free_env_node(env, curr); //remove the node
+			return (0);
+		}
+		prev = curr; // this happens when no match is found
+		// we now set the the prev pointer to current.
+		curr = curr->next;
+	}
+	return (1);
+}
+
+/**
+ * @brief Implements the unset builtin: removes environment variables.
+ *
+ * Iterates over the tokens passed to unset (starting from tokens[1]),
+ * skipping any that contain '=' (bash ignores those). Each valid token
+ * is used to remove a node from the shell's env_list using remove_env_node().
+ *
+ * @param tokens  Array of strings; tokens[0] is "unset", tokens[1..] are keys.
+ * @param data    Pointer to the shell state containing env_list.
+ *
+ * @return int EXIT_SUCCESS (0) on completion, EXIT_FAILURE (1) if shell state is missing.
+ */
+int	builtin_unset(char **tokens, t_shell *data)
+{
+	int		i;
+
+	if (!tokens || !data)
+		return (EXIT_FAILURE);
+	i = 1;
+	while (tokens[i])
+	{
+		if (ft_strchr(tokens[i], '='))
+		{
+			i++;
+			continue ; //invalid identifier, bash just ignores it
+		}
+		remove_env_node(&data->env_list, tokens[i]);
+		i++;
+	}
+	return (EXIT_SUCCESS);
+}
