@@ -5,7 +5,7 @@
  *
  * @param content Pointer to a t_env struct to free.
  *
- * @note This function is used as a callback for ft_lstclear, 
+ * @note This function is used as a callback for ft_lstclear,
  *       which expects a function with a void pointer parameter.
  */
 void	del_env(void *content)
@@ -25,7 +25,7 @@ void	del_env(void *content)
  *
  * @param env_list Pointer to the head of the environment list
  * (t_list of t_env).
- * 
+ *
  * @return int 0 on success, -1 if a write error occurs.
  *
  * @details
@@ -47,7 +47,7 @@ int	print_env_list(t_list *env_list)
 		{
 			if (ft_putstr_fd(env->key, STDOUT_FILENO) == -1
 				|| ft_putchar_fd('=', STDOUT_FILENO) == -1
-				|| ft_putendl_fd(env->value, STDOUT_FILENO == -1))
+				|| ft_putendl_fd(env->value, STDOUT_FILENO) == -1)
 				return (-1);
 		}
 		env_list = env_list->next;
