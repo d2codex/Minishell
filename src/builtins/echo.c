@@ -1,21 +1,44 @@
 #include "minishell.h"
 
 /**
- * @brief Print arguments from tokens array starting at given index.
+ * @brief Check if token is a valid bash style -n option for echo.
  *
- * Iterates through the tokens array from the specified starting index,
- * printing each token followed by a space (except for the last token).
- * This helper function handles the actual output formatting for echo.
+ * Accepts "-n", "-nn", "-nnn", etc. but rejects "-na", "-n1", etc.
+ * Implements bash's quirky but exact -n recognition behavior.
  *
- * @param tokens Array of string tokens to print
- * @param i Starting index in the tokens array
+ * @param token String to check
+ * @return true if valid -n option, false otherwise
+ */
+static bool	is_echo_n_option(const char *token)
+{
+	int	i;
+
+	if (!token || token[0] != '-' || token[1] != 'n')
+		return (false);
+	i = 2;
+	while (token[i])
+	{
+		if (token[i] != 'n')
+			return (false);
+		i++;
+	}
+	return (true);
+}
+
+/**
+ * @brief Print tokens starting at given index, space separated.
+ *
+ * Prints each token with single spaces between them (no space after last).
+ * Helper function for echo output formatting.
+ *
+ * @param tokens NULL-terminated array of strings
+ * @param start_index Index to start printing from
  */
 static void	print_echo_cmd(char **tokens, int start_print_index)
 {
 	while (tokens[start_print_index] != NULL)
 	{
 		printf("%s", tokens[start_print_index]);
-		// only print space if you are NOT at the end of the argument list
 		if (tokens[start_print_index + 1])
 			printf(" ");
 		start_print_index++;
@@ -35,6 +58,7 @@ static void	print_echo_cmd(char **tokens, int start_print_index)
  * - echo -n: prints nothing (no newline)
  * - echo -n args: prints args separated by spaces, no trailing newline
  * - echo -n -n -n args: same as echo -n args (multiple -n consumed)
+ * - echo -n -nnnnnnnnnnnn: chained options, works like -n
  *
  * The -n option is only effective when it appears consecutively at the
  * beginning of the argument list.
@@ -49,24 +73,19 @@ int	builtin_echo(char **tokens, t_shell *data)
 	bool	print_new_line;
 
 	(void)data;
-	// early return for command without argument so that we don't fall into
-	// the while loop which would try to access tokens[1] with a NULL pointer
-	// this prevents SEGFAULT
 	if (tokens[1] == NULL)
 	{
 		printf("\n");
 		return (0);
 	}
-	// scan for consecutive -n options at the beginning
 	start_print_index = 1;
 	print_new_line = true;
 	while (tokens[start_print_index]
-		&& ft_strcmp(tokens[start_print_index], "-n") == 0)
+		&& is_echo_n_option(tokens[start_print_index]))
 	{
-		print_new_line = false; // at least one -n found, means we want no \n
+		print_new_line = false;
 		start_print_index++;
 	}
-	// printing helper because of the norm, right index is passed for any cases
 	print_echo_cmd(tokens, start_print_index);
 	if (print_new_line)
 		printf("\n");
