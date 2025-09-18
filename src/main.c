@@ -20,7 +20,7 @@ int	main(int argc, char **argv, char **envp)
 	if (init_shell(&data, envp))
 		return (1);
 	if (data.is_tty)
-		print_ascii_art();
+		select_random_ascii_art();
 	data.status = minishell_loop(&data);
 	cleanup_shell(&data);
 	return (data.status);

@@ -22,8 +22,10 @@ int	execute_builtin(char **tokens, t_shell *data)
 	{"pwd", builtin_pwd},
 	{"export", builtin_export},
 	{"exit", builtin_exit},
+	{"echo", builtin_echo},
 	{"env", builtin_env},
-		// other builtins
+	// unset
+	// cd
 	{NULL, NULL}};
 
 	i = 0;
@@ -39,5 +41,6 @@ int	execute_builtin(char **tokens, t_shell *data)
 		}
 		i++;
 	}
+	// cmd not found, set data->status = 127 ? (just a reminder for later)
 	return (0);
 }
