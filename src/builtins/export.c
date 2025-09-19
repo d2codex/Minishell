@@ -1,14 +1,20 @@
 #include "minishell.h"
 
 /**
- * @brief Print an error for an invalid export key.
+ * @brief Handles an invalid export key by printing an error.
  *
- * @param token The invalid token.
+ * Checks if errno indicates a memory allocation failure (ENOMEM).
+ * If so, returns -1 to signal a fatal error. Otherwise, prints
+ * an error message for the invalid key and returns EXIT_FAILURE (1).
  *
- * @return 1 always to indicate an invalid key.
+ * @param token  The invalid token to report.
+ *
+ * @return int -1 if errno == ENOMEM, EXIT_FAILURE (1) otherwise.
  */
 static int	handle_invalid_key(const char *token)
 {
+	if (errno == ENOMEM)
+		return (-1);
 	print_error(ERR_PREFIX, ERR_EXPORT, (char *)token, ERR_NOT_VALID_ID);
 	return (EXIT_FAILURE);
 }

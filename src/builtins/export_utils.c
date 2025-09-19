@@ -65,6 +65,9 @@ bool	is_valid_key(const char *token)
  *
  * Scans the input string until the first '=' or '+' character (for append
  * operations), returning a newly allocated string containing only the key.
+ * If the token is invalid, returns NULL. If memory allocation fails,
+ * sets errno to ENOMEM and returns NULL, allowing the caller to distinguish
+ * between invalid keys and malloc failure.*
  *
  * @param token Input string in the form KEY=VALUE, KEY+=VALUE, or KEY.
  *
@@ -83,7 +86,10 @@ char	*get_env_key(const char *token)
 		len++;
 	key = malloc(len + 1);
 	if (!key)
+	{
+		errno = ENOMEM;
 		return (NULL);
+	}
 	ft_strlcpy(key, token, len + 1);
 	return (key);
 }
