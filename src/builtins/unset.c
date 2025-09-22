@@ -61,24 +61,27 @@ int	remove_env_node(t_list **env_list, const char *token)
 }
 
 /**
- * @brief Implements the unset builtin: removes environment variables.
+ * @brief Builtin command: remove environment variables.
  *
- * Iterates over the tokens passed to unset (starting from tokens[1]),
- * skipping any that contain '=' (bash ignores those). Each valid token
- * is used to remove a node from the shell's env_list using remove_env_node().
+ * Removes the specified environment variables from `data->env_list`.
+ * Ignores tokens containing '='. Updates `data->status` with EXIT_SUCCESS
+ * on success, or INTERNAL_ERROR if input is invalid.
  *
- * @param tokens  Array of strings; tokens[0] is "unset", tokens[1..] are keys.
- * @param data    Pointer to the shell state containing env_list.
- *
- * @return int EXIT_SUCCESS (0) on completion, EXIT_FAILURE (1) if shell state
- * is missing.
+ * @param tokens Command tokens from user input.
+ *               - tokens[0] should be "unset"
+ *               - tokens[1+] are names of variables to remove
+ * @param data Shell state, including environment and exit status.
+ * @return Exit status of the command (0 on success, >0 on failure).
  */
 int	builtin_unset(char **tokens, t_shell *data)
 {
 	int	i;
 
 	if (!tokens || !data)
-		return (EXIT_FAILURE);
+	{
+		data->status = INTERNAL_ERROR;
+		return (data->status);
+	}
 	i = 1;
 	while (tokens[i])
 	{
@@ -90,5 +93,6 @@ int	builtin_unset(char **tokens, t_shell *data)
 		remove_env_node(&data->env_list, tokens[i]);
 		i++;
 	}
-	return (EXIT_SUCCESS);
+	data->status = EXIT_SUCCESS;
+	return (data->status);
 }

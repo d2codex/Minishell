@@ -1,89 +1,56 @@
 #include "minishell.h"
 
 /**
- * @brief Handle exit without arguments case.
+ * @brief Handle `exit` when too many arguments are provided.
  *
- * Uses the current status stored in data->status as the exit code.
- * - Parent shell: returns SHELL_EXIT_SIGNAL -1 to signal minishell_loop()
- * to terminate cleanly.
- * - Child process: calls exit() directly with data->status.
+ * Prints an error message and sets `data->status` to EXIT_FAILURE (1). 
+ * The shell does not exit in this case.
  *
- * @param data Shell data structure
- * @return SHELL_EXIT_SIGNAL -1 to signal shell termination (parent),
- * does not return for child
+ * @param data Shell state, including exit status.
+ * @return EXIT_FAILURE (1) as the exit status.
  */
-
-static int	handle_exit_no_args(t_shell *data)
-{
-	if (data->is_child)
-		exit(data->status);
-	return (SHELL_EXIT_SIGNAL);
-}
-
-/**
- * @brief Handle exit with too many arguments case.
- *
- * Prints an error message and sets status = 1 (general error).
- * This is the only exit case where the shell does NOT terminate:
- * - Parent shell: continues running after showing the error.
- * - Child process: normal behavior, continues as well.
- *
- * @param data Shell data structure
- * @return 0 to continue shell execution
- */
-
 static int	handle_exit_too_many_args(t_shell *data)
 {
 	print_error(ERR_PREFIX, ERR_EXIT, ERR_TOO_MANY_ARGS, NULL);
-	data->status = 1;
-	return (0);
+	data->status = EXIT_FAILURE; // general error (1)
+	return (data->status);
 }
 
 /**
- * @brief Handle exit with invalid numeric argument case.
+ * @brief Handle `exit` with an invalid numeric argument.
  *
- * Prints error message and sets status = 2 (syntax/usage error).
- * Behavior differs by process context:
- * - Parent process: returns SHELL_EXIT_SIGNAL -1 to signal clean termination
- * via minishell_loop()
- * - Child process: calls exit(2) directly to terminate immediately
+ * Prints an error message, sets `data->status` to MISUSAGE_ERROR (2),
+ * and signals the shell to exit via `data->should_exit`. If running in 
+ * a child process, exits immediately.
  *
- * This matches bash behavior where invalid arguments always terminate the shell
- *
- * @param arg The invalid argument string
- * @param data Shell data structure
- * @return SHELL_EXIT_SIGNAL -1 to signal shell termination (parent), does
- * not return for child
+ * @param arg The invalid argument passed to `exit`.
+ * @param data Shell state, including exit status, TTY flags, and exit flag.
+ * @return MISUSAGE_ERROR (2) as the exit status.
  */
 static int	handle_exit_invalid_arg(char *arg, t_shell *data)
 {
 	print_error(ERR_PREFIX, ERR_EXIT, arg, ERR_NUMERIC_ARG);
-	data->status = 2;
+	data->status = MISUSAGE_ERROR;
 	if (data->is_child)
-		exit(2);
-	return (SHELL_EXIT_SIGNAL);
+		exit(data->status);
+	data->should_exit = true;
+	return (data->status);
 }
 
 /**
- * @brief Implementation of the exit builtin command for minishell.
+ * @brief Builtin command: exit the shell.
  *
- * Handles shell termination with proper exit code management following bash
- * behavior. Argument validation order matches bash: validity checked before
- * argument count.
+ * Signals the shell to terminate by setting `data->should_exit`. 
+ * If an exit code is provided, updates `data->status` accordingly. 
+ * Handles invalid numeric arguments and too many arguments. 
+ * If running in a child process, exits immediately.
  *
- * Process handling:
- * - Parent process: returns SHELL_EXIT_SIGNAL -1 to signal minishell_loop()
- * for clean exit
- * - Child process: calls exit() directly with computed exit code
- *
- * @param tokens Command tokens array where tokens[0] is "exit"
- * @param data Shell data structure containing status and environment
- * @return SHELL_EXIT_SIGNAL -1 to signal shell exit, 0 to continue shell
- * (too many args only)
- *
- * @note Exit codes use (unsigned char) cast for automatic modulo 256 conversion
- * This handles negative numbers and values >255 correctly like bash
- * @note Only "too many arguments" case continues shell execution
+ * @param tokens Command tokens from user input.
+ *               - tokens[0] should be "exit"
+ *               - tokens[1] (optional) numeric exit code
+ *               - tokens[2+] triggers "too many arguments" error
+ * @param data Shell state, including exit status, TTY flags, and exit flag.
+ * @return Exit status to store in `data->status`.
  */
 int	builtin_exit(char **tokens, t_shell *data)
 {
@@ -92,13 +59,19 @@ int	builtin_exit(char **tokens, t_shell *data)
 	if (data->is_tty && !data->is_child)
 		printf("exit\n");
 	if (tokens[1] == NULL)
-		return (handle_exit_no_args(data));
+	{
+		data->should_exit = true; // signal main loop to stop
+		if (data->is_child)
+			exit(data->status); // terminate child immediately
+		return (data->status); // 0 at this point
+	}
 	if (ft_safe_atoll(tokens[1], &exit_code) != 1)
 		return (handle_exit_invalid_arg(tokens[1], data));
 	if (tokens[2] != NULL)
 		return (handle_exit_too_many_args(data));
 	data->status = (unsigned char)(exit_code);
 	if (data->is_child)
-		exit((unsigned char)(exit_code));
-	return (SHELL_EXIT_SIGNAL);
+		exit(data->status);
+	data->should_exit = true;
+	return (data->status);
 }
