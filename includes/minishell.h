@@ -23,6 +23,7 @@
 /* errors messages tools */
 # define SHELL_EXIT_SIGNAL -1
 # define ERR_PREFIX "[mini$Hell]: "
+# define ERR_CD "cd: "
 # define ERR_EXIT "exit: "
 # define ERR_ENV "env: "
 # define ERR_EXPORT "export: `"
@@ -96,6 +97,9 @@ typedef enum e_export_op
 
 /* src/builtins/pwd.c */
 int			builtin_pwd(char **tokens, t_shell *data);
+
+/* src/builtins/cd.c */
+int			builtin_cd(char **tokens, t_shell *data);
 
 /* src/builtins/env.c */
 int			builtin_env(char **tokens, t_shell *data);

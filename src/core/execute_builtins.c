@@ -19,13 +19,10 @@ int	execute_builtin(char **tokens, t_shell *data)
 	int						i;
 	int						result;
 	static const t_builtin	builtins[] = {
-	{"pwd", builtin_pwd},
-	{"export", builtin_export},
-	{"exit", builtin_exit},
-	{"echo", builtin_echo},
-	{"env", builtin_env},
-	{"unset", builtin_unset},
-	// cd
+	{"pwd", builtin_pwd}, {"export", builtin_export},
+	{"exit", builtin_exit}, {"echo", builtin_echo},
+	{"env", builtin_env}, {"unset", builtin_unset},
+	{"cd", builtin_cd},
 	{NULL, NULL}};
 
 	i = 0;
@@ -36,11 +33,10 @@ int	execute_builtin(char **tokens, t_shell *data)
 			result = builtins[i].f(tokens, data);
 			if (ft_strcmp(tokens[0], "exit") == 0)
 				return (result);
-			data->status = result;
-			return (0);
+			return (result);
 		}
 		i++;
 	}
 	// cmd not found, set data->status = 127 ? (just a reminder for later)
-	return (0);
+	return (1);
 }
