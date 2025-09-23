@@ -9,7 +9,7 @@
 *
 * @param tokens Command arguments (unused, pwd takes no arguments)
 * @param data Shell structure with infos (unused as well)
-* @return EXIT_SUCCESS (0) on success, EXIT_FAILURE (1) on error
+* @return Exit status of the command (0 on success, 1 on failure).
 *
 * @note Memory is automatically allocated by getcwd(NULL, 0) and freed
 * @note Errors are handled with perror() which displays appropriate message
@@ -19,14 +19,15 @@ int	builtin_pwd(char **tokens, t_shell *data)
 	char	*path;
 
 	(void)tokens;
-	(void)data;
 	path = getcwd(NULL, 0);
 	if (!path)
 	{
 		perror("pwd");
-		return (EXIT_FAILURE);
+		data->status = EXIT_FAILURE;
+		return (data->status);
 	}
 	printf("%s\n", path);
 	free(path);
-	return (EXIT_SUCCESS);
+	data->status = EXIT_SUCCESS;
+	return (data->status);
 }

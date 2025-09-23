@@ -65,18 +65,18 @@ static void	print_echo_cmd(char **tokens, int start_print_index)
  *
  * @param tokens Command tokens array where tokens[0] is "echo"
  * @param data Shell data structure (unused in this builtin)
- * @return Always returns 0
+ * @return Always returns EXIT_SUCCESS (0), updates `data->status`.
  */
 int	builtin_echo(char **tokens, t_shell *data)
 {
 	int		start_print_index;
 	bool	print_new_line;
 
-	(void)data;
 	if (tokens[1] == NULL)
 	{
 		printf("\n");
-		return (EXIT_SUCCESS);
+		data->status = EXIT_SUCCESS;
+		return (data->status);
 	}
 	start_print_index = 1;
 	print_new_line = true;
@@ -89,5 +89,6 @@ int	builtin_echo(char **tokens, t_shell *data)
 	print_echo_cmd(tokens, start_print_index);
 	if (print_new_line)
 		printf("\n");
-	return (EXIT_SUCCESS);
+	data->status = EXIT_SUCCESS;
+	return (data->status);
 }

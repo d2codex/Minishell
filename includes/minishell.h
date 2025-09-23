@@ -34,6 +34,14 @@
 /* easter egg */
 # define EASTER_EGG "101010"
 
+/* standardized return codes */
+// continue to use EXIT_FAILURE 0
+// and EXIT_SUCCESS 1
+# define MISUSAGE_ERROR 2 // misuse error (ex invalid key)
+# define INTERNAL_ERROR 125 // shell internal failure
+# define CMD_NOT_FOUND 127 // external command not found
+// add mroe here for other codes
+
 /* =========================== */
 /*        STRUCTURES           */
 /* =========================== */
@@ -53,6 +61,7 @@ typedef struct s_shell
 	int		status;
 	bool	is_tty;
 	bool	is_child;
+	bool	should_exit;  //new flag for main loop
 }	t_shell;
 
 /* for builtin functions array, stores cmd and function's pointer*/
@@ -175,7 +184,7 @@ char		**execute_tokenizer(char *line, t_shell *data);
 bool		validate_tokens(char **tokens, char *line);
 
 /* src/core/execute_builtins.c */
-int			execute_builtin(char **tokens, t_shell *data);
+bool			execute_builtin(char **tokens, t_shell *data);
 
 /* src/core/init_shell.c */
 int			init_shell(t_shell *data, char **envp);

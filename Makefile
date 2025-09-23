@@ -14,11 +14,10 @@ LIBFT_DIR = libft
 SRC =	src/env/env_import.c \
 		src/core/ascii_art_themes.c \
 		src/core/minishell_loop.c \
-		src/core/execute_tokenizer.c \
-		src/core/execute_builtins.c \
 		src/core/init_shell.c \
 		src/core/print_ascii_art.c \
 		src/builtins/cd.c \
+		src/execution/execute_builtins.c \
 		src/builtins/echo.c \
 		src/builtins/env.c \
 		src/builtins/exit.c \
@@ -30,6 +29,7 @@ SRC =	src/env/env_import.c \
 		src/builtins/export_utils.c \
 		src/builtins/pwd.c \
 		src/builtins/unset.c \
+		src/parser/execute_tokenizer.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_count_tokens.c \
 		src/parser/tokenizer_utils.c \

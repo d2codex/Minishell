@@ -1,39 +1,36 @@
 #include "minishell.h"
 
 /**
- * @brief Implements the builtin `env` command: prints environment variables.
+ * @brief Builtin command: print the environment variables.
  *
- * @param tokens Array of command tokens; should contain only "env".
- * @param data Pointer to the shell state structure (t_shell).
- * @return int 0 on successful execution, 1 if an error occurred.
+ * Prints all environment variables in `data->env_list`. Handles errors such as
+ * extra arguments (MISUSAGE_ERROR) or missing/unprintable environment (INTERNAL_ERROR).
+ * Updates `data->status` with the command's exit code.
  *
- * @details
- * - Prints all environment variables in data->env_list where
- *   env->in_env == true.
- * - If tokens contain extra arguments, prints an error and sets
- *   data->status = 2.
- * - If the environment list is missing (data->env_list == NULL) or
- *   a write error occurs during printing, sets data->status = 125.
- * - Return value 0 indicates successful execution; 1 indicates a
- *   non-fatal error that prevents the command from completing.
+ * @param tokens Command tokens from user input.
+ *               - tokens[0] should be "env"
+ *               - tokens[1+] triggers "too many arguments" error
+ * @param data Shell state, including environment and exit status.
+ * @return Exit status of the command (0 on success, >0 on failure).
  */
 int	builtin_env(char **tokens, t_shell *data)
 {
 	if (tokens && tokens[1])
 	{
 		print_error(ERR_ENV, ERR_TOO_MANY_ARGS, NULL, NULL);
-		data->status = 2;
-		return (EXIT_FAILURE);
+		data->status = MISUSAGE_ERROR;
+		return (data->status);
 	}
 	if (!data->env_list)
 	{
-		data->status = 125;
-		return (EXIT_FAILURE);
+		data->status = INTERNAL_ERROR;
+		return (data->status);
 	}
 	if (print_env_list(data->env_list) == -1)
 	{
-		data->status = 125;
-		return (EXIT_FAILURE);
+		data->status = INTERNAL_ERROR;
+		return (data->status);
 	}
-	return (EXIT_SUCCESS);
+	data->status = EXIT_SUCCESS;
+	return (data->status);
 }
