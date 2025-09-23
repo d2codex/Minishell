@@ -73,7 +73,7 @@ static void	print_cd_error(char *target)
 {
 	if (!target)
 		return ;
-	ft_putstr_fd("bash: cd: ", STDERR_FILENO);
+	ft_putstr_fd("[mini$HELL]: cd: ", STDERR_FILENO);
 	ft_putstr_fd(target, STDERR_FILENO);
 	ft_putstr_fd(": ", STDERR_FILENO);
 	ft_putendl_fd(strerror(errno), STDERR_FILENO);
@@ -116,7 +116,7 @@ int	builtin_cd(char **tokens, t_shell *data)
 	oldpwd = getcwd(NULL, 0);
 	if (!oldpwd)
 	{
-		perror("bash: cd: ");
+		perror("[mini$HELL: cd: ");
 		return (set_status(data, EXIT_FAILURE));
 	}
 	target = get_cd_target(tokens, data);

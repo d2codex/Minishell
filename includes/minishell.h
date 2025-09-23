@@ -21,8 +21,7 @@
 # define SHELL_PROMPT "[mini$HELL] "
 
 /* errors messages tools */
-# define SHELL_EXIT_SIGNAL -1
-# define ERR_PREFIX "[mini$Hell]: "
+# define ERR_PREFIX "[mini$HELL]: "
 # define ERR_CD "cd: "
 # define ERR_EXIT "exit: "
 # define ERR_ENV "env: "
