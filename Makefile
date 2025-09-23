@@ -16,9 +16,10 @@ SRC =	src/env/env_import.c \
 		src/core/minishell_loop.c \
 		src/core/init_shell.c \
 		src/core/print_ascii_art.c \
-		src/execution/execute_builtins.c \
+		src/builtins/cd.c \
 		src/builtins/echo.c \
 		src/builtins/env.c \
+		src/builtins/execute_builtins.c \
 		src/builtins/exit.c \
 		src/builtins/export.c \
 		src/builtins/export_array.c \

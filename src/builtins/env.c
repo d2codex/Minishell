@@ -17,7 +17,7 @@ int	builtin_env(char **tokens, t_shell *data)
 {
 	if (tokens && tokens[1])
 	{
-		print_error(ERR_ENV, ERR_TOO_MANY_ARGS, NULL, NULL);
+		print_error(ERR_PREFIX, ERR_ENV, ERR_TOO_MANY_ARGS, NULL);
 		data->status = MISUSAGE_ERROR;
 		return (data->status);
 	}

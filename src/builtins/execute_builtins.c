@@ -18,7 +18,7 @@ bool	execute_builtin(char **tokens, t_shell *data)
 	{"pwd", builtin_pwd}, {"export", builtin_export},
 	{"exit", builtin_exit}, {"echo", builtin_echo},
 	{"env", builtin_env}, {"unset", builtin_unset},
-	// cd
+	{"cd", builtin_cd},
 	{NULL, NULL}};
 
 	// no tokens at all, nothing to execute
