@@ -1,6 +1,24 @@
 #include "minishell.h"
 
 /**
+ * @brief Handle 'exit' when no arguments are provided.
+ *
+ * Sets the shell's should_exit flag to true to signal termination.
+ * - In a parent shell: returns the current data->status.
+ * - In a child process: exits immediately with data->status.
+ *
+ * @param data Shell data structure
+ * @return Current exit status (parent), does not return in child.
+ */
+static int	handle_exit_no_args(t_shell *data)
+{
+	data->should_exit = true;
+	if (data->is_child)
+		exit(data->status);
+	return (data->status);
+}
+
+/**
  * @brief Handle `exit` when too many arguments are provided.
  *
  * Prints an error message and sets `data->status` to EXIT_FAILURE (1). 
@@ -59,12 +77,7 @@ int	builtin_exit(char **tokens, t_shell *data)
 	if (data->is_tty && !data->is_child)
 		printf("exit\n");
 	if (tokens[1] == NULL)
-	{
-		data->should_exit = true; // signal main loop to stop
-		if (data->is_child)
-			exit(data->status); // terminate child immediately
-		return (data->status); // 0 at this point
-	}
+		return (handle_exit_no_args(data));
 	if (ft_safe_atoll(tokens[1], &exit_code) != 1)
 		return (handle_exit_invalid_arg(tokens[1], data));
 	if (tokens[2] != NULL)

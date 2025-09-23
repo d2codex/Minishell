@@ -103,40 +103,62 @@ int	set_env_node(t_list **env_list, const char *token)
 }
 
 /**
- * @brief Implements the `export` builtin.
+ * @brief Convert the environment list to a sorted array and print it.
+ *
+ * This helper function handles the "export" command with no arguments.
+ * It converts the linked list of environment variables to an array,
+ * sorts it lexicographically, prints the result, and frees the array.
+ * Updates data->status accordingly.
+ *
+ * @param env_list Linked list of environment variables
+ * @param data Shell data structure
+ * @return int Updated exit status (EXIT_SUCCESS or EXIT_FAILURE)
+ */
+static int	print_sorted_env(t_list *env_list, t_shell *data)
+{
+	int		size;
+	t_env	**env_array;
+
+	env_array = export_list_to_array(env_list, &size);
+	if (!env_array)
+	{
+		data->status = EXIT_FAILURE;
+		return (data->status);
+	}
+	sort_export_array(env_array, size);
+	print_sorted_export(env_array, size);
+	free(env_array);
+	data->status = EXIT_SUCCESS;
+	return (data->status);
+}
+
+/**
+ * @brief Implements the export builtin command.
  *
  * Without arguments, prints all environment variables in sorted order.
- * With arguments, sets or appends variables. Invalid keys are skipped,
- * and `data->status` is updated if any errors occur.
+ * With arguments, sets/updates the environment variables.
+ * Updates data->status according to success or failure.
  *
- * @param tokens Array of command tokens, with `tokens[0]` being "export".
- * @param data   Pointer to shell state containing the environment and status.
- *
- * @return 0 on success, 1 on fatal errors (e.g., malloc failure).
- *         Invalid keys do not stop execution but set `data->status`.
+ * @param tokens Command tokens array, where tokens[0] is "export"
+ * @param data Shell data structure
+ * @return int Exit status of the last processed token
  */
 int	builtin_export(char **tokens, t_shell *data)
 {
 	int		i;
-	int		size;
-	t_env	**env_array;
 	int		result;
 
 	if (tokens[1] == NULL)
-	{
-		env_array = export_list_to_array(data->env_list, &size);
-		if (!env_array)
-			return (EXIT_FAILURE);
-		sort_export_array(env_array, size);
-		print_sorted_export(env_array, size);
-		return (free(env_array), EXIT_SUCCESS);
-	}
+		return (print_sorted_env(data->env_list, data));
 	i = 1;
 	while (tokens[i])
 	{
 		result = set_env_node(&data->env_list, tokens[i]);
 		if (result == -1)
-			return (EXIT_FAILURE);
+		{
+			data->status = EXIT_FAILURE;
+			return (data->status);
+		}
 		if (result == 1)
 			data->status = 1;
 		i++;

@@ -14,7 +14,6 @@
 bool	execute_builtin(char **tokens, t_shell *data)
 {
 	int						i;
-	int						result;
 	static const t_builtin	builtins[] = {
 	{"pwd", builtin_pwd}, {"export", builtin_export},
 	{"exit", builtin_exit}, {"echo", builtin_echo},
@@ -32,13 +31,10 @@ bool	execute_builtin(char **tokens, t_shell *data)
 		// including exit
 		if (ft_strcmp(tokens[0], builtins[i].cmd) == 0)
 		{
-			result = builtins[i].f(tokens, data);
-			data->status = result; // update shell status
-			// no longer need to check for -1 signal anymore
+			builtins[i].f(tokens, data);
 			return (true); //if true it's a builtin
 		}
 		i++;
 	}
-	// cmd not found, set data->status = 127 ? (just a reminder for later)
 	return (false);
 }
