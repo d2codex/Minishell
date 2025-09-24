@@ -23,7 +23,8 @@ int	builtin_pwd(char **tokens, t_shell *data)
 	if (!path)
 	{
 		perror("pwd");
-		return (EXIT_FAILURE);
+		data->status = EXIT_FAILURE;
+		return (data->status);
 	}
 	printf("%s\n", path);
 	free(path);

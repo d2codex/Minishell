@@ -75,7 +75,8 @@ int	builtin_echo(char **tokens, t_shell *data)
 	if (tokens[1] == NULL)
 	{
 		printf("\n");
-		return (EXIT_SUCCESS);
+		data->status = EXIT_SUCCESS;
+		return (data->status);
 	}
 	start_print_index = 1;
 	print_new_line = true;

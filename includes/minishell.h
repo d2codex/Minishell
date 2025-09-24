@@ -21,8 +21,8 @@
 # define SHELL_PROMPT "[mini$HELL] "
 
 /* errors messages tools */
-# define SHELL_EXIT_SIGNAL -1
-# define ERR_PREFIX "[mini$Hell]: "
+# define ERR_PREFIX "[mini$HELL]: "
+# define ERR_CD "cd: "
 # define ERR_EXIT "exit: "
 # define ERR_ENV "env: "
 # define ERR_EXPORT "export: `"
@@ -156,6 +156,9 @@ typedef struct s_ast
 
 /* src/builtins/pwd.c */
 int			builtin_pwd(char **tokens, t_shell *data);
+
+/* src/builtins/cd.c */
+int			builtin_cd(char **tokens, t_shell *data);
 
 /* src/builtins/env.c */
 int			builtin_env(char **tokens, t_shell *data);
