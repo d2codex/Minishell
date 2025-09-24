@@ -100,6 +100,57 @@ typedef enum e_export_op
 }	t_export_op;
 
 /* =========================== */
+/*           LEXER             */
+/* =========================== */
+typedef enum t_token_type
+{
+	TOKEN_WORD,
+	TOKEN_OPERATOR
+}	t_token_type;
+
+typedef enum t_node_type
+{
+	NODE_NONE,
+	NODE_CMD,
+	NODE_PIPE,
+	NODE_REDIR
+}	t_node_type;
+
+typedef enum e_operator_type
+{
+	OP_NONE,
+	OP_PIPE,
+	OP_INPUT,
+	OP_OUTPUT,
+	OP_APPEND,
+	OP_HEREDOC
+	// if we have time for bonus later
+	// OP_AND,
+	// OP_OR,
+	// OP_PAREN_OPEN,
+	// OP_PAREN_CLOSE
+}	t_operator_type;
+
+typedef struct s_token
+{
+	char			*value;
+	t_token_type	type;
+	t_operator_type	op_type;
+	struct s_token	*next;
+}	t_token;
+
+// unused fields will be set to 0 or null
+typedef struct s_ast
+{
+	t_node_type		type; // NODE_CMD, NODE_PIPE or NODE_REDIR
+	char			**args; // only for NODE_CMD
+	char			*filename; // only for NODE_REDIR
+	t_operator_type	op_type;// <, >, >>, <<
+	struct s_ast	*left; // pipe left
+	struct s_ast	*right; // pipe right
+}	t_ast;
+
+/* =========================== */
 /*          BUILTINS           */
 /* =========================== */
 
@@ -180,7 +231,7 @@ char		**execute_tokenizer(char *line, t_shell *data);
 bool		validate_tokens(char **tokens, char *line);
 
 /* src/core/execute_builtins.c */
-bool			execute_builtin(char **tokens, t_shell *data);
+bool		execute_builtin(char **tokens, t_shell *data);
 
 /* src/core/init_shell.c */
 int			init_shell(t_shell *data, char **envp);
@@ -199,6 +250,12 @@ t_quote		update_quote_state(t_quote current_quote_state, char c);
 bool		is_a_shell_separator(t_quote current_quote_state, char c);
 bool		has_unclosed_quotes(char const *s);
 void		skip_whitespace(char const *s, size_t *i);
+
+/* src/parser/token_roles.c */
+int			get_operator_type(char *token);
+void		token_list_append(t_token **head, t_token *new);
+void		free_tokens_list(t_token *head);
+t_token		*create_token_type_list(char **tokens);
 
 /* src/parser/tokenizer_count_tokens.c */
 int			count_shell_tokens(const char *s);
