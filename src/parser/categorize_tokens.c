@@ -58,34 +58,6 @@ void	free_tokens_list(t_token *list)
 	}
 }
 
-// decided not to use linked list helpers, for better readability
-// and no casting noise and no pointer redirection noise 
-/**
- * @brief Append a new token node to the end of the list.
- *
- * If the list is empty, the new node becomes the head.
- *
- * @param head Pointer to the head pointer of the list.
- * @param new  New token node to append.
- */
-void	token_list_append(t_token **head, t_token *new)
-{
-	t_token	*last;
-
-	if (!new)
-		return ;
-	new->next = NULL;
-	if (!*head) //empty list
-	{
-		*head = new;
-		return ;
-	}
-	last = *head;
-	while (last->next)
-		last = last->next;
-	last->next = new; // append at the end
-}
-
 // function that mallocs and set node,
 // malloc_and_node haha like lock and load
 /**
@@ -122,11 +94,12 @@ static t_token	*new_token_node(char *token)
 }
 
 /**
- * @brief Build a linked list of tokens from an array of strings.
+ * @brief Build a linked list of tokens from a null-terminated
+ * array of strings.
  *
  * Each token is converted into a t_token node (with type/op_type)
- * and appended to the list. On allocation failure, all previously
- * created nodes are freed.
+ * and appended to the list using a tail pointer (0(1) per append).
+ * On allocation failure, all previously created nodes are freed.
  *
  * @param tokens Null-terminated array of strings (raw tokens).
  * @return Head of the token list, or NULL on failure.
@@ -135,9 +108,11 @@ t_token	*create_token_type_list(char **tokens)
 {
 	t_token	*new;
 	t_token	*tokens_list;
+	t_token	*tail;
 	int		i;
 
 	tokens_list = NULL;
+	tail = NULL;
 	i = 0;
 	while (tokens[i])
 	{
@@ -147,7 +122,11 @@ t_token	*create_token_type_list(char **tokens)
 			free_tokens_list(tokens_list);
 			return (NULL);
 		}
-		token_list_append(&tokens_list, new);
+		if (!tokens_list) //no list yet
+			tokens_list = new;
+		else
+			tail->next = new;
+		tail = new;
 		i++;
 	}
 	return (tokens_list);

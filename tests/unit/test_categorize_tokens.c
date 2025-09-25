@@ -1,5 +1,14 @@
 #include "minishell.h"
 
+/**
+ * @brief Print a linked list of t_token nodes with their types.
+ *
+ * Iterates over a token list and prints each token's value, whether it is
+ * a word or operator, and the specific operator type as a readable string.
+ * Color codes are used for better visual distinction.
+ *
+ * @param list Head of the t_token linked list to print. Safe to pass NULL.
+ */
 void	print_token_type_list(t_token *list)
 {
 	int		i;
@@ -42,7 +51,7 @@ int	main(void)
 	i = 0;
 	while (tokens[i])
 	{
-		printf("%s%s%s ", YEL, tokens[i], RESET);
+		printf("%s[%d]%s%s ", YEL, i, tokens[i], RESET);
 		i++;
 	}
 	printf("\n");

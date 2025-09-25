@@ -29,6 +29,7 @@ SRC =	src/env/env_import.c \
 		src/builtins/export_utils.c \
 		src/builtins/pwd.c \
 		src/builtins/unset.c \
+		src/parser/categorize_ast.c \
 		src/parser/categorize_tokens.c \
 		src/parser/execute_tokenizer.c \
 		src/parser/tokenizer_smart_split.c \

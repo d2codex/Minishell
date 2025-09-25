@@ -148,6 +148,7 @@ typedef struct s_ast
 	t_operator_type	op_type;// <, >, >>, <<
 	struct s_ast	*left; // pipe left
 	struct s_ast	*right; // pipe right
+	struct s_ast	*next;  // used temporarily for flat list
 }	t_ast;
 
 /* =========================== */
@@ -254,9 +255,13 @@ bool		is_a_shell_separator(t_quote current_quote_state, char c);
 bool		has_unclosed_quotes(char const *s);
 void		skip_whitespace(char const *s, size_t *i);
 
-/* src/parser/token_roles.c */
+/* src/parser/categorize_ast.c */
+void		free_ast_list(t_ast *list);
+t_ast		*new_ast_node(t_token *token);
+t_ast		*create_ast_list(t_token *tokens_list);
+
+/* src/parser/categorize_tokens.c */
 int			get_operator_type(char *token);
-void		token_list_append(t_token **head, t_token *new);
 void		free_tokens_list(t_token *head);
 t_token		*create_token_type_list(char **tokens);
 

@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 14:39:49 by diade-so          #+#    #+#             */
-/*   Updated: 2025/09/16 14:48:15 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/09/25 12:56:26 by diade-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ int		ft_printf(const char *str, ...);
 char	*get_next_line(int fd);
 
 // string
+void	free_strings_array(char **array);
 char	**ft_split(char const *s, char c);
 char	*ft_strchr(const char *s, int c);
 char	*ft_strdup(const char *s);
