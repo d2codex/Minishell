@@ -18,6 +18,8 @@ void	free_ast_list(t_ast *list)
 	{
 		current = list;
 		list = list->next;
+		if (current->value)
+			free(current->value);
 		free_strings_array(current->args);
 		if (current->filename)
 			free (current->filename);
@@ -48,6 +50,13 @@ t_ast	*new_ast_node(t_token *token)
 	if (!new)
 		return (NULL);
 	new->type = NODE_NONE;
+	new->value = NULL;
+	if (token->value)
+	{
+		new->value = ft_strdup(token->value);
+		if (!new->value)
+			return (free(new), NULL);
+	}
 	new->args = NULL;
 	new->filename = NULL;
 	new->op_type = token->op_type;

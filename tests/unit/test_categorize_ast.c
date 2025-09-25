@@ -50,7 +50,15 @@ static const char	*op_type_to_str(t_operator_type op_type)
 void	test_ast_tokens(void)
 {
 	char	*tokens[] = {
-		"echo", ">", "-n", "<<", "hello", ">>", "|", "wc", "<", NULL};
+		"cat", "input.txt",        // command + arg (input file)
+		"|", "grep", "pattern",    // pipe → new command + arg
+		">", "out1.txt",           // output redirection
+		">>", "out2.log",          // append redirection
+		"<", "extra.txt",          // input redirection
+		"<<", "EOF",               // heredoc redirection
+		"|", "sort", "-r",         // another pipe command with flag
+		"|", "head", "-n", "5",    // final pipe command with args
+		NULL};
 	t_token	*token_list;
 	t_ast	*ast_list;
 	t_ast	*current;
@@ -86,6 +94,7 @@ void	test_ast_tokens(void)
 	while (current)
 	{
 		printf(CYN "[%d] AST Node at %p\n" RESET, j, (void *)current);
+		printf("        value: %s%s%s\n", YEL, current->value, RESET);
 		printf("         type: %s\n", node_type_to_str(current->type));
 		printf("      op_type: %s\n", op_type_to_str(current->op_type));
 		if (current->args)

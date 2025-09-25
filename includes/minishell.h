@@ -143,6 +143,7 @@ typedef struct s_token
 typedef struct s_ast
 {
 	t_node_type		type; // NODE_CMD, NODE_PIPE or NODE_REDIR
+	char			*value; // raw token string (cmd or word)
 	char			**args; // only for NODE_CMD
 	char			*filename; // only for NODE_REDIR
 	t_operator_type	op_type;// <, >, >>, <<
