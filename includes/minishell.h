@@ -258,6 +258,7 @@ void		skip_whitespace(char const *s, size_t *i);
 /* src/parser/categorize_ast.c */
 void		free_ast_list(t_ast *list);
 t_ast		*new_ast_node(t_token *token);
+void		assign_ast_node_type(t_ast *ast_list);
 t_ast		*create_ast_list(t_token *tokens_list);
 
 /* src/parser/categorize_tokens.c */

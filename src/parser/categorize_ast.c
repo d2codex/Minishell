@@ -57,8 +57,60 @@ t_ast	*new_ast_node(t_token *token)
 	return (new);
 }
 
-//now loop through and update the fields depending on the position
-//of the nodes
+/**
+ * @brief Check if an operator type represents a redirection.
+ *
+ * Recognized redirection operators are: <, >, >>, and <<.
+ *
+ * @param op_type Operator type to check.
+ * @return true if the operator is a redirection, false otherwise.
+ */
+bool	is_a_redirection(t_operator_type op_type)
+{
+	if (op_type == OP_INPUT || op_type == OP_OUTPUT
+		|| op_type == OP_APPEND || op_type == OP_HEREDOC)
+		return (true);
+	return (false);
+}
+
+/**
+ * @brief Assign node types in the AST based on token position and operator type.
+ *
+ * This function performs a first pass over the AST list to classify nodes as
+ * commands, pipes, or redirections:
+ * - The first node (or the node after a pipe) is marked as a command (NODE_CMD).
+ * - Operator tokens such as '|', '>', '<', '>>', and '<<' are marked as pipes
+ *   (NODE_PIPE) or redirections (NODE_REDIR).
+ * - Remaining tokens that don't match these rules remain as NODE_NONE.
+ *
+ * @param ast_list Head of the AST linked list.
+ */
+void	assign_ast_node_type(t_ast *ast_list)
+{
+	t_ast	*current;
+	int		new_command;
+
+	if (!ast_list)
+		return ;
+	new_command = 1;
+	current = ast_list;
+	while (current)
+	{
+		if (new_command)
+		{
+			current->type = NODE_CMD;
+			new_command = 0;
+		}
+		else if (current->op_type == OP_PIPE)
+		{
+			current->type = NODE_PIPE;
+			new_command = 1;
+		}
+		else if (is_a_redirection(current->op_type))
+			current->type = NODE_REDIR;
+		current = current->next;
+	}
+}
 
 /**
  * @brief Create a flat AST node list from a token list.

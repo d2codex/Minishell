@@ -1,15 +1,52 @@
 #include "minishell.h"
 
 /**
- * @brief Test printing of AST nodes.
+ * @brief Test function for AST creation and node type assignment.
  *
- * This test uses the output from `categorize_tokens` (a linked list of t_token)
- * to create a flat AST list. It then prints all fields of each AST node,
- * including `args`, `filename`, `left`, `right`, `type`, and `op_type`.
+ * This function simulates parsing a shell command into tokens,
+ * converts them into an AST (Abstract Syntax Tree), and then
+ * assigns node types based on operator rules and position.
  *
- * Only the `t_ast` struct fields are output; no execution or evaluation
- * of commands is performed.
+ * It uses a hardcoded example command line:
+ *   echo > -n << hello >> | wc <
+ *
+ * Steps performed:
+ *  - Create a token list from the raw tokens (via create_token_type_list).
+ *  - Convert the token list into an AST list (via create_ast_list).
+ *  - Assign node types such as NODE_CMD, NODE_PIPE, NODE_REDIR
+ *    depending on operator type and position (via assign_ast_node_type).
+ *  - Print each AST node with its type, operator, arguments, filename,
+ *    and child pointers for debugging purposes.
+ *
+ * The test only outputs the AST node structure; it does not execute
+ * any commands.
  */
+static const char	*node_type_to_str(t_node_type type)
+{
+	if (type == NODE_CMD)
+		return ("NODE_CMD");
+	else if (type == NODE_PIPE)
+		return ("NODE_PIPE");
+	else if (type == NODE_REDIR)
+		return ("NODE_REDIR");
+	return ("NODE_NONE");
+}
+
+static const char	*op_type_to_str(t_operator_type op_type)
+{
+	if (op_type == OP_PIPE)
+		return ("OP_PIPE");
+	else if (op_type == OP_INPUT)
+		return ("OP_INPUT");
+	else if (op_type == OP_OUTPUT)
+		return ("OP_OUTPUT");
+	else if (op_type == OP_APPEND)
+		return ("OP_APPEND");
+	else if (op_type == OP_HEREDOC)
+		return ("OP_HEREDOC");
+	return ("OP_NONE");
+}
+
 void	test_ast_tokens(void)
 {
 	char	*tokens[] = {
@@ -17,8 +54,8 @@ void	test_ast_tokens(void)
 	t_token	*token_list;
 	t_ast	*ast_list;
 	t_ast	*current;
-	char	*op_str;
 	int		i;
+	int		j;
 
 	printf(YEL "----- TOKENS LIST -----\n" RESET);
 	i = 0;
@@ -43,25 +80,14 @@ void	test_ast_tokens(void)
 		free_tokens_list(token_list);
 		return ;
 	}
+	assign_ast_node_type(ast_list);
 	current = ast_list;
-	int j = 0;
+	j = 0;
 	while (current)
 	{
-		if (current->op_type == OP_PIPE)
-			op_str = "OP_PIPE";
-		else if (current->op_type == OP_INPUT)
-			op_str = "OP_INPUT";
-		else if (current->op_type == OP_OUTPUT)
-			op_str = "OP_OUTPUT";
-		else if (current->op_type == OP_APPEND)
-			op_str = "OP_APPEND";
-		else if (current->op_type == OP_HEREDOC)
-			op_str = "OP_HEREDOC";
-		else
-			op_str = "OP_NONE";
 		printf(CYN "[%d] AST Node at %p\n" RESET, j, (void *)current);
-		printf("         type: %d\n", current->type);
-		printf("      op_type: %s\n", op_str);
+		printf("         type: %s\n", node_type_to_str(current->type));
+		printf("      op_type: %s\n", op_type_to_str(current->op_type));
 		if (current->args)
 		{
 			printf("        args:\n");
@@ -88,7 +114,6 @@ void	test_ast_tokens(void)
 	free_tokens_list(token_list);
 	printf(YEL "--- AST test complete ---\n\n" RESET);
 }
-
 int	main(void)
 {
 	test_ast_tokens();
