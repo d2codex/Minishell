@@ -274,6 +274,9 @@ int			count_shell_tokens(const char *s);
 /* src/parser/tokenizer_smart_split.c */
 char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
+/* src/parser/expansion.c */
+char	*get_var_value(const char *var_name, t_shell *data);
+
 /* =========================== */
 /*         EXECUTION           */
 /* =========================== */
