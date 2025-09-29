@@ -97,13 +97,13 @@ void	test_ast_tokens(void)
 		printf("        value: %s%s%s\n", YEL, current->value, RESET);
 		printf("         type: %s\n", node_type_to_str(current->type));
 		printf("      op_type: %s\n", op_type_to_str(current->op_type));
-		if (current->args)
+		if (current->argv)
 		{
-			printf("        args:\n");
+			printf("        argv:\n");
 			i = 0;
-			while (current->args[i])
+			while (current->argv[i])
 			{
-				printf("    [%d] (%p): %s\n", i, (void *)current->args[i], current->args[i]);
+				printf("    [%d] (%p): %s\n", i, (void *)current->argv[i], current->argv[i]);
 				i++;
 			}
 		}

@@ -3,12 +3,14 @@
 /**
  * @brief Free a flat AST node list.
  *
- * Iterates over a singly linked list of AST nodes and frees each node's
- * dynamically allocated members (`args` array and `filename`) before freeing
- * the node itself. Assumes that the `left` and `right` pointers are NULL
- * (i.e., this is a flat list, not a tree).
+ * Iterates over the AST list using the `next` pointer and frees each node's
+ * dynamically allocated members (`value`, `argv` array, and `filename`)
+ * before freeing the node itself.
  *
- * @param list Head of the AST list to free. Safe to pass NULL.
+ * This function assumes the list is "flat" (not a tree). The `left` and
+ * `right` pointers may be set but are ignored during traversal.
+ *
+ * @param list Head of the AST list to free. Safe to pass `NULL`.
  */
 void	free_ast_list(t_ast *list)
 {
@@ -20,7 +22,7 @@ void	free_ast_list(t_ast *list)
 		list = list->next;
 		if (current->value)
 			free(current->value);
-		free_strings_array(current->args);
+		free_strings_array(current->argv);
 		if (current->filename)
 			free (current->filename);
 		free(current);
@@ -31,14 +33,17 @@ void	free_ast_list(t_ast *list)
  * @brief Allocate and initialize a new AST node from a token.
  *
  * Creates a new AST node with all pointers initialized to NULL and
- * `type` set to NODE_NONE. Copies the `op_type` from the given token.
+ * `type` set to NODE_NONE. If the token has a `value`, it is duplicated
+ * into the node. The `op_type` is copied directly from the token.
  *
- * @note This function only initializes the node; its other values
- *       (like `args`, `filename`, `left`, `right`) will be set
- *       or updated in later passes as the AST is built.
+ * @note This function only initializes the node; fields such as
+ *       `argv`, `filename`, `left`, and `right` will be set or
+ *       updated in later stages of AST construction.
  *
- * @param token Pointer to the token to base the AST node on. Must not be NULL.
- * @return t_ast* Pointer to the newly allocated AST node, or NULL on allocation failure.
+ * @param token Pointer to the token to base the AST node on. If NULL,
+ *              the function returns NULL immediately.
+ * @return t_ast* Pointer to the newly allocated AST node, or NULL on
+ *         allocation failure.
  */
 t_ast	*new_ast_node(t_token *token)
 {
@@ -57,7 +62,7 @@ t_ast	*new_ast_node(t_token *token)
 		if (!new->value)
 			return (free(new), NULL);
 	}
-	new->args = NULL;
+	new->argv = NULL;
 	new->filename = NULL;
 	new->op_type = token->op_type;
 	new->left = NULL;
@@ -85,14 +90,17 @@ bool	is_a_redirection(t_operator_type op_type)
 /**
  * @brief Assign node types in the AST based on token position and operator type.
  *
- * This function performs a first pass over the AST list to classify nodes as
- * commands, pipes, or redirections:
- * - The first node (or the node after a pipe) is marked as a command (NODE_CMD).
- * - Operator tokens such as '|', '>', '<', '>>', and '<<' are marked as pipes
- *   (NODE_PIPE) or redirections (NODE_REDIR).
- * - Remaining tokens that don't match these rules remain as NODE_NONE.
+ * Performs a first pass over the flat AST list to classify nodes:
+ * - The first node in the list, or the first node following a pipe, is marked
+ *   as a command (`NODE_CMD`).
+ * - Pipe operators (`|`) are marked as `NODE_PIPE`, and the following node
+ *   will be treated as the start of a new command.
+ * - Redirection operators (`<`, `>`, `>>`, `<<`) are marked as `NODE_REDIR`.
+ * - Any other nodes remain `NODE_NONE` for now.
  *
- * @param ast_list Head of the AST linked list.
+ * This function modifies the AST nodes in place and does not return a value.
+ *
+ * @param ast_list Head of the AST linked list. Safe to pass NULL.
  */
 void	assign_ast_node_type(t_ast *ast_list)
 {
@@ -122,14 +130,19 @@ void	assign_ast_node_type(t_ast *ast_list)
 }
 
 /**
- * @brief Create a flat AST node list from a token list.
+ * @brief Create a flat doubly linked AST node list from a token list.
  *
  * Iterates over the token list and converts each token into an AST node.
- * If any allocation fails, the partially built AST list is freed and NULL
- * is returned. Uses a tail pointer to append nodes in O(1).
+ * The nodes are linked sequentially:
+ * - `next` and `right` point forward to the next node,
+ * - `left` points back to the previous node.
+ *
+ * A tail pointer is used to append nodes in O(1).
+ * If allocation of a node fails, the partially built AST list is freed
+ * and `NULL` is returned.
  *
  * @param tokens_list Pointer to the head of the token list.
- * @return t_ast* Head of the new AST list, or NULL on error.
+ * @return Head of the new AST list, or `NULL` on error.
  */
 t_ast	*create_ast_list(t_token *tokens_list)
 {
@@ -145,15 +158,16 @@ t_ast	*create_ast_list(t_token *tokens_list)
 	{
 		new = new_ast_node(current);
 		if (!new)
-		{
-			free_ast_list(ast_list);
-			return (NULL);
-		}
+			return (free_ast_list(ast_list), NULL);
 		if (!ast_list) //no list yet (first node of the list)
 			ast_list = new;
 		else
+		{
 			tail->next = new;
-		tail = new; // update tail to the last node
+			tail->right = new;
+			new->left = tail;
+		}
+		tail = new;
 		current = current->next;
 	}
 	return (ast_list);
