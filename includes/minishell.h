@@ -60,7 +60,7 @@ typedef struct s_shell
 	int		status;
 	bool	is_tty;
 	bool	is_child;
-	bool	should_exit;  //new flag for main loop
+	bool	should_exit; //new flag for main loop
 }	t_shell;
 
 /* for builtin functions array, stores cmd and function's pointer*/
@@ -149,7 +149,7 @@ typedef struct s_ast
 	t_operator_type	op_type;// <, >, >>, <<
 	struct s_ast	*left; // pipe left
 	struct s_ast	*right; // pipe right
-	struct s_ast	*next;  // used temporarily for flat list
+	struct s_ast	*next; // used temporarily for flat list
 							//
 }	t_ast;
 
