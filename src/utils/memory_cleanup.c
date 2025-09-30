@@ -54,15 +54,8 @@ void	cleanup_shell(t_shell *data)
 void	cleanup_process_line(char **tokens, t_ast *ast_list,
 		t_token *token_list, char *line)
 {
-	int	token_count;
-
 	if (tokens)
-	{
-		token_count = 0;
-		while (tokens[token_count])
-			token_count++;
-		free_string_array(tokens, token_count);
-	}
+		free_strings_array(tokens);
 	if (token_list)
 		free_tokens_list(token_list);
 	if (ast_list)

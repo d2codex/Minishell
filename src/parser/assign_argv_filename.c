@@ -104,18 +104,17 @@ int	assign_argv_and_filename(t_ast *ast_list)
 		{
 			curr->argv = collect_argv(curr);
 			if (!curr->argv)
-			{
-				//can delete this line later
-				printf("debug: malloc failure\n");
 				return (EXIT_FAILURE);
-			}
 		}
 		else if (curr->type == NODE_REDIR)
 		{
-			curr->filename = curr->next->value;
+			if (curr->op_type == OP_HEREDOC)
+				curr->filename = curr->next->value;
+			else
+				curr->filename = curr->next->value;
 			curr = curr->next;
 		}
 		curr = curr->next;
 	}
-	return (0);
+	return (EXIT_SUCCESS);
 }
