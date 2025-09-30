@@ -21,7 +21,7 @@ static int	handle_exit_no_args(t_shell *data)
 /**
  * @brief Handle `exit` when too many arguments are provided.
  *
- * Prints an error message and sets `data->status` to EXIT_FAILURE (1). 
+ * Prints an error message and sets `data->status` to EXIT_FAILURE (1).
  * The shell does not exit in this case.
  *
  * @param data Shell state, including exit status.
@@ -30,7 +30,7 @@ static int	handle_exit_no_args(t_shell *data)
 static int	handle_exit_too_many_args(t_shell *data)
 {
 	print_error(ERR_PREFIX, ERR_EXIT, ERR_TOO_MANY_ARGS, NULL);
-	data->status = EXIT_FAILURE; // general error (1)
+	data->status = EXIT_FAILURE;
 	return (data->status);
 }
 
@@ -38,7 +38,7 @@ static int	handle_exit_too_many_args(t_shell *data)
  * @brief Handle `exit` with an invalid numeric argument.
  *
  * Prints an error message, sets `data->status` to MISUSAGE_ERROR (2),
- * and signals the shell to exit via `data->should_exit`. If running in 
+ * and signals the shell to exit via `data->should_exit`. If running in
  * a child process, exits immediately.
  *
  * @param arg The invalid argument passed to `exit`.
@@ -58,9 +58,9 @@ static int	handle_exit_invalid_arg(char *arg, t_shell *data)
 /**
  * @brief Builtin command: exit the shell.
  *
- * Signals the shell to terminate by setting `data->should_exit`. 
- * If an exit code is provided, updates `data->status` accordingly. 
- * Handles invalid numeric arguments and too many arguments. 
+ * Signals the shell to terminate by setting `data->should_exit`.
+ * If an exit code is provided, updates `data->status` accordingly.
+ * Handles invalid numeric arguments and too many arguments.
  * If running in a child process, exits immediately.
  *
  * @param tokens Command tokens from user input.

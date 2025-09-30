@@ -29,9 +29,10 @@ int	minishell_loop(t_shell *data)
 /**
  * @brief Show prompt, read input and process it.
  *
- * Reads a line from stdin (with prompt if in TTY mode) and processes it 
- * via `process_line`. Handles empty input and end-of-file (Ctrl+D). 
- * Returns whether the shell should continue running or exit, based on 
+ * Reads a line from stdin (with prompt if in TTY mode) and processes it
+ * via `process_line`. Updates `data->status` with the exit code of the
+ * last command. Handles empty input and end-of-file (Ctrl+D).
+ * Returns whether the shell should continue running or exit, based on
  * `data->should_exit`.
  *
  * @param prompt Prompt string to display
@@ -58,71 +59,128 @@ bool	prompt_user(char *prompt, t_shell *data)
 		return (true);
 	}
 	// process the command line (builtin or external)
-	process_line(line, data);
+	data->status = process_line(line, data);
 	if (data->should_exit)
 		return (false);
 	return (true);
 }
 
-// temporary stub until execute_external_command is implemented
-int	execute_external_command(char **tokens, t_shell *data)
+/**
+ * @brief Tokenize a command line and create a token type list.
+ *
+ * This function takes a raw command line and:
+ *  1. Tokenizes it into an array of strings via `execute_tokenizer`.
+ *  2. Validates the tokens with `validate_tokens`.
+ *  3. Builds a linked list of typed tokens via `create_token_type_list`.
+ *
+ * If tokenization or validation fails, the function returns EXIT_FAILURE.
+ *
+ * @param line The raw input command line string.
+ * @param data Shell state structure, used for tokenizer context.
+ * @param tokens Pointer to store the resulting array of token strings.
+ * @param token_list Pointer to store the resulting typed token list.
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE if tokenization or
+ * validation fails.
+ */
+static int	process_tokens(char *line, t_shell *data,
+	char ***tokens, t_token **token_list)
 {
-	(void)tokens;
-	(void)data;
-	// just indicate command not found for now
-	return 127; // CMD_NOT_FOUND_ERROR
+	*tokens = execute_tokenizer(line, data);
+	if (!validate_tokens(*tokens))
+		return (EXIT_FAILURE); // invalid tokens = syntax misuse
+	*token_list = create_token_type_list(*tokens);
+	if (!*token_list)
+		return (EXIT_FAILURE); // malloc or internal error
+	return (EXIT_SUCCESS);
 }
 
 /**
- * @brief Process a command line through the shell pipeline.
+ * @brief Build an AST from a token list and assign node details.
  *
- * Clean interface function that orchestrates the full command processing:
- * tokenization → validation → execution → cleanup
- * Builtins are executed first, if not a builtin, the command is run ass
- * an external command. Updates 'data->status` with the code of the last
- * command executed, including non-fatal failures. The shell continues
- * even if a command fails, but data->status reflects the most recent failure.
+ * This function takes a linked list of typed tokens and performs the following
+ * steps:
+ *  1. Creates a linear AST list using `create_ast_list`.
+ *  2. Assigns node types (CMD, PIPE, REDIR) via `assign_ast_node_type`.
+ *  3. Validates AST syntax with `validate_syntax_ast_list`.
+ *  4. Collects argv arrays and filenames for CMD and REDIR nodes via
+ * `assign_argv_and_filename`.
  *
- * @param line User input command line
- * @param data Shell data structure
- * @return Exit status of the last command executed (builtin or external).
+ * If any step fails, the function returns an appropriate error code:
+ *  - EXIT_FAILURE for allocation or internal errors.
+ *  - MISUSAGE_ERROR for syntax errors.
+ *
+ * @param token_list The input typed token list.
+ * @param ast Pointer to store the resulting AST list.
+ * @return EXIT_SUCCESS on success, otherwise an error code indicating
+ * the failure.
+ */
+static int	process_ast(t_token *token_list, t_ast **ast)
+{
+	int	status;
+
+	*ast = create_ast_list(token_list);
+	if (!*ast)
+		return (EXIT_FAILURE);
+	assign_ast_node_type(*ast);
+	status = validate_syntax_ast_list(*ast);
+	if (status != EXIT_SUCCESS)
+		return (status); // already returns MISUSAGE_ERROR for bad syntax
+	status = assign_argv_and_filename(*ast);
+	if (status != EXIT_SUCCESS)
+		return (status); // could return EXIT_FAILURE or something custom
+	return (EXIT_SUCCESS);
+}
+
+/**
+ * @brief Process a single input line in the shell.
+ *
+ * This function performs the full processing of a command line:
+ *  1. Handles Easter egg commands via `is_easter_egg` and `display_easter_egg`.
+ *  2. Adds non-empty lines to the history if in TTY mode.
+ *  3. Tokenizes and validates the line via `process_tokens`.
+ *  4. Builds and validates the AST via `process_ast`.
+ *  5. Executes the command as a builtin or external program.
+ *  6. Cleans up all allocated resources.
+ *
+ * The function returns the exit status of the command:
+ *  - EXIT_SUCCESS (0) for successful execution or Easter eggs.
+ *  - MISUSAGE_ERROR for syntax errors detected in tokens or AST.
+ *  - EXIT_FAILURE for allocation or internal errors.
+ *  - The actual exit code of builtins or external commands otherwise.
+ *
+ * @param line The input command line to process.
+ * @param data Shell context storing state, status, and execution info.
+ * @return The resulting exit code of the processed line.
  */
 int	process_line(char *line, t_shell *data)
 {
 	char	**tokens;
+	t_ast	*ast_list;
+	t_token	*token_list;
 	int		result;
 
+	tokens = NULL;
+	ast_list = NULL;
+	token_list = NULL;
 	if (is_easter_egg(line))
 	{
 		display_easter_egg();
 		free(line);
-		return (EXIT_SUCCESS); // continue shell
+		return (EXIT_SUCCESS);
 	}
 	if (line)
 		add_history(line);
-	tokens = execute_tokenizer(line, data);
-
-	// if invalid, stop processing this line and report failure
-	// this does not exit the whole shell, only this command cycle
-	if (!validate_tokens(tokens, line))
-		return (EXIT_FAILURE);
-	// TODO: Parsing phase (AST generation, syntax validation)
-	// TODO: Variable expansion ($VAR, $?, etc.)
-	// TODO: Quote removal
-	// TODO: Redirection setup (<, >, <<, >>)
-	// TODO: Pipe setup and process management
-	// Execute command
-	
-	//try builtins first (updates data->status internally)
+	result = process_tokens(line, data, &tokens, &token_list);
+	if (result != EXIT_SUCCESS)
+		return(cleanup_process_line(tokens, NULL, token_list, line), result);
+	result = process_ast(token_list, &ast_list);
+	if (result != EXIT_SUCCESS)
+		return (cleanup_process_line(tokens, ast_list, token_list, line), result);
+	// TODO: expansions, quotes, redirs, pipes...
 	if (!execute_builtin(tokens, data))
-	{
-		// if not a builtin: execute as external cmd
-		result = execute_external_command(tokens, data); //need to code this function
-		data->status = result;
-	}
-	cleanup_process_line(tokens, line);
-	// always returns the last cmd's exit status
-	// we no longer need to signal to prompt_user -1 exit signal anymore
-	// it is directly taken care of by the should_exit flag
-	return (data->status);
+		result = execute_external_command(tokens, data);
+	else
+		result = data->status;
+	cleanup_process_line(tokens, ast_list, token_list, line);
+	return (result);
 }

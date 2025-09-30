@@ -4,8 +4,12 @@
  * @brief Free a flat AST node list.
  *
  * Iterates over the AST list using the `next` pointer and frees each node's
- * dynamically allocated members (`value`, `argv` array, and `filename`)
- * before freeing the node itself.
+ * dynamically allocated members:
+ * - the `value` string (owned by the AST node),
+ * - the `argv` array (the array itself; strings inside are aliases of `value`),
+ * - `filename` is **not freed** here if it points to `value`.
+ *
+ * The AST node itself is freed after its members.
  *
  * This function assumes the list is "flat" (not a tree). The `left` and
  * `right` pointers may be set but are ignored during traversal.
@@ -20,11 +24,9 @@ void	free_ast_list(t_ast *list)
 	{
 		current = list;
 		list = list->next;
+		free(current->argv);
 		if (current->value)
 			free(current->value);
-		free_strings_array(current->argv);
-		if (current->filename)
-			free (current->filename);
 		free(current);
 	}
 }
@@ -113,18 +115,18 @@ void	assign_ast_node_type(t_ast *ast_list)
 	current = ast_list;
 	while (current)
 	{
-		if (new_command)
-		{
-			current->type = NODE_CMD;
-			new_command = 0;
-		}
+		if (is_a_redirection(current->op_type))
+			current->type = NODE_REDIR;
 		else if (current->op_type == OP_PIPE)
 		{
 			current->type = NODE_PIPE;
 			new_command = 1;
 		}
-		else if (is_a_redirection(current->op_type))
-			current->type = NODE_REDIR;
+		else if (new_command)
+		{
+			current->type = NODE_CMD;
+			new_command = 0;
+		}
 		current = current->next;
 	}
 }

@@ -57,7 +57,7 @@ void	test_ast_tokens(void)
 		"<", "extra.txt",          // input redirection
 		"<<", "EOF",               // heredoc redirection
 		"|", "sort", "-r",         // another pipe command with flag
-		"|", "head", "-n", "5",    // final pipe command with args
+		"|", "head", "-n", ">",    // final pipe command with args
 		NULL};
 	t_token	*token_list;
 	t_ast	*ast_list;
@@ -89,28 +89,38 @@ void	test_ast_tokens(void)
 		return ;
 	}
 	assign_ast_node_type(ast_list);
+	int assign_status = assign_argv_and_filename(ast_list);
+	if (assign_status != 0)
+	{
+		// error already printed inside assign_argv_and_filename
+		free_ast_list(ast_list);
+		free_tokens_list(token_list);
+		printf(YEL "--- AST test aborted due to error ---\n\n" RESET);
+		return;
+	}
 	current = ast_list;
 	j = 0;
 	while (current)
 	{
 		printf(CYN "[%d] AST Node at %p\n" RESET, j, (void *)current);
-		printf("        value: %s%s%s\n", YEL, current->value, RESET);
+		printf("        value: %s%s (%p)%s\n", YEL, current->value, current->value, RESET);
 		printf("         type: %s\n", node_type_to_str(current->type));
 		printf("      op_type: %s\n", op_type_to_str(current->op_type));
 		if (current->argv)
 		{
-			printf("        argv:\n");
+			printf("         %sargv:%s ", BLU, RESET);
 			i = 0;
 			while (current->argv[i])
 			{
-				printf("    [%d] (%p): %s\n", i, (void *)current->argv[i], current->argv[i]);
+				printf("%s[%d] %s %s(%p) %s", BLU, i, current->argv[i], YEL, (void *)current->argv[i], RESET);
 				i++;
 			}
+			printf("\n");
 		}
 		else
 			printf("         args: NULL\n");
 		if (current->filename)
-			printf("     filename: %s (%p)\n", current->filename, (void *)current->filename);
+			printf("     %sfilename: %s%s (%p)%s\n", MAG, current->filename, YEL, (void *)current->filename, RESET);
 		else
 			printf("     filename: NULL\n");
 		printf("         left: %p\n", (void *)current->left);

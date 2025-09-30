@@ -54,6 +54,5 @@ int	init_shell(t_shell *data, char **envp)
 	data->is_tty = isatty(STDIN_FILENO);
 	data->is_child = false;
 	data->should_exit = false;
-	// add more inits here if necessary
 	return (0);
 }
