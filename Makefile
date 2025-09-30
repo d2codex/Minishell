@@ -35,10 +35,10 @@ SRC =	src/env/env_import.c \
 		src/expansion/expansion_utils.c \
 		src/parser/categorize_ast.c \
 		src/parser/categorize_tokens.c \
-		src/tokenizer/execute_tokenizer.c \
-		src/tokenizer/tokenizer_smart_split.c \
-		src/tokenizer/tokenizer_count_tokens.c \
-		src/tokenizer/tokenizer_utils.c \
+		src/parser/execute_tokenizer.c \
+		src/parser/tokenizer_smart_split.c \
+		src/parser/tokenizer_count_tokens.c \
+		src/parser/tokenizer_utils.c \
 		src/utils/is_whitespace.c \
 		src/utils/memory_cleanup.c \
 		src/utils/print_error.c \

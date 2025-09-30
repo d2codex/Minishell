@@ -263,10 +263,6 @@ t_ast		*new_ast_node(t_token *token);
 void		assign_ast_node_type(t_ast *ast_list);
 t_ast		*create_ast_list(t_token *tokens_list);
 
-/* =========================== */
-/*         TOKENIZER           */
-/* =========================== */
-
 /* src/tokenizer/categorize_tokens.c */
 int			get_operator_type(char *token);
 void		free_tokens_list(t_token *head);
