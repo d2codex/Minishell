@@ -41,10 +41,18 @@ void	cleanup_shell(t_shell *data)
 /**
  * @brief Clean up process_line resources
  *
+ * Cleans up:
+ *  - token array
+ *  - ast_ist
+ *  - token_list
+ *  - input line
+ *
  * @param tokens Token array to free (can be NULL)
+ * @param ast_list Flat Ast node list
  * @param line Input line to free (can be NULL)
  */
-void	cleanup_process_line(char **tokens, char *line)
+void	cleanup_process_line(char **tokens, t_ast *ast_list,
+		t_token *token_list, char *line)
 {
 	int	token_count;
 
@@ -55,6 +63,10 @@ void	cleanup_process_line(char **tokens, char *line)
 			token_count++;
 		free_string_array(tokens, token_count);
 	}
+	if (token_list)
+		free_tokens_list(token_list);
+	if (ast_list)
+		free_ast_list(ast_list);
 	if (line)
 		free(line);
 }

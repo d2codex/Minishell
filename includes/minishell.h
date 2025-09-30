@@ -29,6 +29,7 @@
 # define ERR_NOT_VALID_ID "': not a valid identifier"
 # define ERR_NUMERIC_ARG ": numeric argument required"
 # define ERR_TOO_MANY_ARGS "too many arguments"
+# define ERR_SYNTAX "syntax error near unexpected token `"
 
 /* easter egg */
 # define EASTER_EGG "101010"
@@ -232,10 +233,6 @@ int			minishell_loop(t_shell *data);
 bool		prompt_user(char *prompt, t_shell *data);
 int			process_line(char *line, t_shell *data);
 
-/* src/core/execute_tokenizer */
-char		**execute_tokenizer(char *line, t_shell *data);
-bool		validate_tokens(char **tokens, char *line);
-
 /* src/core/execute_builtins.c */
 bool		execute_builtin(char **tokens, t_shell *data);
 
@@ -257,6 +254,9 @@ bool		is_a_shell_separator(t_quote current_quote_state, char c);
 bool		has_unclosed_quotes(char const *s);
 void		skip_whitespace(char const *s, size_t *i);
 
+/* src/parser/assign_argv_and_filename.c */
+int			assign_argv_and_filename(t_ast *ast_list);
+
 /* src/parser/categorize_ast.c */
 void		free_ast_list(t_ast *list);
 t_ast		*new_ast_node(t_token *token);
@@ -268,16 +268,25 @@ int			get_operator_type(char *token);
 void		free_tokens_list(t_token *head);
 t_token		*create_token_type_list(char **tokens);
 
+/* src/parser/execute_tokenizer */
+char		**execute_tokenizer(char *line, t_shell *data);
+bool		validate_tokens(char **tokens);
+
 /* src/parser/tokenizer_count_tokens.c */
 int			count_shell_tokens(const char *s);
 
 /* src/parser/tokenizer_smart_split.c */
 char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
+/* src/parser/validate_syntax.c */
+int			validate_syntax_ast_list(t_ast *list);
+
 /* =========================== */
 /*         EXECUTION           */
 /* =========================== */
-/* TODO: add execution module functions when implemented */
+
+/* src/execution/execute.c */
+int			execute_external_command(char **tokens, t_shell *data);
 
 /* =========================== */
 /*           UTILS             */
@@ -289,7 +298,7 @@ bool		is_whitespace(char c);
 /* src/utils/memory_cleanup.c */
 void		free_string_array(char **tab, size_t count);
 void		cleanup_shell(t_shell *data);
-void		cleanup_process_line(char **tokens, char *line);
+void		cleanup_process_line(char **tokens, t_ast *ast_list, t_token *token_list, char *line);
 
 /* src/utils/print_errors.c */
 void		print_error(char *p1, char *p2, char *p3, char *p4);
