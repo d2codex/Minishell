@@ -263,19 +263,39 @@ t_ast		*new_ast_node(t_token *token);
 void		assign_ast_node_type(t_ast *ast_list);
 t_ast		*create_ast_list(t_token *tokens_list);
 
-/* src/parser/categorize_tokens.c */
+/* =========================== */
+/*         TOKENIZER           */
+/* =========================== */
+
+/* src/tokenizer/categorize_tokens.c */
 int			get_operator_type(char *token);
 void		free_tokens_list(t_token *head);
 t_token		*create_token_type_list(char **tokens);
 
-/* src/parser/tokenizer_count_tokens.c */
+/* src/tokenizer/tokenizer_count_tokens.c */
 int			count_shell_tokens(const char *s);
 
-/* src/parser/tokenizer_smart_split.c */
+/* src/tokenizer/tokenizer_smart_split.c */
 char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
-/* src/parser/expansion.c */
-char	*get_var_value(const char *var_name, t_shell *data);
+/* =========================== */
+/*         EXPANSION           */
+/* =========================== */
+
+/* src/expansion/expansion_extract.c */
+char 		*extract_var_name(const char *str, size_t start_pos);
+char 		*get_var_value(const char *var_name, t_shell *data);
+
+/* src/expansion/expansion_integrate.c */
+void		expand_ast_nodes(t_ast *ast_list, t_shell *data);
+
+/* src/expansion/expansion_replace.c */
+size_t		calculate_expanded_size(const char *str, t_shell *data);
+void		fill_expanded_string(char *result, const char *str, t_shell *data);
+char		*expand_variables_in_string(const char *str, t_shell *data);
+
+/* src/expansion/expansion_utils.c */
+bool 		should_expand_at_position(const char *str, size_t pos);
 
 /* =========================== */
 /*         EXECUTION           */

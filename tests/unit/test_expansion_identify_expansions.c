@@ -1,18 +1,7 @@
 #include "minishell.h"
 
-/**
- * @brief   Identify positions in the input string where variable expansion should occur.
- *
- * This function scans through the string while tracking the current quote state.
- * It detects `$` characters and determines whether they should trigger expansion
- * based on whether they appear outside of quotes, inside double quotes,
- * or inside single quotes (where expansion is disabled).
- *
- * @param str Input string to analyze (can be NULL).
- *
- * @note Currently only prints the decision for each `$` found.
- *       Intended as a helper for debugging / future expansion logic.
- */
+/* this is a pure test, I won't use it in the final code */
+
 void	identify_expansions(const char *str)
 {
 	int		i;
@@ -24,7 +13,7 @@ void	identify_expansions(const char *str)
 	current_quote_state = STATE_NOT_IN_QUOTE;
 	while (str[i])
 	{
-		// update the current quote state based on the character we're looking at
+		// update the current quote state based on the char we're looking at
 		current_quote_state = update_quote_state(current_quote_state, str[i]);
 
 		// whenever we encounter a '$', we need to decide if it should expand

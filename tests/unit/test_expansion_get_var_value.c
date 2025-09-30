@@ -21,7 +21,7 @@ char	*get_var_value(const char *var_name, t_shell *data)
 	return (ft_strdup(""));
 }
 
-// Helper: Create a test shell
+// Helper: Create a test shell for easy unit tests
 t_shell *create_test_shell(void)
 {
 	t_shell *data = malloc(sizeof(t_shell));

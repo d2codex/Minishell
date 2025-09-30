@@ -22,6 +22,7 @@
  *   extract_var_name("$_VAR", 0)        → "_VAR"
  *   extract_var_name("$?", 0)           → "?"
  *   extract_var_name("$123", 0)         → NULL
+ * TODO : split into helpers for the norm
  */
 char	*extract_var_name(const char *str, size_t start_pos)
 {
