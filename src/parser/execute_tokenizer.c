@@ -1,25 +1,21 @@
 #include "minishell.h"
 
 /**
- * @brief Validate tokenization result and handle cleanup on error
+ * @brief Validate tokenization result
  *
- * @param tokens Result from tokenization
- * @param line Original input line
- * @return true if tokens are valid, false if error (cleanup already done)
+ * Checks whether the tokenizer returned a valid array of tokens.
+ * This function does not free the tokens or the input line;
+ * all cleanup must be handled separately (e.g., in cleanup_process_line).
+ *
+ * @param tokens The array of token strings returned by the tokenizer
+ * @return true if tokens are valid (non-NULL and non-empty), false otherwise
  */
-bool	validate_tokens(char **tokens, char *line)
+bool	validate_tokens(char **tokens)
 {
 	if (!tokens)
-	{
-		free(line);
 		return (false);
-	}
 	if (!tokens[0])
-	{
-		free_string_array(tokens, 0);
-		free(line);
 		return (false);
-	}
 	return (true);
 }
 
