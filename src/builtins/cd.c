@@ -18,9 +18,8 @@ static char	*get_cd_target(char **tokens, t_shell *data)
 {
 	t_env	*home_node;
 
-	if (tokens[1] == NULL) //no args, go home
+	if (tokens[1] == NULL)
 	{
-		// search for the HOME path in the env_list
 		home_node = get_env_node_by_key(data->env_list, "HOME");
 		if (!home_node || !home_node->value)
 		{
@@ -29,7 +28,7 @@ static char	*get_cd_target(char **tokens, t_shell *data)
 		}
 		return (home_node->value);
 	}
-	else if (tokens[2] != NULL) // more than one arg
+	else if (tokens[2] != NULL)
 	{
 		print_error(ERR_PREFIX, ERR_CD, ERR_TOO_MANY_ARGS, NULL);
 		return (NULL);

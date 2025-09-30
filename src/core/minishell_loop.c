@@ -29,10 +29,10 @@ int	minishell_loop(t_shell *data)
 /**
  * @brief Show prompt, read input and process it.
  *
- * Reads a line from stdin (with prompt if in TTY mode) and processes it 
+ * Reads a line from stdin (with prompt if in TTY mode) and processes it
  * via `process_line`. Updates `data->status` with the exit code of the
- * last command. Handles empty input and end-of-file (Ctrl+D). 
- * Returns whether the shell should continue running or exit, based on 
+ * last command. Handles empty input and end-of-file (Ctrl+D).
+ * Returns whether the shell should continue running or exit, based on
  * `data->should_exit`.
  *
  * @param prompt Prompt string to display
@@ -79,7 +79,8 @@ bool	prompt_user(char *prompt, t_shell *data)
  * @param data Shell state structure, used for tokenizer context.
  * @param tokens Pointer to store the resulting array of token strings.
  * @param token_list Pointer to store the resulting typed token list.
- * @return EXIT_SUCCESS on success, EXIT_FAILURE if tokenization or validation fails.
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE if tokenization or
+ * validation fails.
  */
 static int	process_tokens(char *line, t_shell *data,
 	char ***tokens, t_token **token_list)
@@ -96,11 +97,13 @@ static int	process_tokens(char *line, t_shell *data,
 /**
  * @brief Build an AST from a token list and assign node details.
  *
- * This function takes a linked list of typed tokens and performs the following steps:
+ * This function takes a linked list of typed tokens and performs the following
+ * steps:
  *  1. Creates a linear AST list using `create_ast_list`.
  *  2. Assigns node types (CMD, PIPE, REDIR) via `assign_ast_node_type`.
  *  3. Validates AST syntax with `validate_syntax_ast_list`.
- *  4. Collects argv arrays and filenames for CMD and REDIR nodes via `assign_argv_and_filename`.
+ *  4. Collects argv arrays and filenames for CMD and REDIR nodes via
+ * `assign_argv_and_filename`.
  *
  * If any step fails, the function returns an appropriate error code:
  *  - EXIT_FAILURE for allocation or internal errors.
@@ -108,7 +111,8 @@ static int	process_tokens(char *line, t_shell *data,
  *
  * @param token_list The input typed token list.
  * @param ast Pointer to store the resulting AST list.
- * @return EXIT_SUCCESS on success, otherwise an error code indicating the failure.
+ * @return EXIT_SUCCESS on success, otherwise an error code indicating
+ * the failure.
  */
 static int	process_ast(t_token *token_list, t_ast **ast)
 {

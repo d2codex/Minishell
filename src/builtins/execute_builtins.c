@@ -3,8 +3,8 @@
 /**
  * @brief Check and execute a builtin command.
  *
- * Compares the first token against the list of supported builtins, 
- * including `exit`. If a match is found, executes the corresponding 
+ * Compares the first token against the list of supported builtins,
+ * including `exit`. If a match is found, executes the corresponding
  * function and updates `data->status`. Does not execute external commands.
  *
  * @param tokens Command tokens from user input.
@@ -21,18 +21,15 @@ bool	execute_builtin(char **tokens, t_shell *data)
 	{"cd", builtin_cd},
 	{NULL, NULL}};
 
-	// no tokens at all, nothing to execute
 	if (!tokens || !tokens[0])
-		return (false); // not a builtin
+		return (false);
 	i = 0;
 	while (builtins[i].cmd != NULL)
 	{
-		// compare user command agains each builtin keyword
-		// including exit
 		if (ft_strcmp(tokens[0], builtins[i].cmd) == 0)
 		{
 			builtins[i].f(tokens, data);
-			return (true); //if true it's a builtin
+			return (true);
 		}
 		i++;
 	}

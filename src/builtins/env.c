@@ -4,7 +4,8 @@
  * @brief Builtin command: print the environment variables.
  *
  * Prints all environment variables in `data->env_list`. Handles errors such as
- * extra arguments (MISUSAGE_ERROR) or missing/unprintable environment (INTERNAL_ERROR).
+ * extra arguments (MISUSAGE_ERROR) or missing/unprintable environment
+ * (INTERNAL_ERROR).
  * Updates `data->status` with the command's exit code.
  *
  * @param tokens Command tokens from user input.
