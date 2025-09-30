@@ -30,8 +30,8 @@ void	expand_ast_nodes(t_ast *ast_list, t_shell *data)
 			expanded = expand_variables_in_string(current->value, data);
 			if (expanded)
 			{
-				free(current->value);
-				current->value = expanded;
+				free(current->value); // free previous string
+				current->value = expanded; // replace by the brand new one
 			}
 		}
 		current = current->next;

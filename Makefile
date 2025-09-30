@@ -30,7 +30,7 @@ SRC =	src/env/env_import.c \
 		src/builtins/pwd.c \
 		src/builtins/unset.c \
 		src/expansion/expansion_extract.c \
-		src/expansion/expansion_integrate \
+		src/expansion/expansion_integrate_ast.c \
 		src/expansion/expansion_replace.c \
 		src/expansion/expansion_utils.c \
 		src/parser/categorize_ast.c \
