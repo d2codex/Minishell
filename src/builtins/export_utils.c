@@ -36,7 +36,7 @@ t_export_op	detect_operation(const char *arg)
  *  - Not be NULL or empty
  *  - Start with a letter (a-z, A-Z) or underscore (_)
  *  - Contain only alphanumeric characters (a-z, A-Z, 0-9) or underscores (_)
- *    up to an optional '=' or '+' character.
+ *	up to an optional '=' or '+' character.
  *
  * @param arg The input string representing the arg to validate.
  * @return true if the arg is a valid key according to the rules, false
@@ -101,9 +101,9 @@ char	*get_env_key(const char *arg)
  *
  * @return A malloc'ed copy of the value, or NULL if no '=' found or malloc
  * fails.
- *         Caller must free the returned string.
+ *		 Caller must free the returned string.
  */
-char	*get_env_value(const char *arg)
+/* char	*get_env_value(const char *arg)
 {
 	char	*value;
 	char	*equal;
@@ -117,6 +117,24 @@ char	*get_env_value(const char *arg)
 	if (!value)
 		return (NULL);
 	return (value);
+} */
+char *get_env_value(const char *arg)
+{
+	char *value;
+	char *equal;
+	char *trimmed;
+
+	if (!arg)
+		return (NULL);
+	equal = ft_strchr(arg, '=');
+	if (!equal)
+		return (NULL);
+	value = ft_strdup(equal + 1);
+	if (!value)
+		return (NULL);
+	trimmed = trim_quotes(value);
+	free(value);
+	return (trimmed);
 }
 
 /**
