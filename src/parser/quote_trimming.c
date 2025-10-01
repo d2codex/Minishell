@@ -65,15 +65,16 @@ void	trim_quotes_in_ast(t_ast *ast_list)
 	while (current)
 	{
 		if (current->value && (current->type == NODE_CMD
-				|| current->type == NODE_REDIR
 				|| current->type == NODE_NONE))
 		{
 			trimmed = trim_quotes(current->value);
-			if (trimmed)
+			if (trimmed != current->value)
 			{
-				current->value = trimmed; // replace by the brand new one
+				free(current->value);
+				current->value = trimmed;
 			}
 		}
 		current = current->next;
 	}
 }
+
