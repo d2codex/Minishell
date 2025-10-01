@@ -1,36 +1,36 @@
 #include "minishell.h"
 
 /**
- * @brief Detects the type of export operation in a token.
+ * @brief Detects the type of export operation in a arg.
  *
  * Scans the input string to determine whether it represents:
  * - No operation (`EXPORT_NONE`) if there is no '=' or '+=' present.
  * - Assignment (`EXPORT_ASSIGN`) if there is a '=' not preceded by '+'.
  * - Append (`EXPORT_APPEND`) if there is a '+=' sequence.
  *
- * @param token The input string to analyze.
+ * @param arg The input string to analyze.
  * @return The detected export operation as a t_export_op enum value.
  */
-t_export_op	detect_operation(const char *token)
+t_export_op	detect_operation(const char *arg)
 {
 	int	i;
 
-	if (!token)
+	if (!arg)
 		return (EXPORT_NONE);
 	i = 0;
-	while (token[i] && token[i] != '=' && token[i] != '+')
+	while (arg[i] && arg[i] != '=' && arg[i] != '+')
 		i++;
-	if (token[i] == '\0')
+	if (arg[i] == '\0')
 		return (EXPORT_NONE);
-	if (token[i] == '=')
+	if (arg[i] == '=')
 		return (EXPORT_ASSIGN);
-	if (token[i] == '+' && token[i + 1] && token[i + 1] == '=')
+	if (arg[i] == '+' && arg[i + 1] && arg[i + 1] == '=')
 		return (EXPORT_APPEND);
 	return (EXPORT_ASSIGN);
 }
 
 /**
- * @brief Checks if a given token is a valid shell environment variable key.
+ * @brief Checks if a given arg is a valid shell environment variable key.
  *
  * A valid key must:
  *  - Not be NULL or empty
@@ -38,22 +38,22 @@ t_export_op	detect_operation(const char *token)
  *  - Contain only alphanumeric characters (a-z, A-Z, 0-9) or underscores (_)
  *    up to an optional '=' or '+' character.
  *
- * @param token The input string representing the token to validate.
- * @return true if the token is a valid key according to the rules, false
+ * @param arg The input string representing the arg to validate.
+ * @return true if the arg is a valid key according to the rules, false
  * otherwise.
  */
-bool	is_valid_key(const char *token)
+bool	is_valid_key(const char *arg)
 {
 	int	i;
 
-	if (!token || token[0] == '\0')
+	if (!arg || arg[0] == '\0')
 		return (false);
-	if (!ft_isalpha(token[0]) && token[0] != '_')
+	if (!ft_isalpha(arg[0]) && arg[0] != '_')
 		return (false);
 	i = 1;
-	while (token[i] && token[i] != '=' && token[i] != '+')
+	while (arg[i] && arg[i] != '=' && arg[i] != '+')
 	{
-		if (!ft_isalnum(token[i]) && token[i] != '_')
+		if (!ft_isalnum(arg[i]) && arg[i] != '_')
 			return (false);
 		i++;
 	}
@@ -61,28 +61,28 @@ bool	is_valid_key(const char *token)
 }
 
 /**
- * @brief Extracts the key part from an environment token.
+ * @brief Extracts the key part from an environment arg.
  *
  * Scans the input string until the first '=' or '+' character (for append
  * operations), returning a newly allocated string containing only the key.
- * If the token is invalid, returns NULL. If memory allocation fails,
+ * If the arg is invalid, returns NULL. If memory allocation fails,
  * sets errno to ENOMEM and returns NULL, allowing the caller to distinguish
  * between invalid keys and malloc failure.*
  *
- * @param token Input string in the form KEY=VALUE, KEY+=VALUE, or KEY.
+ * @param arg Input string in the form KEY=VALUE, KEY+=VALUE, or KEY.
  *
  * @return A malloc'ed copy of the key, or NULL if the key is invalid or on
  * malloc failure. Caller is responsible for freeing the returned string.
  */
-char	*get_env_key(const char *token)
+char	*get_env_key(const char *arg)
 {
 	char	*key;
 	int		len;
 
-	if (!is_valid_key(token))
+	if (!is_valid_key(arg))
 		return (NULL);
 	len = 0;
-	while (token[len] && token[len] != '+' && token[len] != '=')
+	while (arg[len] && arg[len] != '+' && arg[len] != '=')
 		len++;
 	key = malloc(len + 1);
 	if (!key)
@@ -90,27 +90,27 @@ char	*get_env_key(const char *token)
 		errno = ENOMEM;
 		return (NULL);
 	}
-	ft_strlcpy(key, token, len + 1);
+	ft_strlcpy(key, arg, len + 1);
 	return (key);
 }
 
 /**
- * @brief Extract the value part from a token (after '=').
+ * @brief Extract the value part from a arg (after '=').
  *
- * @param token Input string in the form KEY=VALUE.
+ * @param arg Input string in the form KEY=VALUE.
  *
  * @return A malloc'ed copy of the value, or NULL if no '=' found or malloc
  * fails.
  *         Caller must free the returned string.
  */
-char	*get_env_value(const char *token)
+char	*get_env_value(const char *arg)
 {
 	char	*value;
 	char	*equal;
 
-	if (!token)
+	if (!arg)
 		return (NULL);
-	equal = ft_strchr(token, '=');
+	equal = ft_strchr(arg, '=');
 	if (!equal)
 		return (NULL);
 	value = ft_strdup(equal + 1);

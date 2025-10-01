@@ -3,22 +3,22 @@
 /**
  * @brief Determine the target path for the cd command.
  *
- * Evaluates the command tokens to figure out where cd should navigate:
+ * Evaluates the command argv to figure out where cd should navigate:
  * - No arguments: returns the value of the HOME environment variable.
  * - One argument: returns that argument as the target path.
  * - More than one argument: prints an error and returns NULL.
  *
  * This function does not modify the current working directory itself.
  *
- * @param tokens Array of command tokens, where tokens[0] is "cd".
+ * @param argv Array of command argv, where argv[0] is "cd".
  * @param data Shell data structure containing environment list.
  * @return Pointer to target path string, or NULL on error.
  */
-static char	*get_cd_target(char **tokens, t_shell *data)
+static char	*get_cd_target(char **argv, t_shell *data)
 {
 	t_env	*home_node;
 
-	if (tokens[1] == NULL)
+	if (argv[1] == NULL)
 	{
 		home_node = get_env_node_by_key(data->env_list, "HOME");
 		if (!home_node || !home_node->value)
@@ -28,12 +28,12 @@ static char	*get_cd_target(char **tokens, t_shell *data)
 		}
 		return (home_node->value);
 	}
-	else if (tokens[2] != NULL)
+	else if (argv[2] != NULL)
 	{
 		print_error(ERR_PREFIX, ERR_CD, ERR_TOO_MANY_ARGS, NULL);
 		return (NULL);
 	}
-	return (tokens[1]);
+	return (argv[1]);
 }
 
 /**
@@ -101,16 +101,16 @@ static int	set_status(t_shell *data, int status)
  * Updates OLDPWD in the environment if applicable.
  * Updates the shell status in data->status before returning.
  *
- * @param tokens Command tokens array where tokens[0] is "cd"
+ * @param argv Command argv array where argv[0] is "cd"
  * @param data Shell data structure, including environment and status
  * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
  */
-int	builtin_cd(char **tokens, t_shell *data)
+int	builtin_cd(char **argv, t_shell *data)
 {
 	char	*target;
 	char	*oldpwd;
 
-	if (!tokens || !data)
+	if (!argv || !data)
 		return (set_status(data, EXIT_FAILURE));
 	oldpwd = getcwd(NULL, 0);
 	if (!oldpwd)
@@ -118,7 +118,7 @@ int	builtin_cd(char **tokens, t_shell *data)
 		perror("[mini$HELL: cd: ");
 		return (set_status(data, EXIT_FAILURE));
 	}
-	target = get_cd_target(tokens, data);
+	target = get_cd_target(argv, data);
 	if (!target)
 	{
 		free(oldpwd);

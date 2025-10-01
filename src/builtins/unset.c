@@ -32,7 +32,7 @@ static void	free_env_node(t_env *env_node, t_list *list_node)
  * @return int 0 if a node was found and removed,
  *             1 if the key was not found or list/env_list/key is NULL.
  */
-int	remove_env_node(t_list **env_list, const char *token)
+int	remove_env_node(t_list **env_list, const char *arg)
 {
 	t_list	*prev;
 	t_list	*curr;
@@ -40,12 +40,12 @@ int	remove_env_node(t_list **env_list, const char *token)
 
 	prev = NULL;
 	curr = *env_list;
-	if (!env_list || !*env_list || !token)
+	if (!env_list || !*env_list || !arg)
 		return (1);
 	while (curr)
 	{
 		env = (t_env *)curr->content;
-		if (env && env->key && ft_strcmp(env->key, token) == 0)
+		if (env && env->key && ft_strcmp(env->key, arg) == 0)
 		{
 			if (prev)
 				prev->next = curr->next;
@@ -64,33 +64,33 @@ int	remove_env_node(t_list **env_list, const char *token)
  * @brief Builtin command: remove environment variables.
  *
  * Removes the specified environment variables from `data->env_list`.
- * Ignores tokens containing '='. Updates `data->status` with EXIT_SUCCESS
+ * Ignores argv containing '='. Updates `data->status` with EXIT_SUCCESS
  * on success, or INTERNAL_ERROR if input is invalid.
  *
- * @param tokens Command tokens from user input.
- *               - tokens[0] should be "unset"
- *               - tokens[1+] are names of variables to remove
+ * @param argv Command argv from user input.
+ *               - argv[0] should be "unset"
+ *               - argv[1+] are names of variables to remove
  * @param data Shell state, including environment and exit status.
  * @return Exit status of the command (0 on success, >0 on failure).
  */
-int	builtin_unset(char **tokens, t_shell *data)
+int	builtin_unset(char **argv, t_shell *data)
 {
 	int	i;
 
-	if (!tokens || !data)
+	if (!argv || !data)
 	{
 		data->status = INTERNAL_ERROR;
 		return (data->status);
 	}
 	i = 1;
-	while (tokens[i])
+	while (argv[i])
 	{
-		if (ft_strchr(tokens[i], '='))
+		if (ft_strchr(argv[i], '='))
 		{
 			i++;
 			continue ;
 		}
-		remove_env_node(&data->env_list, tokens[i]);
+		remove_env_node(&data->env_list, argv[i]);
 		i++;
 	}
 	data->status = EXIT_SUCCESS;

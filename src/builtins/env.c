@@ -8,15 +8,15 @@
  * (INTERNAL_ERROR).
  * Updates `data->status` with the command's exit code.
  *
- * @param tokens Command tokens from user input.
- *               - tokens[0] should be "env"
- *               - tokens[1+] triggers "too many arguments" error
+ * @param argv Command argv from user input.
+ *               - argv[0] should be "env"
+ *               - argv[1+] triggers "too many arguments" error
  * @param data Shell state, including environment and exit status.
  * @return Exit status of the command (0 on success, >0 on failure).
  */
-int	builtin_env(char **tokens, t_shell *data)
+int	builtin_env(char **argv, t_shell *data)
 {
-	if (tokens && tokens[1])
+	if (argv && argv[1])
 	{
 		print_error(ERR_PREFIX, ERR_ENV, ERR_TOO_MANY_ARGS, NULL);
 		data->status = MISUSAGE_ERROR;
