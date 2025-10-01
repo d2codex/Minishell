@@ -159,17 +159,17 @@ typedef struct s_ast
 /* =========================== */
 
 /* src/builtins/pwd.c */
-int			builtin_pwd(char **tokens, t_shell *data);
+int			builtin_pwd(char **argv, t_shell *data);
 
 /* src/builtins/cd.c */
-int			builtin_cd(char **tokens, t_shell *data);
+int			builtin_cd(char **argv, t_shell *data);
 
 /* src/builtins/env.c */
-int			builtin_env(char **tokens, t_shell *data);
+int			builtin_env(char **argv, t_shell *data);
 
 /* src/builtins/export.c */
-int			set_env_node(t_list **env_list, const char *token);
-int			builtin_export(char **tokens, t_shell *data);
+int			set_env_node(t_list **env_list, const char *arg);
+int			builtin_export(char **argv, t_shell *data);
 
 /* src/builtins/export_array.c */
 t_env		**export_list_to_array(t_list *list, int *size);
@@ -186,29 +186,29 @@ void		swap_env(t_env **a, t_env **b);
 int			partition(t_env **array, int low, int high);
 
 /* src/export_update.c */
-t_env		*create_new_env_node(char *key, const char *token, t_export_op op);
-int			update_existing_env_node(t_env *env_node, const char *token);
-int			append_env_value(t_env *env_node, const char *token);
+t_env		*create_new_env_node(char *key, const char *arg, t_export_op op);
+int			update_existing_env_node(t_env *env_node, const char *arg);
+int			append_env_value(t_env *env_node, const char *arg);
 
 /* src/builtins/export_utils.c */
-t_export_op	detect_operation(const char *token);
-bool		is_valid_key(const char *token);
-char		*get_env_key(const char *token);
-char		*get_env_value(const char *token);
+t_export_op	detect_operation(const char *arg);
+bool		is_valid_key(const char *arg);
+char		*get_env_key(const char *arg);
+char		*get_env_value(const char *arg);
 t_env		*get_env_node_by_key(t_list *env_list, const char *key);
 
 /* src/builtins/echo.c */
-int			builtin_echo(char **tokens, t_shell *data);
+int			builtin_echo(char **argv, t_shell *data);
 
 /* src/builtins/exit.c */
-int			builtin_exit(char **tokens, t_shell *data);
+int			builtin_exit(char **argv, t_shell *data);
 
 /* src/builtins/unset.c */
-int			remove_env_node(t_list **env_list, const char *token);
-int			builtin_unset(char **tokens, t_shell *data);
+int			remove_env_node(t_list **env_list, const char *arg);
+int			builtin_unset(char **argv, t_shell *data);
 
 /* src/builtins/execute_builtins.c */
-bool		execute_builtin(char **tokens, t_shell *data);
+bool		execute_builtin(t_ast *list, t_shell *data);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */

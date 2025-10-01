@@ -114,7 +114,7 @@ static int	process_tokens(char *line, t_shell *data,
  * @return EXIT_SUCCESS on success, otherwise an error code indicating
  * the failure.
  */
-static int	process_ast(t_token *token_list, t_ast **ast)
+static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
 {
 	int	status;
 
@@ -125,6 +125,7 @@ static int	process_ast(t_token *token_list, t_ast **ast)
 	status = validate_syntax_ast_list(*ast);
 	if (status != EXIT_SUCCESS)
 		return (status); // already returns MISUSAGE_ERROR for bad syntax
+	expand_ast_nodes(*ast, data);
 	status = assign_argv_and_filename(*ast);
 	if (status != EXIT_SUCCESS)
 		return (status); // could return EXIT_FAILURE or something custom
@@ -173,12 +174,11 @@ int	process_line(char *line, t_shell *data)
 	result = process_tokens(line, data, &tokens, &token_list);
 	if (result != EXIT_SUCCESS)
 		return(cleanup_process_line(tokens, NULL, token_list, line), result);
-	result = process_ast(token_list, &ast_list);
+	result = process_ast(token_list, &ast_list, data);
 	if (result != EXIT_SUCCESS)
 		return (cleanup_process_line(tokens, ast_list, token_list, line), result);
-	// TODO: redirs, pipes...
+	// TODO: quotes, redirs, pipes...
 	expand_ast_nodes(ast_list, data);
-	trim_quotes_in_ast(ast_list);
 	// DELETE THIS ONE ONCE REFACTOR WITH AST USE IS DONE
 	sync_tokens_with_ast(tokens, ast_list);
 	if (!execute_builtin(tokens, data))

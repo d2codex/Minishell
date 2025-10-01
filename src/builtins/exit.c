@@ -63,24 +63,24 @@ static int	handle_exit_invalid_arg(char *arg, t_shell *data)
  * Handles invalid numeric arguments and too many arguments.
  * If running in a child process, exits immediately.
  *
- * @param tokens Command tokens from user input.
- *               - tokens[0] should be "exit"
- *               - tokens[1] (optional) numeric exit code
- *               - tokens[2+] triggers "too many arguments" error
+ * @param argv Command argv from user input.
+ *               - argv[0] should be "exit"
+ *               - argv[1] (optional) numeric exit code
+ *               - argv[2+] triggers "too many arguments" error
  * @param data Shell state, including exit status, TTY flags, and exit flag.
  * @return Exit status to store in `data->status`.
  */
-int	builtin_exit(char **tokens, t_shell *data)
+int	builtin_exit(char **argv, t_shell *data)
 {
 	long long	exit_code;
 
 	if (data->is_tty && !data->is_child)
 		printf("exit\n");
-	if (tokens[1] == NULL)
+	if (argv[1] == NULL)
 		return (handle_exit_no_args(data));
-	if (ft_safe_atoll(tokens[1], &exit_code) != 1)
-		return (handle_exit_invalid_arg(tokens[1], data));
-	if (tokens[2] != NULL)
+	if (ft_safe_atoll(argv[1], &exit_code) != 1)
+		return (handle_exit_invalid_arg(argv[1], data));
+	if (argv[2] != NULL)
 		return (handle_exit_too_many_args(data));
 	data->status = (unsigned char)(exit_code);
 	if (data->is_child)
