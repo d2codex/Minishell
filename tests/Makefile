@@ -75,7 +75,7 @@ valgrind:
 	@if [ -z "$(TEST)" ]; then \
 		echo "Usage: make valgrind TEST=unit/test_name.c"; \
 		exit 1; \
-	fi
+	fi	
 	@if [ ! -f "$(SUPP_FILE)" ]; then \
 		echo "Creating valgrind suppression file..."; \
 		echo "{" > $(SUPP_FILE); \

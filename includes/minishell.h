@@ -40,7 +40,7 @@
 # define MISUSAGE_ERROR 2 // misuse error (ex invalid key)
 # define INTERNAL_ERROR 125 // shell internal failure
 # define CMD_NOT_FOUND 127 // external command not found
-// add mroe here for other codes
+// add more here for other codes
 
 /* =========================== */
 /*        STRUCTURES           */
@@ -207,6 +207,9 @@ int			builtin_exit(char **tokens, t_shell *data);
 int			remove_env_node(t_list **env_list, const char *token);
 int			builtin_unset(char **tokens, t_shell *data);
 
+/* src/builtins/execute_builtins.c */
+bool		execute_builtin(char **tokens, t_shell *data);
+
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
 /* =========================== */
@@ -221,7 +224,7 @@ t_list		*init_env_from_envp(char **envp);
 /*            CORE             */
 /* =========================== */
 
-/* ascii_art_themes.c */
+/* src/core/ascii_art_themes.c */
 void		print_ascii_art_hell_simple(void);
 void		print_ascii_art_green_breach(void);
 void		print_ascii_art_fire_colors(void);
@@ -232,9 +235,6 @@ void		print_ascii_art_dark(void);
 int			minishell_loop(t_shell *data);
 bool		prompt_user(char *prompt, t_shell *data);
 int			process_line(char *line, t_shell *data);
-
-/* src/core/execute_builtins.c */
-bool		execute_builtin(char **tokens, t_shell *data);
 
 /* src/core/init_shell.c */
 int			init_shell(t_shell *data, char **envp);
@@ -248,18 +248,13 @@ void		select_random_ascii_art(void);
 /*           PARSER            */
 /* =========================== */
 
-/* src/parser/tokenizer_utils.c */
-t_quote		update_quote_state(t_quote current_quote_state, char c);
-bool		is_a_shell_separator(t_quote current_quote_state, char c);
-bool		has_unclosed_quotes(char const *s);
-void		skip_whitespace(char const *s, size_t *i);
-
 /* src/parser/assign_argv_and_filename.c */
 int			assign_argv_and_filename(t_ast *ast_list);
 
 /* src/parser/categorize_ast.c */
 void		free_ast_list(t_ast *list);
 t_ast		*new_ast_node(t_token *token);
+bool		is_a_redirection(t_operator_type op_type);
 void		assign_ast_node_type(t_ast *ast_list);
 t_ast		*create_ast_list(t_token *tokens_list);
 
@@ -272,6 +267,12 @@ t_token		*create_token_type_list(char **tokens);
 char		**execute_tokenizer(char *line, t_shell *data);
 bool		validate_tokens(char **tokens);
 
+/* src/parser/tokenizer_utils.c */
+t_quote		update_quote_state(t_quote current_quote_state, char c);
+bool		is_a_shell_separator(t_quote current_quote_state, char c);
+bool		has_unclosed_quotes(char const *s);
+void		skip_whitespace(char const *s, size_t *i);
+
 /* src/parser/tokenizer_count_tokens.c */
 int			count_shell_tokens(const char *s);
 
@@ -280,6 +281,27 @@ char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
 /* src/parser/validate_syntax.c */
 int			validate_syntax_ast_list(t_ast *list);
+
+/* =========================== */
+/*         EXPANSION           */
+/* =========================== */
+
+/* src/expansion/expansion_extract.c */
+char 		*extract_var_name(const char *str, size_t start_pos);
+char 		*get_var_value(const char *var_name, t_shell *data);
+
+/* src/expansion/expansion_integrate.c */
+void		expand_ast_nodes(t_ast *ast_list, t_shell *data);
+void		sync_tokens_with_ast(char **tokens, t_ast *ast_list);
+
+/* src/expansion/expansion_replace.c */
+void		fill_expanded_string(char *result, const char *str, t_shell *data);
+char		*expand_variables_in_string(const char *str, t_shell *data);
+
+/* src/expansion/expansion_utils.c */
+bool 		should_expand_at_position(const char *str, size_t pos);
+size_t		calculate_expanded_size(const char *str, t_shell *data);
+size_t		get_variable_size(const char *str, size_t *i, t_shell *data);
 
 /* =========================== */
 /*         EXECUTION           */
