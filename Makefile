@@ -38,6 +38,7 @@ SRC =	src/env/env_import.c \
 		src/parser/categorize_ast.c \
 		src/parser/categorize_tokens.c \
 		src/parser/execute_tokenizer.c \
+		src/parser/quote_trimming.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_count_tokens.c \
 		src/parser/tokenizer_utils.c \
