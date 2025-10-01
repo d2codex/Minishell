@@ -1,6 +1,7 @@
 #include "minishell.h"
 
 /**
+ * TEMP FUNCTION WHILE WAITING FOR REFACTOR WITH AST USE - DELETE WHEN OK
  * @brief Synchronize token array with expanded AST values.
  *
  * This function bridges the gap between the expanded AST and the legacy token

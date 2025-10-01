@@ -295,12 +295,13 @@ void		expand_ast_nodes(t_ast *ast_list, t_shell *data);
 void		sync_tokens_with_ast(char **tokens, t_ast *ast_list);
 
 /* src/expansion/expansion_replace.c */
-size_t		calculate_expanded_size(const char *str, t_shell *data);
 void		fill_expanded_string(char *result, const char *str, t_shell *data);
 char		*expand_variables_in_string(const char *str, t_shell *data);
 
 /* src/expansion/expansion_utils.c */
 bool 		should_expand_at_position(const char *str, size_t pos);
+size_t		calculate_expanded_size(const char *str, t_shell *data);
+size_t		get_variable_size(const char *str, size_t *i, t_shell *data);
 
 /* =========================== */
 /*         EXECUTION           */

@@ -178,6 +178,7 @@ int	process_line(char *line, t_shell *data)
 		return (cleanup_process_line(tokens, ast_list, token_list, line), result);
 	// TODO: quotes, redirs, pipes...
 	expand_ast_nodes(ast_list, data);
+	// DELETE THIS ONE ONCE REFACTOR WITH AST USE IS DONE
 	sync_tokens_with_ast(tokens, ast_list);
 	if (!execute_builtin(tokens, data))
 		result = execute_external_command(tokens, data);

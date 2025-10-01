@@ -66,7 +66,7 @@ char	*extract_var_name(const char *str, size_t start_pos)
 	size_t	var_len;
 	char	*trimmed_name;
 
-	// Basic validation and special cases
+	// Basic validation and special cases - the bonus one is in the comments above if needed
 	if (!str || str[start_pos] != '$')
 		return (NULL);
 	if (str[start_pos + 1] == '?')
