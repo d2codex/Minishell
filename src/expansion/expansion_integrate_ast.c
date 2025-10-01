@@ -71,7 +71,7 @@ void	expand_ast_nodes(t_ast *ast_list, t_shell *data)
 	{
 		// Expand variables in commands and redirection filenames
 		if (current->value && (current->type == NODE_CMD
-			|| current->type == NODE_REDIR || current->type == NODE_NONE))
+			|| current->type == NODE_NONE))
 		{
 			expanded = expand_variables_in_string(current->value, data);
 			if (expanded)
