@@ -177,11 +177,8 @@ int	process_line(char *line, t_shell *data)
 	result = process_ast(token_list, &ast_list, data);
 	if (result != EXIT_SUCCESS)
 		return (cleanup_process_line(tokens, ast_list, token_list, line), result);
-	// TODO: quotes, redirs, pipes...
-	expand_ast_nodes(ast_list, data);
-	// DELETE THIS ONE ONCE REFACTOR WITH AST USE IS DONE
-	sync_tokens_with_ast(tokens, ast_list);
-	if (!execute_builtin(tokens, data))
+	//sync_tokens_with_ast(tokens, ast_list);
+	if (!execute_builtin(ast_list, data))
 		result = execute_external_command(tokens, data);
 	else
 		result = data->status;
