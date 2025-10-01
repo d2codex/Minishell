@@ -7,11 +7,11 @@
  * including `exit`. If a match is found, executes the corresponding
  * function and updates `data->status`. Does not execute external commands.
  *
- * @param tokens Command tokens from user input.
+ * @param argv Command argv from user input.
  * @param data Shell state, including environment, exit status, and exit flag.
  * @return true if the command is a builtin and was executed; false otherwise.
  */
-bool	execute_builtin(char **tokens, t_shell *data)
+bool	execute_builtin(t_ast *list, t_shell *data)
 {
 	int						i;
 	static const t_builtin	builtins[] = {
@@ -21,14 +21,14 @@ bool	execute_builtin(char **tokens, t_shell *data)
 	{"cd", builtin_cd},
 	{NULL, NULL}};
 
-	if (!tokens || !tokens[0])
+	if (!list || !list->argv[0])
 		return (false);
 	i = 0;
 	while (builtins[i].cmd != NULL)
 	{
-		if (ft_strcmp(tokens[0], builtins[i].cmd) == 0)
+		if (ft_strcmp(list->value, builtins[i].cmd) == 0)
 		{
-			builtins[i].f(tokens, data);
+			builtins[i].f(list->argv, data);
 			return (true);
 		}
 		i++;
