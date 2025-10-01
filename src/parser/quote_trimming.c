@@ -77,4 +77,3 @@ void	trim_quotes_in_ast(t_ast *ast_list)
 		current = current->next;
 	}
 }
-
