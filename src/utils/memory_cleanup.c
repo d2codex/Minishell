@@ -51,7 +51,7 @@ void	cleanup_shell(t_shell *data)
  * @param ast_list Flat Ast node list
  * @param line Input line to free (can be NULL)
  */
-void	cleanup_process_line(char **tokens, t_ast *ast_list,
+void	cleanup_line(char **tokens, t_ast *ast_list,
 		t_token *token_list, char *line)
 {
 	if (tokens)

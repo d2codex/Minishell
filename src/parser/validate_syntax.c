@@ -106,8 +106,9 @@ int	validate_syntax_ast_list(t_ast *list)
 		{
 			if (!curr->right)
 				return (syntax_error(NULL));
-			if (curr->right->type == NODE_PIPE || curr->right->type == NODE_REDIR)
-				return (syntax_error(curr->right)); //checkes consecutive operators
+			if (curr->right->type == NODE_PIPE
+				|| curr->right->type == NODE_REDIR)
+				return (syntax_error(curr->right));
 		}
 		curr = curr->right;
 	}

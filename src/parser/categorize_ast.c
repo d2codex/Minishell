@@ -161,7 +161,7 @@ t_ast	*create_ast_list(t_token *tokens_list)
 		new = new_ast_node(current);
 		if (!new)
 			return (free_ast_list(ast_list), NULL);
-		if (!ast_list) //no list yet (first node of the list)
+		if (!ast_list)
 			ast_list = new;
 		else
 		{

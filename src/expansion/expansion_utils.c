@@ -28,11 +28,9 @@ bool	should_expand_at_position(const char *str, size_t pos)
 	current_quote_state = STATE_NOT_IN_QUOTE;
 	while (i <= pos)
 	{
-		// update the current quote state based on the char we're looking at
 		current_quote_state = update_quote_state(current_quote_state, str[i]);
 		i++;
 	}
-	// at pos ($ pos), check the last known quote state
 	if (current_quote_state == STATE_NOT_IN_QUOTE
 		|| current_quote_state == STATE_IN_DOUBLE_QUOTE)
 		return (true);
@@ -45,15 +43,18 @@ bool	should_expand_at_position(const char *str, size_t pos)
  *
  * Helper function that extracts a variable name, looks up its value,
  * calculates the size needed for replacement, and advances the position
- * pointer past the entire variable token ($ + name).
+ * pointer past the entire variable token ($ + name). If variable lookup
+ * fails due to malloc error, returns 0 (empty variable).
  *
  * @param str The input string being analyzed
  * @param i Pointer to current position - will be advanced past the variable
  * @param data Shell data containing environment variables
- * @return Size in bytes needed for the variable's expanded value
+ * @return Size in bytes needed for the variable's expanded value, or 0 if
+ *         variable lookup fails or variable is empty
  *
  * @note The position pointer i is modified to skip past the entire variable
  * @note Memory allocated internally is freed before return
+ * @note Returns 0 for undefined variables or malloc failures (bash behavior)
  */
 size_t	get_variable_size(const char *str, size_t *i, t_shell *data)
 {
@@ -65,13 +66,20 @@ size_t	get_variable_size(const char *str, size_t *i, t_shell *data)
 	var_name = extract_var_name(str, *i);
 	if (!var_name)
 	{
-		(*i)++; // skip "invalid" '$' to avoid infinite loop
-		return (1); // count '$' as literal character (bash behavior)
+		(*i)++;
+		return (1);
 	}
 	value = get_var_value(var_name, data);
+	if (!value)
+	{
+		free(var_name);
+		name_len = ft_strlen(var_name);
+		*i += name_len + 1;
+		return (0);
+	}
 	var_size = ft_strlen(value);
 	name_len = ft_strlen(var_name);
-	*i += name_len + 1; // skip '$' + variable name in main loop
+	*i += name_len + 1;
 	free(var_name);
 	free(value);
 	return (var_size);
@@ -101,7 +109,6 @@ size_t	calculate_expanded_size(const char *str, t_shell *data)
 	i = 0;
 	while (str[i])
 	{
-		// Calculate size needed for this variable expansion
 		if (str[i] == '$' && should_expand_at_position(str, i))
 		{
 			var_size = get_variable_size(str, &i, data);
@@ -109,7 +116,6 @@ size_t	calculate_expanded_size(const char *str, t_shell *data)
 		}
 		else
 		{
-			// Regular character: count as 1 byte
 			total_size++;
 			i++;
 		}

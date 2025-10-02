@@ -66,7 +66,6 @@ char	*extract_var_name(const char *str, size_t start_pos)
 	size_t	var_len;
 	char	*trimmed_name;
 
-	// Basic validation and special cases - the bonus one is in the comments above if needed
 	if (!str || str[start_pos] != '$')
 		return (NULL);
 	if (str[start_pos + 1] == '?')
@@ -75,12 +74,10 @@ char	*extract_var_name(const char *str, size_t start_pos)
 		return (NULL);
 	if (!str[start_pos + 1] || !is_valid_var_start(str[start_pos + 1]))
 		return (NULL);
-	// Calculate variable name length and allocate
 	var_len = calculate_var_name_length(str, start_pos + 1);
 	trimmed_name = malloc(var_len + 1);
 	if (!trimmed_name)
 		return (NULL);
-	// Copy variable name
 	ft_strlcpy(trimmed_name, str + start_pos + 1, var_len + 1);
 	return (trimmed_name);
 }
@@ -117,16 +114,12 @@ char	*get_var_value(const char *var_name, t_shell *data)
 {
 	t_env	*env_node;
 
-	// TDD test5 - Handle edge cases: NULL inputs or empty variable name
 	if (!var_name || !data || var_name[0] == '\0')
 		return (ft_strdup(""));
-	// TDD test1 - special case, exit status
 	if (ft_strcmp(var_name, "?") == 0)
 		return (ft_itoa(data->status));
-	// TDD test2 - test3 - test4, search in env list
 	env_node = get_env_node_by_key(data->env_list, var_name);
 	if (env_node && env_node->value)
 		return (ft_strdup(env_node->value));
-	// implicit "else", variable not found, return empty string (bash behavior)
 	return (ft_strdup(""));
 }
