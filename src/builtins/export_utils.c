@@ -95,34 +95,26 @@ char	*get_env_key(const char *arg)
 }
 
 /**
- * @brief Extract the value part from a arg (after '=').
+ * @brief Extract and clean the value part from an export argument (after '=').
  *
- * @param arg Input string in the form KEY=VALUE.
+ * Extracts the value portion following the '=' character and removes any
+ * outer quotes to match bash behavior. This ensures environment variables
+ * are stored without their enclosing quotes.
  *
- * @return A malloc'ed copy of the value, or NULL if no '=' found or malloc
- * fails.
- *		 Caller must free the returned string.
+ * @param arg Input string in the form KEY=VALUE, KEY="VALUE", or KEY='VALUE'.
+ *
+ * @return A malloc'ed copy of the cleaned value with outer quotes removed,
+ *         or NULL if no '=' found or malloc fails.
+ *         Caller must free the returned string.
+ *
+ * @note This function calls trim_quotes() to remove outer quotes, so
+ *       export TEST="value" stores "value" as just: value
  */
-/* char	*get_env_value(const char *arg)
+char	*get_env_value(const char *arg)
 {
 	char	*value;
 	char	*equal;
-
-	if (!arg)
-		return (NULL);
-	equal = ft_strchr(arg, '=');
-	if (!equal)
-		return (NULL);
-	value = ft_strdup(equal + 1);
-	if (!value)
-		return (NULL);
-	return (value);
-} */
-char *get_env_value(const char *arg)
-{
-	char *value;
-	char *equal;
-	char *trimmed;
+	char	*trimmed;
 
 	if (!arg)
 		return (NULL);

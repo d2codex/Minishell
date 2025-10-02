@@ -1,21 +1,22 @@
 #include "minishell.h"
 
 /**
- * @brief Remove outer quotes from a string
+ * @brief Remove outer quotes from a string following shell parsing rules.
  *
  * Only removes quotes if:
  * - String starts with ' or "
- * - String ends with the SAME quote character
+ * - String ends with the SAME quote character  
  * - String length > 1
  *
- * Examples:
- *   "hello"  → hello
- *   'world'  → world
- *   hello	→ hello (no quotes, return copy)
- *   "hello'  → "hello' (mismatched, return copy)
+ * This function implements bash-style quote removal, processing only the
+ * outermost layer of quotes. Mismatched quotes are left unchanged.
  *
- * @param str Input string
- * @return Newly allocated string without outer quotes, or NULL on error
+ * @param str Input string to process
+ * @return Newly allocated string without outer quotes, or empty string if
+ *         input was just quotes ("" or ''). Returns NULL only on malloc failure.
+ *
+ * @note Caller is responsible for freeing the returned string.
+ *
  */
 char	*trim_quotes(const char *str)
 {
@@ -29,11 +30,11 @@ char	*trim_quotes(const char *str)
 	if ((str[0] == '"' && str[str_len - 1] == '"')
 		|| (str[0] == '\'' && str[str_len - 1] == '\''))
 	{
-		// case where you have "" or ''
+		// case where you have only "" or ''
 		if (str_len == 2)
 			return (ft_strdup(""));
 		trimmed_len = str_len - 2;
-		// malloc done internally into substring
+		// malloc done internally inside substring
 		trimmed_str = ft_substr(str, 1, trimmed_len);
 	}
 	else
@@ -42,17 +43,27 @@ char	*trim_quotes(const char *str)
 }
 
 /**
- * @brief Remove quotes from all relevant AST nodes
+ * @brief Remove quotes from command and argument nodes in the AST.
  *
- * Processes NODE_CMD and NODE_REDIR values, removing outer quotes
- * while preserving inner content. Skips operators (NODE_PIPE). If someone puts
- * quote around an operator, it means they want to use the string and not the
- * operator.
+ * Processes NODE_CMD and NODE_NONE values, removing outer quotes while
+ * preserving inner content. This runs after variable expansion in the
+ * pipeline to clean up quoted arguments before execution.
  *
- * Memory management: Frees old node->value and replaces with trimmed version.
- * If trimming fails (malloc error), leaves node unchanged.
+ * Node types processed:
+ * - NODE_CMD: Command names ("echo" → echo)
+ * - NODE_NONE: Arguments ("hello world" → hello world)
+ * - NODE_PIPE: Skipped (operators should not be quote-processed)
+ * - NODE_REDIR: Skipped (handled separately in filename assignment)
  *
- * @param ast_list Head of flat AST list to process
+ * Memory management: Frees the old node->value and replaces it with the
+ * trimmed version. If trimming fails due to malloc error, the node is
+ * left unchanged to maintain system stability.
+ *
+ * @param ast_list Head of the flat AST list to process
+ *
+ * @note This function modifies the AST in place and should be called after
+ *       expand_ast_nodes() but before assign_argv_and_filename() in the
+ *       processing pipeline.
  */
 void	trim_quotes_in_ast(t_ast *ast_list)
 {
