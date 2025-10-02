@@ -24,7 +24,9 @@ int	expand_ast_nodes(t_ast *ast_list, t_shell *data)
 	t_ast	*current;
 	char	*expanded;
 
-	if (!ast_list || !data)
+	if (!ast_list)
+		return (EXIT_SUCCESS);
+	if (!data)
 		return (EXIT_FAILURE);
 	current = ast_list;
 	while (current)

@@ -72,8 +72,8 @@ size_t	get_variable_size(const char *str, size_t *i, t_shell *data)
 	value = get_var_value(var_name, data);
 	if (!value)
 	{
-		free(var_name);
 		name_len = ft_strlen(var_name);
+		free(var_name);
 		*i += name_len + 1;
 		return (0);
 	}
