@@ -1,45 +1,59 @@
 #include "minishell.h"
 
 /**
- * @brief Remove outer quotes from a string following shell parsing rules.
+ * @brief Process quotes using sequential state machine logic.
  *
- * Only removes quotes if:
- * - String starts with ' or "
- * - String ends with the SAME quote character  
- * - String length > 1
+ * Processes quotes character by character, following bash behavior for
+ * quote removal and segment concatenation. Handles complex cases where
+ * quoted and unquoted segments are adjacent within a single token.
  *
- * This function implements bash-style quote removal, processing only the
- * outermost layer of quotes. Mismatched quotes are left unchanged.
+ * Quote processing rules:
+ * - Single quotes preserve everything literally until closing quote
+ * - Double quotes preserve everything literally until closing quote  
+ * - Adjacent quoted/unquoted segments are concatenated
+ * - Quote characters themselves are consumed (not included in output)
  *
- * @param str Input string to process
- * @return Newly allocated string without outer quotes, or empty string if
- *         input was just quotes ("" or ''). Returns NULL only on malloc failure.
+ * @param str Input string containing potentially mixed quoted/unquoted segments
+ * @return Newly allocated string with quotes processed and segments
+ * concatenated, or NULL on malloc failure. Empty quotes result in empty string.
  *
- * @note Caller is responsible for freeing the returned string.
+ * @note Uses the same quote state machine as the tokenizer for consistency.
+ *       Caller is responsible for freeing the returned string.
  *
+ * Examples:
+ *   trim_quotes("\"hello\"")    → "hello" (outer quotes)
+ *   trim_quotes("he\"llo\"")    → "hello" (internal quotes)  
+ *   trim_quotes("\"a\"'b'")     → "ab" (mixed quotes)
+ *   trim_quotes("\"a b\"c")     → "a bc" (quote + unquoted)
+ *   trim_quotes("\"\"")         → "" (empty quotes)
  */
 char	*trim_quotes(const char *str)
 {
-	int		str_len;
-	int		trimmed_len;
-	char	*trimmed_str;
+	char	*result;
+	int		i;
+	int		j;
+	t_quote	state;
+	t_quote	new_state;
 
-	if (!str || str[0] == '\0')
-		return (ft_strdup(""));
-	str_len = ft_strlen(str);
-	if ((str[0] == '"' && str[str_len - 1] == '"')
-		|| (str[0] == '\'' && str[str_len - 1] == '\''))
+	if (!str)
+		return (NULL);
+	result = malloc(ft_strlen(str) + 1);
+	if (!result)
+		return (NULL);
+	i = 0;
+	j = 0;
+	state = STATE_NOT_IN_QUOTE;
+	while (str[i])
 	{
-		// case where you have only "" or ''
-		if (str_len == 2)
-			return (ft_strdup(""));
-		trimmed_len = str_len - 2;
-		// malloc done internally inside substring
-		trimmed_str = ft_substr(str, 1, trimmed_len);
+		new_state = update_quote_state(state, str[i]);
+		if (new_state != state)
+			state = new_state;
+		else
+			result[j++] = str[i];
+		i++;
 	}
-	else
-		trimmed_str = ft_strdup(str);
-	return (trimmed_str);
+	result[j] = '\0';
+	return (result);
 }
 
 /**
@@ -62,8 +76,8 @@ char	*trim_quotes(const char *str)
  * @param ast_list Head of the flat AST list to process
  *
  * @note This function modifies the AST in place and should be called after
- *       expand_ast_nodes() but before assign_argv_and_filename() in the
- *       processing pipeline.
+ *	   expand_ast_nodes() but before assign_argv_and_filename() in the
+ *	   processing pipeline.
  */
 void	trim_quotes_in_ast(t_ast *ast_list)
 {
