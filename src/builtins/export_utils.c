@@ -36,7 +36,7 @@ t_export_op	detect_operation(const char *arg)
  *  - Not be NULL or empty
  *  - Start with a letter (a-z, A-Z) or underscore (_)
  *  - Contain only alphanumeric characters (a-z, A-Z, 0-9) or underscores (_)
- *    up to an optional '=' or '+' character.
+ *	up to an optional '=' or '+' character.
  *
  * @param arg The input string representing the arg to validate.
  * @return true if the arg is a valid key according to the rules, false
@@ -95,18 +95,26 @@ char	*get_env_key(const char *arg)
 }
 
 /**
- * @brief Extract the value part from a arg (after '=').
+ * @brief Extract and clean the value part from an export argument (after '=').
  *
- * @param arg Input string in the form KEY=VALUE.
+ * Extracts the value portion following the '=' character and removes any
+ * outer quotes to match bash behavior. This ensures environment variables
+ * are stored without their enclosing quotes.
  *
- * @return A malloc'ed copy of the value, or NULL if no '=' found or malloc
- * fails.
+ * @param arg Input string in the form KEY=VALUE, KEY="VALUE", or KEY='VALUE'.
+ *
+ * @return A malloc'ed copy of the cleaned value with outer quotes removed,
+ *         or NULL if no '=' found or malloc fails.
  *         Caller must free the returned string.
+ *
+ * @note This function calls trim_quotes() to remove outer quotes, so
+ *       export TEST="value" stores "value" as just: value
  */
 char	*get_env_value(const char *arg)
 {
 	char	*value;
 	char	*equal;
+	char	*trimmed;
 
 	if (!arg)
 		return (NULL);
@@ -116,7 +124,9 @@ char	*get_env_value(const char *arg)
 	value = ft_strdup(equal + 1);
 	if (!value)
 		return (NULL);
-	return (value);
+	trimmed = trim_quotes(value);
+	free(value);
+	return (trimmed);
 }
 
 /**

@@ -56,8 +56,8 @@ static int	validate_first_node(t_ast *curr)
 		return (syntax_error(curr));
 	if (curr->type == NODE_REDIR)
 	{
-		if (curr->right && (curr->right->type == NODE_PIPE ||
-			curr->right->type == NODE_REDIR))
+		if (curr->right && (curr->right->type == NODE_PIPE
+				|| curr->right->type == NODE_REDIR))
 			return (syntax_error(curr->right));
 		return (syntax_error(NULL));
 	}
