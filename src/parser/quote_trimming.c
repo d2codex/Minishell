@@ -93,7 +93,7 @@ void	trim_quotes_in_ast(t_ast *ast_list)
 				|| current->type == NODE_NONE))
 		{
 			trimmed = trim_quotes(current->value);
-			if (trimmed != current->value)
+			if (trimmed != NULL)
 			{
 				free(current->value);
 				current->value = trimmed;

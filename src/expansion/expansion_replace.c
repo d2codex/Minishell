@@ -64,7 +64,7 @@ void	fill_expanded_string(char *result, const char *str, t_shell *data)
 			{
 				result[dst_pos++] = '$';
 				src_pos++;
-				continue;
+				continue ;
 			}
 			dst_pos += copy_variable_value(result, dst_pos, var_name, data);
 			src_pos += ft_strlen(var_name) + 1;

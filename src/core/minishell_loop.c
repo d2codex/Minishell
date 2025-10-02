@@ -102,7 +102,9 @@ static int	process_tokens(char *line, t_shell *data,
  *  1. Creates a linear AST list using `create_ast_list`.
  *  2. Assigns node types (CMD, PIPE, REDIR) via `assign_ast_node_type`.
  *  3. Validates AST syntax with `validate_syntax_ast_list`.
- *  4. Collects argv arrays and filenames for CMD and REDIR nodes via
+ *  4. Expands $ in strings.
+ *  5. Trims quotes.
+ *  6. Collects argv arrays and filenames for CMD and REDIR nodes via
  * `assign_argv_and_filename`.
  *
  * If any step fails, the function returns an appropriate error code:
@@ -159,7 +161,6 @@ int	process_line(char *line, t_shell *data)
 	char	**tokens;
 	t_ast	*ast_list;
 	t_token	*token_list;
-	int		result;
 
 	tokens = NULL;
 	ast_list = NULL;
@@ -172,17 +173,14 @@ int	process_line(char *line, t_shell *data)
 	}
 	if (line)
 		add_history(line);
-	result = process_tokens(line, data, &tokens, &token_list);
-	if (result != EXIT_SUCCESS)
+	data->status = process_tokens(line, data, &tokens, &token_list);
+	if (data->status != EXIT_SUCCESS)
 		return(cleanup_process_line(tokens, NULL, token_list, line), result);
-	result = process_ast(token_list, &ast_list, data);
-	if (result != EXIT_SUCCESS)
+	data->status = process_ast(token_list, &ast_list, data);
+	if (data->status != EXIT_SUCCESS)
 		return (cleanup_process_line(tokens, ast_list, token_list, line), result);
-	//sync_tokens_with_ast(tokens, ast_list);
 	if (!execute_builtin(ast_list, data))
-		result = execute_external_command(tokens, data);
-	else
-		result = data->status;
+		data->status = execute_external_command(tokens, data);
 	cleanup_process_line(tokens, ast_list, token_list, line);
 	return (result);
 }
