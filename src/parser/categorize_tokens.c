@@ -122,7 +122,7 @@ t_token	*create_token_type_list(char **tokens)
 			free_tokens_list(tokens_list);
 			return (NULL);
 		}
-		if (!tokens_list) //no list yet
+		if (!tokens_list)
 			tokens_list = new;
 		else
 			tail->next = new;

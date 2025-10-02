@@ -21,6 +21,8 @@ static size_t	copy_variable_value(char *result, size_t dst_pos,
 	size_t	j;
 
 	var_value = get_var_value(var_name, data);
+	if (!var_value)
+		return (0);
 	j = 0;
 	while (var_value[j])
 	{

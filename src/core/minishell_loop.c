@@ -127,8 +127,12 @@ static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
 	status = validate_syntax_ast_list(*ast);
 	if (status != EXIT_SUCCESS)
 		return (status); // already returns MISUSAGE_ERROR for bad syntax
-	expand_ast_nodes(*ast, data);
-	trim_quotes_in_ast(*ast);
+	status = expand_ast_nodes(*ast, data);
+	if (status != EXIT_SUCCESS)
+		return (status);
+	status = trim_quotes_in_ast(*ast);
+	if (status != EXIT_SUCCESS)
+		return (status);
 	status = assign_argv_and_filename(*ast);
 	if (status != EXIT_SUCCESS)
 		return (status); // could return EXIT_FAILURE or something custom
@@ -175,12 +179,12 @@ int	process_line(char *line, t_shell *data)
 		add_history(line);
 	data->status = process_tokens(line, data, &tokens, &token_list);
 	if (data->status != EXIT_SUCCESS)
-		return(cleanup_process_line(tokens, NULL, token_list, line), result);
+		return (cleanup_line(tokens, NULL, token_list, line), data->status);
 	data->status = process_ast(token_list, &ast_list, data);
 	if (data->status != EXIT_SUCCESS)
-		return (cleanup_process_line(tokens, ast_list, token_list, line), result);
+		return (cleanup_line(tokens, ast_list, token_list, line), data->status);
 	if (!execute_builtin(ast_list, data))
 		data->status = execute_external_command(tokens, data);
-	cleanup_process_line(tokens, ast_list, token_list, line);
-	return (result);
+	cleanup_line(tokens, ast_list, token_list, line);
+	return (data->status);
 }

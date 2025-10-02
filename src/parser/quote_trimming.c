@@ -61,7 +61,8 @@ char	*trim_quotes(const char *str)
  *
  * Processes NODE_CMD and NODE_NONE values, removing outer quotes while
  * preserving inner content. This runs after variable expansion in the
- * pipeline to clean up quoted arguments before execution.
+ * pipeline to clean up quoted arguments before execution. If any quote
+ * trimming fails due to malloc error, stops processing and returns failure.
  *
  * Node types processed:
  * - NODE_CMD: Command names ("echo" → echo)
@@ -69,23 +70,22 @@ char	*trim_quotes(const char *str)
  * - NODE_PIPE: Skipped (operators should not be quote-processed)
  * - NODE_REDIR: Skipped (handled separately in filename assignment)
  *
- * Memory management: Frees the old node->value and replaces it with the
- * trimmed version. If trimming fails due to malloc error, the node is
- * left unchanged to maintain system stability.
- *
  * @param ast_list Head of the flat AST list to process
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on malloc error
  *
  * @note This function modifies the AST in place and should be called after
- *	   expand_ast_nodes() but before assign_argv_and_filename() in the
- *	   processing pipeline.
+ *       expand_ast_nodes() but before assign_argv_and_filename() in the
+ *       processing pipeline
+ * @note On failure, some nodes may be partially processed, cleanup handled 
+ * by caller
  */
-void	trim_quotes_in_ast(t_ast *ast_list)
+int	trim_quotes_in_ast(t_ast *ast_list)
 {
 	t_ast	*current;
 	char	*trimmed;
 
 	if (!ast_list)
-		return ;
+		return (EXIT_SUCCESS);
 	current = ast_list;
 	while (current)
 	{
@@ -93,12 +93,12 @@ void	trim_quotes_in_ast(t_ast *ast_list)
 				|| current->type == NODE_NONE))
 		{
 			trimmed = trim_quotes(current->value);
-			if (trimmed != NULL)
-			{
-				free(current->value);
-				current->value = trimmed;
-			}
+			if (!trimmed)
+				return (EXIT_FAILURE);
+			free(current->value);
+			current->value = trimmed;
 		}
 		current = current->next;
 	}
+	return (EXIT_SUCCESS);
 }

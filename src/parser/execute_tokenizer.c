@@ -5,7 +5,7 @@
  *
  * Checks whether the tokenizer returned a valid array of tokens.
  * This function does not free the tokens or the input line;
- * all cleanup must be handled separately (e.g., in cleanup_process_line).
+ * all cleanup must be handled separately (e.g., in cleanup_line).
  *
  * @param tokens The array of token strings returned by the tokenizer
  * @return true if tokens are valid (non-NULL and non-empty), false otherwise

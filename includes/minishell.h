@@ -61,7 +61,7 @@ typedef struct s_shell
 	int		status;
 	bool	is_tty;
 	bool	is_child;
-	bool	should_exit; //new flag for main loop
+	bool	should_exit;
 }	t_shell;
 
 /* for builtin functions array, stores cmd and function's pointer*/
@@ -269,7 +269,7 @@ bool		validate_tokens(char **tokens);
 
 /* src/parser/quote_trimming.c */
 char		*trim_quotes(const char *str);
-void		trim_quotes_in_ast(t_ast *ast_list);
+int			trim_quotes_in_ast(t_ast *ast_list);
 
 /* src/parser/tokenizer_utils.c */
 t_quote		update_quote_state(t_quote current_quote_state, char c);
@@ -295,8 +295,7 @@ char		*extract_var_name(const char *str, size_t start_pos);
 char		*get_var_value(const char *var_name, t_shell *data);
 
 /* src/expansion/expansion_integrate.c */
-void		expand_ast_nodes(t_ast *ast_list, t_shell *data);
-void		sync_tokens_with_ast(char **tokens, t_ast *ast_list);
+int			expand_ast_nodes(t_ast *ast_list, t_shell *data);
 
 /* src/expansion/expansion_replace.c */
 void		fill_expanded_string(char *result, const char *str, t_shell *data);
@@ -324,7 +323,7 @@ bool		is_whitespace(char c);
 /* src/utils/memory_cleanup.c */
 void		free_string_array(char **tab, size_t count);
 void		cleanup_shell(t_shell *data);
-void		cleanup_process_line(char **tokens, t_ast *ast_list,
+void		cleanup_line(char **tokens, t_ast *ast_list,
 				t_token *token_list, char *line);
 
 /* src/utils/print_errors.c */
