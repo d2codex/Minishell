@@ -91,6 +91,8 @@ static int	process_tokens(char *line, t_shell *data,
 	*token_list = create_token_type_list(*tokens);
 	if (!*token_list)
 		return (EXIT_FAILURE); // malloc or internal error
+	if (validate_syntax_token_list(*token_list) != EXIT_SUCCESS)
+		return (MISUSAGE_ERROR);
 	return (EXIT_SUCCESS);
 }
 
@@ -116,7 +118,8 @@ static int	process_tokens(char *line, t_shell *data,
  * @return EXIT_SUCCESS on success, otherwise an error code indicating
  * the failure.
  */
-static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
+/*
+ * static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
 {
 	int	status;
 
@@ -124,9 +127,6 @@ static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
 	if (!*ast)
 		return (EXIT_FAILURE);
 	assign_ast_node_type(*ast);
-	status = validate_syntax_ast_list(*ast);
-	if (status != EXIT_SUCCESS)
-		return (status); // already returns MISUSAGE_ERROR for bad syntax
 	status = expand_ast_nodes(*ast, data);
 	if (status != EXIT_SUCCESS)
 		return (status);
@@ -137,7 +137,7 @@ static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
 	if (status != EXIT_SUCCESS)
 		return (status); // could return EXIT_FAILURE or something custom
 	return (EXIT_SUCCESS);
-}
+}*/
 
 /**
  * @brief Process a single input line in the shell.
@@ -163,11 +163,11 @@ static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
 int	process_line(char *line, t_shell *data)
 {
 	char	**tokens;
-	t_ast	*ast_list;
+	//t_ast	*ast_list;
 	t_token	*token_list;
 
 	tokens = NULL;
-	ast_list = NULL;
+//	ast_list = NULL;
 	token_list = NULL;
 	if (is_easter_egg(line))
 	{
@@ -180,11 +180,11 @@ int	process_line(char *line, t_shell *data)
 	data->status = process_tokens(line, data, &tokens, &token_list);
 	if (data->status != EXIT_SUCCESS)
 		return (cleanup_line(tokens, NULL, token_list, line), data->status);
-	data->status = process_ast(token_list, &ast_list, data);
-	if (data->status != EXIT_SUCCESS)
-		return (cleanup_line(tokens, ast_list, token_list, line), data->status);
-	if (!execute_builtin(ast_list, data))
-		data->status = execute_external_command(tokens, data);
-	cleanup_line(tokens, ast_list, token_list, line);
+	//data->status = process_ast(token_list, &ast_list, data);
+	//if (data->status != EXIT_SUCCESS)
+	//	return (cleanup_line(tokens, ast_list, token_list, line), data->status);
+	//if (!execute_builtin(ast_list, data))
+	//	data->status = execute_external_command(tokens, data);
+	cleanup_line(tokens, NULL, token_list, line);
 	return (data->status);
 }

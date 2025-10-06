@@ -36,10 +36,10 @@ static int	syntax_error(t_token *token)
  */
 static bool	is_token_redirection(t_token *token)
 {
-	if (!token || token->type != TOKEN_WORD)
+	if (!token)
 		return (false);
-	return (token->op_type == OP_REDIR_IN
-		|| token->op_type == OP_REDIR_OUT
+	return (token->op_type == OP_INPUT
+		|| token->op_type == OP_OUTPUT
 		|| token->op_type == OP_APPEND
 		|| token->op_type == OP_HEREDOC);
 }
@@ -66,15 +66,16 @@ static int	validate_first_token(t_token *curr)
 		return (EXIT_SUCCESS); //empty input - not error
 	if (curr->type == TOKEN_WORD) // first node must be a CMD
 		return (EXIT_SUCCESS);
-	if (curr->type == OP_PIPE)
+	if (curr->op_type == OP_PIPE)
 		return (syntax_error(curr));
 	if (is_token_redirection(curr))
 	{
-		if (!curr->next || curr->next->type != TOKEN_WORD)
-			return (syntax_error(curr->right));
-		return (syntax_error(NULL));
+		if (!curr->next)
+			return (syntax_error(NULL));
+		if (curr->next->op_type != OP_NONE)
+			return (syntax_error(curr->next));
 	}
-	return (syntax_error(NULL));
+	return (EXIT_SUCCESS);
 }
 
 /**
@@ -107,26 +108,30 @@ static int	validate_first_token(t_token *curr)
  */
 int	validate_syntax_token_list(t_token *list)
 {
-	t_ast	*curr;
+	t_token	*curr;
 
 	if (validate_first_token(list) != EXIT_SUCCESS)
 		return (MISUSAGE_ERROR);
 	curr = list;
-	while (curr && curr->next)
+	while (curr)
 	{
-		// two pipes in a row
-		if (curr->op_type == OP_PIPE && curr->next->op_type == OP_PIPE)
-			return (syntax_error(curr->next));
-		// redirection without a valid target
-		if (is_token_redirection(curr))
+		// pipe rules
+		if (curr->op_type == OP_PIPE)
 		{
-			if (!curr->next || curr->next->type != TOKEN_WORD)
-				return (syntax_error(curr->next));
+			if (!curr->next)
+				return (syntax_error(NULL)); // pipe at end
+			if (curr->next->op_type == OP_PIPE)
+				return (syntax_error(curr->next)); //two pipes in a row
+		}
+		// redirection without a valid target
+		else if (is_token_redirection(curr))
+		{
+			if (!curr->next)
+				return (syntax_error(NULL)); //missing target
+			if (curr->next->op_type != OP_NONE)
+				return (syntax_error(curr->next)); //invalid target
 		}
 		curr = curr->next;
 	}
-	//last token can't be pipe or redirection
-	if (curr && (curr->op_type == OP_PIPE || is_token_redirection(curr)))
-		return (syntax_error(NULL));
 	return (EXIT_SUCCESS);
 }
