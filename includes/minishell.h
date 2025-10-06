@@ -284,7 +284,7 @@ int			count_shell_tokens(const char *s);
 char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
 /* src/parser/validate_syntax.c */
-int			validate_syntax_ast_list(t_ast *list);
+int			validate_syntax_token_list(t_token *list);
 
 /* =========================== */
 /*         EXPANSION           */
