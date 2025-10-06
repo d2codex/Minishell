@@ -248,9 +248,6 @@ void		select_random_ascii_art(void);
 /*           PARSER            */
 /* =========================== */
 
-/* src/parser/categorize_ast.c */
-void		free_ast_list(t_ast *list);
-
 /* src/parser/categorize_tokens.c */
 int			get_operator_type(char *token);
 void		free_tokens_list(t_token *head);
@@ -316,8 +313,7 @@ bool		is_whitespace(char c);
 /* src/utils/memory_cleanup.c */
 void		free_string_array(char **tab, size_t count);
 void		cleanup_shell(t_shell *data);
-void		cleanup_line(char **tokens, t_ast *ast_list,
-				t_token *token_list, char *line);
+void		cleanup_line(char **tokens, t_token *token_list, char *line);
 
 /* src/utils/print_errors.c */
 void		print_error(char *p1, char *p2, char *p3, char *p4);

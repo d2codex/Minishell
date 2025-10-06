@@ -100,28 +100,8 @@ static int	process_tokens(char *line, t_shell *data,
 	return (EXIT_SUCCESS);
 }
 
-/**
- * @brief Build an AST from a token list and assign node details.
- *
- * This function takes a linked list of typed tokens and performs the following
- * steps:
- *  1. Creates a linear AST list using `create_ast_list`.
- *  2. Assigns node types (CMD, PIPE, REDIR) via `assign_ast_node_type`.
- *  3. Validates AST syntax with `validate_syntax_ast_list`.
- *  4. Expands $ in strings.
- *  5. Trims quotes.
- *  6. Collects argv arrays and filenames for CMD and REDIR nodes via
- * `assign_argv_and_filename`.
- *
- * If any step fails, the function returns an appropriate error code:
- *  - EXIT_FAILURE for allocation or internal errors.
- *  - MISUSAGE_ERROR for syntax errors.
- *
- * @param token_list The input typed token list.
- * @param ast Pointer to store the resulting AST list.
- * @return EXIT_SUCCESS on success, otherwise an error code indicating
- * the failure.
- */
+// TODO: this function should build the ast list from the token list,
+// dynamically allocate the nodes, assign: value, type, argv, filename
 /*
  * static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
 {
@@ -131,11 +111,6 @@ static int	process_tokens(char *line, t_shell *data,
 	if (!*ast)
 		return (EXIT_FAILURE);
 	assign_ast_node_type(*ast);
-	status = expand_ast_nodes(*ast, data);
-	if (status != EXIT_SUCCESS)
-		return (status);
-	status = trim_quotes_in_ast(*ast);
-	if (status != EXIT_SUCCESS)
 		return (status);
 	status = assign_argv_and_filename(*ast);
 	if (status != EXIT_SUCCESS)
@@ -183,12 +158,11 @@ int	process_line(char *line, t_shell *data)
 		add_history(line);
 	data->status = process_tokens(line, data, &tokens, &token_list);
 	if (data->status != EXIT_SUCCESS)
-		return (cleanup_line(tokens, NULL, token_list, line), data->status);
-	//data->status = process_ast(token_list, &ast_list, data);
-	//if (data->status != EXIT_SUCCESS)
-	//	return (cleanup_line(tokens, ast_list, token_list, line), data->status);
-	if (!execute_builtin(&token_list, data))
-		data->status = execute_external_command(tokens, data);
-	cleanup_line(tokens, NULL, token_list, line);
+		return (cleanup_line(tokens, token_list, line), data->status);
+	// TODO: process_ast
+	// TODO execute_ast_tree() - will include execute_builtin
+	if (!execute_builtin(&token_list, data)) //for testing only
+		data->status = execute_external_command(tokens, data); //for testing only
+	cleanup_line(tokens, token_list, line);
 	return (data->status);
 }

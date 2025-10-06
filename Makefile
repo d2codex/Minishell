@@ -34,8 +34,6 @@ SRC =	src/env/env_import.c \
 		src/expansion/expansion_replace.c \
 		src/expansion/expansion_utils.c \
 		src/execution/execute.c \
-		src/parser/assign_argv_filename.c \
-		src/parser/categorize_ast.c \
 		src/parser/categorize_tokens.c \
 		src/parser/execute_tokenizer.c \
 		src/parser/quote_trimming.c \
