@@ -93,6 +93,10 @@ static int	process_tokens(char *line, t_shell *data,
 		return (EXIT_FAILURE); // malloc or internal error
 	if (validate_syntax_token_list(*token_list) != EXIT_SUCCESS)
 		return (MISUSAGE_ERROR);
+	if (expand_tokens_list(*token_list, data) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
+	if (trim_quotes_in_token_list(*token_list) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 
@@ -183,8 +187,8 @@ int	process_line(char *line, t_shell *data)
 	//data->status = process_ast(token_list, &ast_list, data);
 	//if (data->status != EXIT_SUCCESS)
 	//	return (cleanup_line(tokens, ast_list, token_list, line), data->status);
-	//if (!execute_builtin(ast_list, data))
-	//	data->status = execute_external_command(tokens, data);
+	if (!execute_builtin(&token_list, data))
+		data->status = execute_external_command(tokens, data);
 	cleanup_line(tokens, NULL, token_list, line);
 	return (data->status);
 }

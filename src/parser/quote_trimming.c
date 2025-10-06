@@ -57,40 +57,35 @@ char	*trim_quotes(const char *str)
 }
 
 /**
- * @brief Remove quotes from command and argument nodes in the AST.
+ * @brief Remove quotes from TOKEN_WORD nodes in the token list.
  *
- * Processes NODE_CMD and NODE_NONE values, removing outer quotes while
- * preserving inner content. This runs after variable expansion in the
- * pipeline to clean up quoted arguments before execution. If any quote
- * trimming fails due to malloc error, stops processing and returns failure.
+ * Iterates over the token list and removes surrounding quotes from
+ * tokens of type TOKEN_WORD, preserving inner content. This should
+ * be done after variable expansion and before building the AST, so
+ * that AST nodes get already-processed values.
  *
- * Node types processed:
- * - NODE_CMD: Command names ("echo" → echo)
- * - NODE_NONE: Arguments ("hello world" → hello world)
- * - NODE_PIPE: Skipped (operators should not be quote-processed)
- * - NODE_REDIR: Skipped (handled separately in filename assignment)
+ * Example:
+ * - Token value "\"hello\"" becomes "hello"
+ * - Token value "'$HOME'" remains "$HOME" if quotes are single
  *
- * @param ast_list Head of the flat AST list to process
- * @return EXIT_SUCCESS on success, EXIT_FAILURE on malloc error
+ * @param token_list Head of the token list to process
+ * @return EXIT_SUCCESS if all tokens are successfully trimmed,
+ *         EXIT_FAILURE if any allocation fails
  *
- * @note This function modifies the AST in place and should be called after
- *       expand_ast_nodes() but before assign_argv_and_filename() in the
- *       processing pipeline
- * @note On failure, some nodes may be partially processed, cleanup handled 
- * by caller
+ * @note Modifies tokens in place. On failure, some tokens may be
+ * partially processed; caller is responsible for cleanup.
  */
-int	trim_quotes_in_ast(t_ast *ast_list)
+int	trim_quotes_in_token_list(t_token *token_list)
 {
-	t_ast	*current;
+	t_token	*current;
 	char	*trimmed;
 
-	if (!ast_list)
+	if (!token_list)
 		return (EXIT_SUCCESS);
-	current = ast_list;
+	current = token_list;
 	while (current)
 	{
-		if (current->value && (current->type == NODE_CMD
-				|| current->type == NODE_NONE))
+		if (current->value && current->type == TOKEN_WORD)
 		{
 			trimmed = trim_quotes(current->value);
 			if (!trimmed)

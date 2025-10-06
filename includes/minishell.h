@@ -208,7 +208,7 @@ int			remove_env_node(t_list **env_list, const char *arg);
 int			builtin_unset(char **argv, t_shell *data);
 
 /* src/builtins/execute_builtins.c */
-bool		execute_builtin(t_ast *list, t_shell *data);
+bool		execute_builtin(t_token **token_list, t_shell *data);
 
 /* =========================== */
 /*     ENVIRONMENT IMPORT      */
@@ -248,15 +248,8 @@ void		select_random_ascii_art(void);
 /*           PARSER            */
 /* =========================== */
 
-/* src/parser/assign_argv_and_filename.c */
-int			assign_argv_and_filename(t_ast *ast_list);
-
 /* src/parser/categorize_ast.c */
 void		free_ast_list(t_ast *list);
-t_ast		*new_ast_node(t_token *token);
-bool		is_a_redirection(t_operator_type op_type);
-void		assign_ast_node_type(t_ast *ast_list);
-t_ast		*create_ast_list(t_token *tokens_list);
 
 /* src/parser/categorize_tokens.c */
 int			get_operator_type(char *token);
@@ -269,7 +262,7 @@ bool		validate_tokens(char **tokens);
 
 /* src/parser/quote_trimming.c */
 char		*trim_quotes(const char *str);
-int			trim_quotes_in_ast(t_ast *ast_list);
+int			trim_quotes_in_token_list(t_token *token_list);
 
 /* src/parser/tokenizer_utils.c */
 t_quote		update_quote_state(t_quote current_quote_state, char c);
@@ -295,7 +288,7 @@ char		*extract_var_name(const char *str, size_t start_pos);
 char		*get_var_value(const char *var_name, t_shell *data);
 
 /* src/expansion/expansion_integrate.c */
-int			expand_ast_nodes(t_ast *ast_list, t_shell *data);
+int			expand_tokens_list(t_token *tokens_list, t_shell *data);
 
 /* src/expansion/expansion_replace.c */
 void		fill_expanded_string(char *result, const char *str, t_shell *data);
