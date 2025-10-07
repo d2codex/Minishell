@@ -1,29 +1,27 @@
 #include "minishell.h"
 
 /**
- * @brief Print a syntax error message to stderr and return MISUSAGE_ERROR.
+ * @brief Print a syntax error message and return MISUSAGE_ERROR.
  *
- * The function formats the error according to shell behavior:
- * - Prints a fixed error prefix and "syntax error near unexpected token".
- * - If a node and its value are provided, prints the token value.
- * - Otherwise, defaults to printing "newline".
+ * Prints a shell-style error message:
+ * - Uses the token's value if available.
+ * - Prints "newline" if the error is at the end of input.
  *
- * Example outputs:
+ * Example:
  * ```
  * bash: syntax error near unexpected token `|`
  * bash: syntax error near unexpected token `newline`
  * ```
  *
- * @param node Pointer to the AST node that caused the syntax error
- *             (may be NULL if the error is at end of input).
+ * @param token Token that caused the syntax error (may be NULL).
  * @return Always returns MISUSAGE_ERROR.
  */
-static int	syntax_error(t_ast *node)
+static int	syntax_error(t_token *token)
 {
 	ft_putstr_fd(ERR_PREFIX, STDERR_FILENO);
 	ft_putstr_fd(ERR_SYNTAX, STDERR_FILENO);
-	if (node && node->value)
-		ft_putstr_fd(node->value, STDERR_FILENO);
+	if (token && token->value)
+		ft_putstr_fd(token->value, STDERR_FILENO);
 	else
 		ft_putstr_fd("newline", STDERR_FILENO);
 	ft_putstr_fd("'\n", STDERR_FILENO);
@@ -31,86 +29,109 @@ static int	syntax_error(t_ast *node)
 }
 
 /**
- * @brief Validate the first node of the linear token list.
+ * @brief Check if a token is a redirection operator.
  *
- * The first node in the list has stricter syntax rules:
- * - Empty input (no node at all) is considered valid.
- * - The first node must be a command.
- * - A leading pipe is invalid.
- * - A leading redirection is only valid if followed by a proper target
- *   (not another operator). Otherwise, it's a syntax error.
- *
- * @param curr Pointer to the first node in the list.
- * @return EXIT_SUCCESS if valid,
- *         MISUSAGE_ERROR if the first node violates syntax rules.
- *
- * On error, a syntax error message is printed to stderr.
+ * @param token Token to check.
+ * @return true if it's a redirection, false otherwise.
  */
-static int	validate_first_node(t_ast *curr)
+static bool	is_token_redirection(t_token *token)
+{
+	if (!token)
+		return (false);
+	return (token->op_type == OP_INPUT
+		|| token->op_type == OP_OUTPUT
+		|| token->op_type == OP_APPEND
+		|| token->op_type == OP_HEREDOC);
+}
+
+/**
+ * @brief Validate the first token in the linear list.
+ *
+ * The first token determines whether the input starts with valid syntax.
+ * Rules enforced:
+ * - Empty input (no tokens) is valid.
+ * - The first token cannot be a pipe.
+ * - A leading redirection is only valid if it has a proper target (WORD) after it.
+ * - Otherwise, the first token must be a WORD (typically a command).
+ *
+ * @param curr Pointer to the first token in the list.
+ * @return EXIT_SUCCESS if the first token is valid,
+ *         MISUSAGE_ERROR if it violates shell syntax rules.
+ *
+ * On error, a descriptive syntax error message is printed to stderr.
+ */
+static int	validate_first_token(t_token *curr)
 {
 	if (!curr)
 		return (EXIT_SUCCESS); //empty input - not error
-	if (curr->type == NODE_CMD) // first node must be a CMD
+	if (curr->type == TOKEN_WORD) // first node must be a CMD
 		return (EXIT_SUCCESS);
-	if (curr->type == NODE_PIPE)
+	if (curr->op_type == OP_PIPE)
 		return (syntax_error(curr));
-	if (curr->type == NODE_REDIR)
+	if (is_token_redirection(curr))
 	{
-		if (curr->right && (curr->right->type == NODE_PIPE
-				|| curr->right->type == NODE_REDIR))
-			return (syntax_error(curr->right));
-		return (syntax_error(NULL));
+		if (!curr->next)
+			return (syntax_error(NULL));
+		if (curr->next->op_type != OP_NONE)
+			return (syntax_error(curr->next));
 	}
-	return (syntax_error(NULL));
+	return (EXIT_SUCCESS);
 }
 
 /**
  * @brief Validate the syntax of a linear list of parsed tokens.
  *
- * This function checks whether the linked list of parsed tokens (with node
- * types already assigned) follows valid shell grammar rules for pipes and
- * redirections. The list is still linear, not yet expanded into a full AST.
+ * This function ensures that the linked list of parsed tokens follows
+ * basic shell grammar rules regarding the ordering of pipes and redirections.
+ * The list is still linear (flat), not yet expanded into an AST.
  *
- * Rules enforced:
- * - The first node must be a valid command (handled by validate_first_node()).
- * - Pipes:
+ * **Rules enforced:**
+ * - The first token must be valid (checked by validate_first_token()).
+ * - **Pipes:**
  *   - Cannot appear at the start or end of the input.
- *   - Cannot be consecutive (e.g., cmd | | cmd).
- * - Redirections:
- *   - Must be followed by a valid target (WORD / NODE_NONE).
+ *   - Cannot appear consecutively (e.g., `cmd | | cmd`).
+ * - **Redirections:**
+ *   - Must be followed by a valid WORD token (i.e., a filename or argument).
  *   - Cannot be followed by another operator (pipe or redirection).
+ * - The final token cannot be a pipe or a redirection operator.
  *
- * @param list The head of the token list to validate.
- * @return EXIT_SUCCESS if syntax is valid,
- *         MISUSAGE_ERROR if a syntax error is detected.
+ * @param list Pointer to the head of the token list.
+ * @return
+ * - `EXIT_SUCCESS` if the syntax is valid.
+ * - `MISUSAGE_ERROR` if a syntax error is detected.
  *
- * On error, a descriptive syntax error message is printed to stderr.
+ * On error, a descriptive message is printed to `stderr`:
+ * ```
+ * minishell: syntax error near unexpected token `|`
+ * minishell: syntax error near unexpected token `newline`
+ * ```
  */
-int	validate_syntax_ast_list(t_ast *list)
+int	validate_syntax_token_list(t_token *list)
 {
-	t_ast	*curr;
+	t_token	*curr;
 
-	curr = list;
-	if (validate_first_node(curr))
+	if (validate_first_token(list) != EXIT_SUCCESS)
 		return (MISUSAGE_ERROR);
+	curr = list;
 	while (curr)
 	{
-		if (curr->type == NODE_PIPE)
+		// pipe rules
+		if (curr->op_type == OP_PIPE)
 		{
-			if (!curr->right) // pipe at end → newline
-				return (syntax_error(NULL));
-			if (curr->right->type == NODE_PIPE)
-				return (syntax_error(curr->right));
+			if (!curr->next)
+				return (syntax_error(NULL)); // pipe at end
+			if (curr->next->op_type == OP_PIPE)
+				return (syntax_error(curr->next)); //two pipes in a row
 		}
-		else if (curr->type == NODE_REDIR)
+		// redirection without a valid target
+		else if (is_token_redirection(curr))
 		{
-			if (!curr->right)
-				return (syntax_error(NULL));
-			if (curr->right->type == NODE_PIPE
-				|| curr->right->type == NODE_REDIR)
-				return (syntax_error(curr->right));
+			if (!curr->next)
+				return (syntax_error(NULL)); //missing target
+			if (curr->next->op_type != OP_NONE)
+				return (syntax_error(curr->next)); //invalid target
 		}
-		curr = curr->right;
+		curr = curr->next;
 	}
 	return (EXIT_SUCCESS);
 }

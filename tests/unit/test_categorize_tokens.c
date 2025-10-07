@@ -56,12 +56,19 @@ int	main(void)
 	}
 	printf("\n");
 	list = create_token_type_list(tokens);
+
 	if (!list)
 	{
 		printf("Failed to assign token types\n");
 		return (1);
 	}
 	print_token_type_list(list);
+//	validate_syntax_token_list(list);
+	printf("\n--- Syntax validation test ---\n");
+	if (validate_syntax_token_list(list) == EXIT_SUCCESS)
+		printf("%sSyntax valid ✅%s\n", GRN, RESET);
+	else
+		printf("%sSyntax error detected ❌%s\n", RED, RESET);
 	free_tokens_list(list);
 	return (0);
 }
