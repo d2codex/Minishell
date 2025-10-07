@@ -52,12 +52,14 @@ void	cleanup_shell(t_shell *data)
  * @param line Input line to free (can be NULL)
  */
 void	cleanup_line(char **tokens,
-		t_token *token_list, char *line)
+		t_token *token_list, t_ast *ast, char *line)
 {
 	if (tokens)
 		free_strings_array(tokens);
 	if (token_list)
 		free_tokens_list(token_list);
+	if (ast)
+		free_ast(ast);
 	if (line)
 		free(line);
 }

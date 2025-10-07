@@ -58,7 +58,6 @@ bool	prompt_user(char *prompt, t_shell *data)
 		free(line);
 		return (true);
 	}
-	// process the command line (builtin or external)
 	data->status = process_line(line, data);
 	if (data->should_exit)
 		return (false);
@@ -87,36 +86,30 @@ static int	process_tokens(char *line, t_shell *data,
 {
 	*tokens = execute_tokenizer(line, data);
 	if (!validate_tokens(*tokens))
-		return (EXIT_FAILURE); // invalid tokens = syntax misuse
+		return (free_strings_array(*tokens), EXIT_FAILURE); // invalid tokens = syntax misuse
 	*token_list = create_token_type_list(*tokens);
 	if (!*token_list)
-		return (EXIT_FAILURE); // malloc or internal error
+		return (free_strings_array(*tokens), EXIT_FAILURE); // malloc or internal error
 	if (validate_syntax_token_list(*token_list) != EXIT_SUCCESS)
+	{
+		free_strings_array(*tokens);
+		free_tokens_list(*token_list);
 		return (MISUSAGE_ERROR);
+	}
 	if (expand_tokens_list(*token_list, data) != EXIT_SUCCESS)
+	{
+		free_strings_array(*tokens);
+		free_tokens_list(*token_list);
 		return (EXIT_FAILURE);
+	}
 	if (trim_quotes_in_token_list(*token_list) != EXIT_SUCCESS)
+	{
+		free_strings_array(*tokens);
+		free_tokens_list(*token_list);
 		return (EXIT_FAILURE);
+	}
 	return (EXIT_SUCCESS);
 }
-
-// TODO: this function should build the ast list from the token list,
-// dynamically allocate the nodes, assign: value, type, argv, filename
-/*
- * static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
-{
-	int	status;
-
-	*ast = create_ast_list(token_list);
-	if (!*ast)
-		return (EXIT_FAILURE);
-	assign_ast_node_type(*ast);
-		return (status);
-	status = assign_argv_and_filename(*ast);
-	if (status != EXIT_SUCCESS)
-		return (status); // could return EXIT_FAILURE or something custom
-	return (EXIT_SUCCESS);
-}*/
 
 /**
  * @brief Process a single input line in the shell.
@@ -142,11 +135,11 @@ static int	process_tokens(char *line, t_shell *data,
 int	process_line(char *line, t_shell *data)
 {
 	char	**tokens;
-	//t_ast	*ast_list;
+	t_ast	*ast;
 	t_token	*token_list;
 
 	tokens = NULL;
-//	ast_list = NULL;
+	ast = NULL;
 	token_list = NULL;
 	if (is_easter_egg(line))
 	{
@@ -158,11 +151,12 @@ int	process_line(char *line, t_shell *data)
 		add_history(line);
 	data->status = process_tokens(line, data, &tokens, &token_list);
 	if (data->status != EXIT_SUCCESS)
-		return (cleanup_line(tokens, token_list, line), data->status);
-	// TODO: process_ast
-	// TODO execute_ast_tree() - will include execute_builtin
-	if (!execute_builtin(&token_list, data)) //for testing only
-		data->status = execute_external_command(tokens, data); //for testing only
-	cleanup_line(tokens, token_list, line);
+		return (cleanup_line(tokens, token_list, NULL, line), data->status);
+	ast = build_ast_from_tokens(token_list);
+	if (!ast)
+		return (cleanup_line(tokens, token_list, NULL, line), EXIT_FAILURE);
+	//print_ast(ast, 0);
+	data->status = execute_ast_tree(ast, data);
+	cleanup_line(tokens, token_list, ast, line);
 	return (data->status);
 }
