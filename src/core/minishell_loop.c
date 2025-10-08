@@ -58,7 +58,6 @@ bool	prompt_user(char *prompt, t_shell *data)
 		free(line);
 		return (true);
 	}
-	// process the command line (builtin or external)
 	data->status = process_line(line, data);
 	if (data->should_exit)
 		return (false);
@@ -66,31 +65,35 @@ bool	prompt_user(char *prompt, t_shell *data)
 }
 
 /**
- * @brief Tokenize a command line and create a token type list.
+ * @brief Tokenize and validate the input command line.
  *
- * This function takes a raw command line and:
- *  1. Tokenizes it into an array of strings via `execute_tokenizer`.
- *  2. Validates the tokens with `validate_tokens`.
- *  3. Builds a linked list of typed tokens via `create_token_type_list`.
+ * Converts the raw input line into a validated token list by performing:
+ *  1. Tokenization via `execute_tokenizer`.
+ *  2. Basic token validation with `validate_tokens`.
+ *  3. Typed token list creation using `create_token_type_list`.
+ *  4. Syntax validation through `validate_syntax_token_list`.
+ *  5. Expansion of variables and wildcards.
+ *  6. Quote trimming for final token cleanup.
  *
- * If tokenization or validation fails, the function returns EXIT_FAILURE.
+ * Memory cleanup is handled by the caller (`process_line`).
  *
- * @param line The raw input command line string.
- * @param data Shell state structure, used for tokenizer context.
- * @param tokens Pointer to store the resulting array of token strings.
- * @param token_list Pointer to store the resulting typed token list.
- * @return EXIT_SUCCESS on success, EXIT_FAILURE if tokenization or
- * validation fails.
+ * @param line        Raw input command line.
+ * @param data        Shell context containing environment and state.
+ * @param tokens      Output pointer to store the string token array.
+ * @param token_list  Output pointer to store the typed token list.
+ * @return EXIT_SUCCESS on success,
+ *         MISUSAGE_ERROR on syntax errors,
+ *         or EXIT_FAILURE on memory or internal errors.
  */
 static int	process_tokens(char *line, t_shell *data,
 	char ***tokens, t_token **token_list)
 {
 	*tokens = execute_tokenizer(line, data);
 	if (!validate_tokens(*tokens))
-		return (EXIT_FAILURE); // invalid tokens = syntax misuse
+		return (EXIT_FAILURE);
 	*token_list = create_token_type_list(*tokens);
 	if (!*token_list)
-		return (EXIT_FAILURE); // malloc or internal error
+		return (EXIT_FAILURE);
 	if (validate_syntax_token_list(*token_list) != EXIT_SUCCESS)
 		return (MISUSAGE_ERROR);
 	if (expand_tokens_list(*token_list, data) != EXIT_SUCCESS)
@@ -100,53 +103,35 @@ static int	process_tokens(char *line, t_shell *data,
 	return (EXIT_SUCCESS);
 }
 
-// TODO: this function should build the ast list from the token list,
-// dynamically allocate the nodes, assign: value, type, argv, filename
-/*
- * static int	process_ast(t_token *token_list, t_ast **ast, t_shell *data)
-{
-	int	status;
-
-	*ast = create_ast_list(token_list);
-	if (!*ast)
-		return (EXIT_FAILURE);
-	assign_ast_node_type(*ast);
-		return (status);
-	status = assign_argv_and_filename(*ast);
-	if (status != EXIT_SUCCESS)
-		return (status); // could return EXIT_FAILURE or something custom
-	return (EXIT_SUCCESS);
-}*/
-
 /**
  * @brief Process a single input line in the shell.
  *
- * This function performs the full processing of a command line:
- *  1. Handles Easter egg commands via `is_easter_egg` and `display_easter_egg`.
- *  2. Adds non-empty lines to the history if in TTY mode.
- *  3. Tokenizes and validates the line via `process_tokens`.
- *  4. Builds and validates the AST via `process_ast`.
- *  5. Executes the command as a builtin or external program.
- *  6. Cleans up all allocated resources.
+ * This function performs the full lifecycle of processing a command line:
+ *  1. Detects and displays Easter egg commands using `is_easter_egg` and `display_easter_egg`.
+ *  2. Adds non-empty lines to the command history (when running interactively).
+ *  3. Tokenizes and validates the input via `process_tokens`.
+ *  4. Builds an Abstract Syntax Tree (AST) from the token list using `build_ast_from_tokens`.
+ *  5. Executes the AST via `execute_ast_tree`.
+ *  6. Cleans up all allocated memory (tokens, AST, and input line).
  *
- * The function returns the exit status of the command:
+ * The function returns the resulting exit status:
  *  - EXIT_SUCCESS (0) for successful execution or Easter eggs.
- *  - MISUSAGE_ERROR for syntax errors detected in tokens or AST.
+ *  - Syntax or validation errors propagate from `process_tokens`.
  *  - EXIT_FAILURE for allocation or internal errors.
  *  - The actual exit code of builtins or external commands otherwise.
  *
  * @param line The input command line to process.
- * @param data Shell context storing state, status, and execution info.
- * @return The resulting exit code of the processed line.
+ * @param data The shell context storing environment, status, and execution state.
+ * @return The exit code resulting from processing the given line.
  */
 int	process_line(char *line, t_shell *data)
 {
 	char	**tokens;
-	//t_ast	*ast_list;
+	t_ast	*ast;
 	t_token	*token_list;
 
 	tokens = NULL;
-//	ast_list = NULL;
+	ast = NULL;
 	token_list = NULL;
 	if (is_easter_egg(line))
 	{
@@ -158,11 +143,12 @@ int	process_line(char *line, t_shell *data)
 		add_history(line);
 	data->status = process_tokens(line, data, &tokens, &token_list);
 	if (data->status != EXIT_SUCCESS)
-		return (cleanup_line(tokens, token_list, line), data->status);
-	// TODO: process_ast
-	// TODO execute_ast_tree() - will include execute_builtin
-	if (!execute_builtin(&token_list, data)) //for testing only
-		data->status = execute_external_command(tokens, data); //for testing only
-	cleanup_line(tokens, token_list, line);
+		return (cleanup_line(tokens, token_list, NULL, line), data->status);
+	ast = build_ast_from_tokens(token_list);
+	if (!ast)
+		return (cleanup_line(tokens, token_list, NULL, line), EXIT_FAILURE);
+//	print_ast(ast, 0);
+	data->status = execute_ast_tree(ast, data);
+	cleanup_line(tokens, token_list, ast, line);
 	return (data->status);
 }

@@ -144,10 +144,10 @@ typedef struct s_token
 typedef struct s_ast
 {
 	t_node_type		type; // NODE_CMD, NODE_PIPE or NODE_REDIR
+	t_operator_type	op_type;// <, >, >>, <<
 	char			*value; // raw token string (cmd or word)
 	char			**argv; // only for NODE_CMD
 	char			*filename; // only for NODE_REDIR
-	t_operator_type	op_type;// <, >, >>, <<
 	struct s_ast	*left; // pipe left
 	struct s_ast	*right; // pipe right
 	struct s_ast	*next; // used temporarily for flat list
@@ -207,19 +207,6 @@ int			builtin_exit(char **argv, t_shell *data);
 int			remove_env_node(t_list **env_list, const char *arg);
 int			builtin_unset(char **argv, t_shell *data);
 
-/* src/builtins/execute_builtins.c */
-bool		execute_builtin(t_token **token_list, t_shell *data);
-
-/* =========================== */
-/*     ENVIRONMENT IMPORT      */
-/* =========================== */
-
-/* src/env/env_import.c      */
-void		del_env(void *content);
-int			print_env_list(t_list *env_list);
-t_env		*create_env_node(const char *str);
-t_list		*init_env_from_envp(char **envp);
-
 /* =========================== */
 /*            CORE             */
 /* =========================== */
@@ -245,8 +232,74 @@ void		display_easter_egg(void);
 void		select_random_ascii_art(void);
 
 /* =========================== */
+/*     ENVIRONMENT IMPORT      */
+/* =========================== */
+
+/* src/env/env_import.c      */
+void		del_env(void *content);
+int			print_env_list(t_list *env_list);
+t_env		*create_env_node(const char *str);
+t_list		*init_env_from_envp(char **envp);
+
+/* =========================== */
+/*         EXECUTION           */
+/* =========================== */
+
+/* src/execution/execute.c */
+int			execute_external_command(char **tokens, t_shell *data);
+int			execute_ast_tree(t_ast *node, t_shell *data);
+
+/* src/execution/execute_builtin.c */
+bool		execute_builtin(t_ast *node, t_shell *data);
+
+/* =========================== */
+/*         EXPANSION           */
+/* =========================== */
+
+/* src/expansion/expansion_extract.c */
+char		*extract_var_name(const char *str, size_t start_pos);
+char		*get_var_value(const char *var_name, t_shell *data);
+
+/* src/expansion/expansion_integrate.c */
+int			expand_tokens_list(t_token *tokens_list, t_shell *data);
+
+/* src/expansion/expansion_replace.c */
+void		fill_expanded_string(char *result, const char *str, t_shell *data);
+char		*expand_variables_in_string(const char *str, t_shell *data);
+
+/* src/expansion/expansion_utils.c */
+bool		should_expand_at_position(const char *str, size_t pos);
+size_t		calculate_expanded_size(const char *str, t_shell *data);
+size_t		get_variable_size(const char *str, size_t *i, t_shell *data);
+
+/* =========================== */
 /*           PARSER            */
 /* =========================== */
+
+/* src/ast_build.c */
+t_token		*find_first_pipe(t_token *start, t_token *end);
+t_ast		*build_simple_command(t_token *start, t_token *end);
+t_ast		*build_ast_from_tokens(t_token *tokens);
+
+/* src/ast_build_utils.c */
+bool		is_redir_operator(t_operator_type op_type);
+bool		has_redirections(t_token *start, t_token *end);
+bool		is_redir_filename(t_token *start, t_token *end, t_token *target);
+int			count_command_words(t_token *start, t_token *end);
+
+/* src/ast_create_nodes.c */
+char		**collect_argv(t_token *start, t_token *end);
+t_ast		*collect_redirections(t_token *start, t_token *end);
+t_ast		*create_redir_node(t_token *op_token, t_token *file_token);
+t_ast		*create_cmd_node(char **argv);
+t_ast		*create_pipe_node(t_ast *left, t_ast *right);
+
+/* src/ast_free.c */
+void		free_strings_in_node(t_ast *node);
+void		free_ast(t_ast *node);
+
+/* src/ast_print.c */
+void		print_ast(t_ast *node, int depth);
 
 /* src/parser/categorize_tokens.c */
 int			get_operator_type(char *token);
@@ -277,33 +330,6 @@ char		**ft_split_tokens(char const *s, t_token_error *error_code);
 int			validate_syntax_token_list(t_token *list);
 
 /* =========================== */
-/*         EXPANSION           */
-/* =========================== */
-
-/* src/expansion/expansion_extract.c */
-char		*extract_var_name(const char *str, size_t start_pos);
-char		*get_var_value(const char *var_name, t_shell *data);
-
-/* src/expansion/expansion_integrate.c */
-int			expand_tokens_list(t_token *tokens_list, t_shell *data);
-
-/* src/expansion/expansion_replace.c */
-void		fill_expanded_string(char *result, const char *str, t_shell *data);
-char		*expand_variables_in_string(const char *str, t_shell *data);
-
-/* src/expansion/expansion_utils.c */
-bool		should_expand_at_position(const char *str, size_t pos);
-size_t		calculate_expanded_size(const char *str, t_shell *data);
-size_t		get_variable_size(const char *str, size_t *i, t_shell *data);
-
-/* =========================== */
-/*         EXECUTION           */
-/* =========================== */
-
-/* src/execution/execute.c */
-int			execute_external_command(char **tokens, t_shell *data);
-
-/* =========================== */
 /*           UTILS             */
 /* =========================== */
 
@@ -313,7 +339,7 @@ bool		is_whitespace(char c);
 /* src/utils/memory_cleanup.c */
 void		free_string_array(char **tab, size_t count);
 void		cleanup_shell(t_shell *data);
-void		cleanup_line(char **tokens, t_token *token_list, char *line);
+void		cleanup_line(char **tokens, t_token *token_list, t_ast *ast, char *line);
 
 /* src/utils/print_errors.c */
 void		print_error(char *p1, char *p2, char *p3, char *p4);

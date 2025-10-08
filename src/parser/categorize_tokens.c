@@ -48,6 +48,7 @@ void	free_tokens_list(t_token *list)
 {
 	t_token	*current;
 
+//	int i = 0;
 	while (list)
 	{
 		current = list;
@@ -55,7 +56,9 @@ void	free_tokens_list(t_token *list)
 		if (current->value)
 			free(current->value);
 		free(current);
+//		i++;
 	}
+//	printf("DEBUG: number of tokens freed: %d\n", i);
 }
 
 // function that mallocs and set node,
@@ -129,5 +132,6 @@ t_token	*create_token_type_list(char **tokens)
 		tail = new;
 		i++;
 	}
+//	printf("DEBUG: number of tokens allocated: %d\n", i);
 	return (tokens_list);
 }

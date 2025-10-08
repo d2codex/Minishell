@@ -39,25 +39,38 @@ void	cleanup_shell(t_shell *data)
 }
 
 /**
- * @brief Clean up process_line resources
+ * @brief Safely free all resources from a processed command line.
  *
- * Cleans up:
- *  - token array
- *  - ast_ist
- *  - token_list
- *  - input line
+ * Frees all dynamically allocated memory related to a parsed line,
+ * including tokens, token list, AST, and the input line itself.
+ * Each argument is checked for NULL and safely ignored if uninitialized.
  *
- * @param tokens Token array to free (can be NULL)
- * @param ast_list Flat Ast node list
- * @param line Input line to free (can be NULL)
+ * @param tokens     Array of token strings (can be NULL).
+ * @param token_list Typed token list (can be NULL).
+ * @param ast        Abstract syntax tree (can be NULL).
+ * @param line       Input line buffer (can be NULL).
  */
 void	cleanup_line(char **tokens,
-		t_token *token_list, char *line)
+		t_token *token_list, t_ast *ast, char *line)
 {
 	if (tokens)
+	{
 		free_strings_array(tokens);
+		tokens = NULL;
+	}
 	if (token_list)
+	{
 		free_tokens_list(token_list);
+		token_list = NULL;
+	}
+	if (ast)
+	{
+		free_ast(ast);
+		ast = NULL;
+	}
 	if (line)
+	{
 		free(line);
+		line = NULL;
+	}
 }

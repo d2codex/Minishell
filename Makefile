@@ -11,15 +11,9 @@ OBJ_DIR = obj
 LIBFT_DIR = libft
 
 # src files
-SRC =	src/env/env_import.c \
-		src/core/ascii_art_themes.c \
-		src/core/minishell_loop.c \
-		src/core/init_shell.c \
-		src/core/print_ascii_art.c \
-		src/builtins/cd.c \
+SRC =	src/builtins/cd.c \
 		src/builtins/echo.c \
 		src/builtins/env.c \
-		src/builtins/execute_builtins.c \
 		src/builtins/exit.c \
 		src/builtins/export.c \
 		src/builtins/export_array.c \
@@ -29,16 +23,27 @@ SRC =	src/env/env_import.c \
 		src/builtins/export_utils.c \
 		src/builtins/pwd.c \
 		src/builtins/unset.c \
-		src/expansion/expansion_extract.c \
+		src/core/ascii_art_themes.c \
+		src/core/init_shell.c \
+		src/core/minishell_loop.c \
+		src/core/print_ascii_art.c \
+		src/env/env_import.c \
+		src/execution/execute.c \
+		src/execution/execute_builtins.c \
 		src/expansion/expansion.c \
+		src/expansion/expansion_extract.c \
 		src/expansion/expansion_replace.c \
 		src/expansion/expansion_utils.c \
-		src/execution/execute.c \
+		src/parser/ast_build.c \
+		src/parser/ast_build_utils.c \
+		src/parser/ast_create_nodes.c \
+		src/parser/ast_free.c \
+		src/parser/ast_print.c \
 		src/parser/categorize_tokens.c \
 		src/parser/execute_tokenizer.c \
 		src/parser/quote_trimming.c \
-		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_count_tokens.c \
+		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_utils.c \
 		src/parser/validate_syntax.c \
 		src/utils/is_whitespace.c \
