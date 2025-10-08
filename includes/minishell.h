@@ -246,23 +246,22 @@ void		select_random_ascii_art(void);
 /* =========================== */
 
 /* src/ast_build.c */
-t_token		*find_first_pipe(t_token *tokens);
-t_token		*split_at_pipe(t_token *tokens, t_token *pipe_token);
-t_ast		*build_simple_command(t_token *tokens);
+t_token		*find_first_pipe(t_token *start, t_token *end);
+t_ast		*build_simple_command(t_token *start, t_token *end);
 t_ast		*build_ast_from_tokens(t_token *tokens);
 
 /* src/ast_build_utils.c */
 bool		is_redir_operator(t_operator_type op_type);
-bool		has_redirections(t_token *tokens);
-bool		is_redir_filename(t_token *tokens, t_token *target);
-int			count_command_words(t_token *tokens);
+bool		has_redirections(t_token *start, t_token *end);
+bool		is_redir_filename(t_token *start, t_token *end, t_token *target);
+int			count_command_words(t_token *start, t_token *end);
 void		free_ast(t_ast *node);
 
 /* src/ast_create_nodes.c */
-char		**collect_argv(t_token *tokens);
-t_ast		*collect_redirections(t_token *tokens);
+char		**collect_argv(t_token *start, t_token *end);
+t_ast		*collect_redirections(t_token *start, t_token *end);
 t_ast		*create_redir_node(t_token *op_token, t_token *file_token);
-t_ast		*create_cmd_node(char *cmd, char **argv);
+t_ast		*create_cmd_node(char **argv);
 t_ast		*create_pipe_node(t_ast *left, t_ast *right);
 
 /* src/ast_print.c */

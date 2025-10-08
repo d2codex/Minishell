@@ -8,26 +8,26 @@ bool	is_redir_operator(t_operator_type op_type)
 		|| op_type == OP_HEREDOC);
 }
 
-bool	has_redirections(t_token *tokens)
+bool	has_redirections(t_token *start, t_token *end)
 {
 	t_token	*curr;
 
-	curr = tokens;
-	while (curr)
+	curr = start;
+	while (curr && curr != end)
 	{
-		if(is_redir_operator(tokens->op_type))
+		if(is_redir_operator(curr->op_type))
 			return (true);
 		curr = curr->next;
 	}
 	return (false);
 }
 
-bool	is_redir_filename(t_token *tokens, t_token *target)
+bool	is_redir_filename(t_token *start, t_token *end, t_token *target)
 {
 	t_token	*curr;
 
-	curr = tokens;
-	while (curr)
+	curr = start;
+	while (curr && curr != end)
 	{
 		// if the token is a REDIR and the next is our TARGET
 		if (is_redir_operator(curr->op_type) && curr->next == target)
@@ -37,16 +37,16 @@ bool	is_redir_filename(t_token *tokens, t_token *target)
 	return (false);
 }
 
-int	count_command_words(t_token *tokens)
+int	count_command_words(t_token *start, t_token *end)
 {
 	int		count;
 	t_token	*curr;
 
-	curr = tokens;
+	curr = start;
 	count = 0;
-	while (curr)
+	while (curr && curr != end)
 	{
-		if (!is_redir_filename(tokens, curr))
+		if (!is_redir_filename(start, end , curr))
 			count++;
 		curr = curr->next;
 	}

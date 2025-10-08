@@ -1,21 +1,21 @@
 #include "minishell.h"
 
-char	**collect_argv(t_token *tokens)
+char	**collect_argv(t_token *start, t_token *end)
 {
 	int		i;
 	int		count;
 	char	**argv;
 	t_token	*curr;
 
-	count = count_command_words(tokens);
+	count = count_command_words(start, end);
 	argv = malloc(sizeof (char *) * (count + 1));
 	if (!argv)
-		return (NULL); // do i need to free previous stuff?
+		return (NULL);
 	i = 0;
-	curr = tokens;
-	while (curr)
+	curr = start;
+	while (curr && curr != end)
 	{
-		if (curr->type == TOKEN_WORD && !is_redir_filename(tokens, curr))
+		if (curr->type == TOKEN_WORD && !is_redir_filename(start, end, curr))
 		{
 			argv[i] = ft_strdup(curr->value);
 			if (!argv[i])
@@ -31,7 +31,7 @@ char	**collect_argv(t_token *tokens)
 	return (argv);
 }
 
-t_ast	*collect_redirections(t_token *tokens)
+t_ast	*collect_redirections(t_token *start, t_token *end)
 {
 	t_ast	*redir_head;
 	t_ast	*redir_tail;
@@ -40,11 +40,14 @@ t_ast	*collect_redirections(t_token *tokens)
 
 	redir_head = NULL;
 	redir_tail = NULL;
-	curr = tokens;
-	while (curr)
+	curr = start;
+	while (curr && curr != end)
 	{
 		if (is_redir_operator(curr->op_type))
 		{
+			//make sure we dont go out of bounds
+			if (!curr->next || curr->next == end)
+				break ;
 			// create redir n ode with operator and filename
 			redir = create_redir_node(curr, curr->next);
 			if (!redir)
@@ -84,7 +87,7 @@ t_ast	*create_redir_node(t_token *op_token, t_token *file_token)
 	return (node);
 }
 
-t_ast	*create_cmd_node(char *cmd, char **argv)
+t_ast	*create_cmd_node(char **argv)
 {
 	t_ast	*node;
 
@@ -93,7 +96,7 @@ t_ast	*create_cmd_node(char *cmd, char **argv)
 		return (NULL);
 	node->type = NODE_CMD;
 	node->op_type = OP_NONE;
-	node->value = ft_strdup(cmd);
+	node->value = ft_strdup(argv[0]);
 	if (!node->value)
 		return (free(node), NULL);
 	node->argv = argv;
