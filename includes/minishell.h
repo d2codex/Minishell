@@ -245,6 +245,9 @@ t_list		*init_env_from_envp(char **envp);
 /*         EXECUTION           */
 /* =========================== */
 
+/* build_env_array.c */
+char		**env_list_to_array(t_list *env_list);
+
 /* src/execution/execute.c */
 int			execute_external_command(char **tokens, t_shell *data);
 int			execute_ast_tree(t_ast *node, t_shell *data);
