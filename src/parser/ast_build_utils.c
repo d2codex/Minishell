@@ -80,7 +80,7 @@ int	count_command_words(t_token *start, t_token *end)
 	count = 0;
 	while (curr && curr != end)
 	{
-		if (!is_redir_filename(start, end, curr))
+		if (curr->type == TOKEN_WORD && !is_redir_filename(start, end, curr))
 			count++;
 		curr = curr->next;
 	}

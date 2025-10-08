@@ -58,11 +58,23 @@ void	cleanup_line(char **tokens,
 		t_token *token_list, t_ast *ast, char *line)
 {
 	if (tokens)
+	{
 		free_strings_array(tokens);
+		tokens = NULL;
+	}
 	if (token_list)
+	{
 		free_tokens_list(token_list);
+		token_list = NULL;
+	}
 	if (ast)
+	{
 		free_ast(ast);
+		ast = NULL;
+	}
 	if (line)
+	{
 		free(line);
+		line = NULL;
+	}
 }

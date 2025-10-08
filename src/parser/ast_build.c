@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast_build.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: diade-so <diade-so@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/08 17:15:28 by diade-so          #+#    #+#             */
+/*   Updated: 2025/10/08 17:56:59 by diade-so         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -62,24 +74,27 @@ t_ast	*build_simple_command(t_token *start, t_token *end)
 	if (!start || start == end)
 		return (NULL);
 	argv = collect_argv(start, end);
-	if (!argv)
-		return (NULL);
 	cmd_node = NULL;
-	if (argv && argv[0])
+	if (argv && argv[0]) //create cmd nodes only if we have args
 	{
 		cmd_node = create_cmd_node(argv);
 		if (!cmd_node)
 			return (free_strings_array(argv), NULL);
 	}
 	redir_head = collect_redirections(start, end);
+	// check for malformed redirections (operator w/o filename)
 	if (!redir_head && has_redirections(start, end))
 		return (cleanup_command(cmd_node, argv));
-	if (cmd_node)
-	{
+	// return cmd node with redirections
+	if (cmd_node && redir_head)
 		cmd_node->right = redir_head;
+	// or just redirections
+	if (cmd_node)
 		return (cmd_node);
-	}
-	return (redir_head);
+	// or cmd only
+	if (redir_head)
+		return (redir_head);
+	return (NULL);
 }
 
 /**

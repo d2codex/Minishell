@@ -90,28 +90,16 @@ static int	process_tokens(char *line, t_shell *data,
 {
 	*tokens = execute_tokenizer(line, data);
 	if (!validate_tokens(*tokens))
-		return (free_strings_array(*tokens), EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	*token_list = create_token_type_list(*tokens);
 	if (!*token_list)
-		return (free_strings_array(*tokens), EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	if (validate_syntax_token_list(*token_list) != EXIT_SUCCESS)
-	{
-		free_strings_array(*tokens);
-		free_tokens_list(*token_list);
 		return (MISUSAGE_ERROR);
-	}
 	if (expand_tokens_list(*token_list, data) != EXIT_SUCCESS)
-	{
-		free_strings_array(*tokens);
-		free_tokens_list(*token_list);
 		return (EXIT_FAILURE);
-	}
 	if (trim_quotes_in_token_list(*token_list) != EXIT_SUCCESS)
-	{
-		free_strings_array(*tokens);
-		free_tokens_list(*token_list);
 		return (EXIT_FAILURE);
-	}
 	return (EXIT_SUCCESS);
 }
 
