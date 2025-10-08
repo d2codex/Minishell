@@ -65,22 +65,22 @@ bool	prompt_user(char *prompt, t_shell *data)
 }
 
 /**
- * @brief Tokenize and prepare a validated token list from a command line.
+ * @brief Tokenize and validate the input command line.
  *
- * This function performs all stages of token processing:
- *  1. Splits the raw input line into string tokens using `execute_tokenizer`.
- *  2. Validates basic token structure via `validate_tokens`.
- *  3. Builds a typed linked list with `create_token_type_list`.
- *  4. Validates token syntax using `validate_syntax_token_list`.
- *  5. Expands variables and wildcards through `expand_tokens_list`.
- *  6. Removes surrounding quotes via `trim_quotes_in_token_list`.
+ * Converts the raw input line into a validated token list by performing:
+ *  1. Tokenization via `execute_tokenizer`.
+ *  2. Basic token validation with `validate_tokens`.
+ *  3. Typed token list creation using `create_token_type_list`.
+ *  4. Syntax validation through `validate_syntax_token_list`.
+ *  5. Expansion of variables and wildcards.
+ *  6. Quote trimming for final token cleanup.
  *
- * If any stage fails, allocated memory is freed and an error code is returned.
+ * Memory cleanup is handled by the caller (`process_line`).
  *
- * @param line        The raw input command line string.
- * @param data        The shell context containing environment and state.
- * @param tokens      Output pointer to store the resulting string token array.
- * @param token_list  Output pointer to store the resulting typed token list.
+ * @param line        Raw input command line.
+ * @param data        Shell context containing environment and state.
+ * @param tokens      Output pointer to store the string token array.
+ * @param token_list  Output pointer to store the typed token list.
  * @return EXIT_SUCCESS on success,
  *         MISUSAGE_ERROR on syntax errors,
  *         or EXIT_FAILURE on memory or internal errors.

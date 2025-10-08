@@ -63,13 +63,14 @@ bool	is_redir_filename(t_token *start, t_token *end, t_token *target)
 }
 
 /**
- * @brief Count the number of command words in a token range.
+ * @brief Count command words within a token range.
  *
- * Excludes tokens that are redirection filenames.
+ * Iterates through the given token range and counts tokens of type
+ * `TOKEN_WORD`, excluding those used as redirection filenames.
  *
  * @param start Pointer to the first token in the range.
- * @param end Pointer to the token marking the end of the range (excluded).
- * @return The number of command words.
+ * @param end   Pointer to the token marking the end of the range (excluded).
+ * @return The number of valid command words found.
  */
 int	count_command_words(t_token *start, t_token *end)
 {
