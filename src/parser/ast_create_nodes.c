@@ -1,5 +1,15 @@
 #include "minishell.h"
 
+/**
+ * @brief Collect command arguments from a token range.
+ *
+ * Extracts all tokens of type TOKEN_WORD that are not redirection filenames
+ * and returns them as a NULL-terminated array of strings.
+ *
+ * @param start Pointer to the first token in the range.
+ * @param end Pointer to the token marking the end of the range (excluded).
+ * @return NULL-terminated array of argument strings, or NULL on allocation failure.
+ */
 char	**collect_argv(t_token *start, t_token *end)
 {
 	int		i;
@@ -19,10 +29,7 @@ char	**collect_argv(t_token *start, t_token *end)
 		{
 			argv[i] = ft_strdup(curr->value);
 			if (!argv[i])
-			{
-				free_strings_array(argv);
-				return (NULL);
-			}
+				return (free_strings_array(argv), NULL);
 			i++;
 		}
 		curr = curr->next;
@@ -31,6 +38,16 @@ char	**collect_argv(t_token *start, t_token *end)
 	return (argv);
 }
 
+/**
+ * @brief Collect redirection nodes from a token range.
+ *
+ * Creates a linked list of redirection AST nodes for all redirection operators
+ * in the token range.
+ *
+ * @param start Pointer to the first token in the range.
+ * @param end Pointer to the token marking the end of the range (excluded).
+ * @return Head of the redirection AST linked list, or NULL if none or on failure.
+ */
 t_ast	*collect_redirections(t_token *start, t_token *end)
 {
 	t_ast	*redir_head;
@@ -43,28 +60,33 @@ t_ast	*collect_redirections(t_token *start, t_token *end)
 	curr = start;
 	while (curr && curr != end)
 	{
-		if (is_redir_operator(curr->op_type))
+		if (is_redir_operator(curr->op_type) && curr->next && curr->next != end)
 		{
-			//make sure we dont go out of bounds
-			if (!curr->next || curr->next == end)
-				break ;
-			// create redir n ode with operator and filename
 			redir = create_redir_node(curr, curr->next);
 			if (!redir)
-				return (free_ast(redir_head), NULL); // free previously allocated nodes
-			// add to chain
+				return (free_ast(redir_head), NULL);
 			if (!redir_head)
 				redir_head = redir;
 			else
 				redir_tail->next = redir;
 			redir_tail = redir;
-			curr = curr->next; // skip file name token
+			curr = curr->next;
 		}
 		curr = curr->next;
 	}
 	return (redir_head);
 }
 
+/**
+ * @brief Create a single redirection AST node.
+ *
+ * Uses an operator token and a filename token to initialize an AST
+ * node of type NODE_REDIR.
+ *
+ * @param op_token Token representing the redirection operator.
+ * @param file_token Token representing the filename for redirection.
+ * @return Pointer to the new AST node, or NULL on allocation failure.
+ */
 t_ast	*create_redir_node(t_token *op_token, t_token *file_token)
 {
 	t_ast	*node;
@@ -87,6 +109,15 @@ t_ast	*create_redir_node(t_token *op_token, t_token *file_token)
 	return (node);
 }
 
+/**
+ * @brief Create a command AST node.
+ *
+ * Initializes an AST node of type NODE_CMD using the provided argv array.
+ *
+ * @param argv NULL-terminated array of argument strings (argv[0] is the
+ *             command name).
+ * @return Pointer to the new AST node, or NULL on allocation failure.
+ */
 t_ast	*create_cmd_node(char **argv)
 {
 	t_ast	*node;
@@ -107,6 +138,15 @@ t_ast	*create_cmd_node(char **argv)
 	return (node);
 }
 
+/**
+ * @brief Create a pipe AST node.
+ *
+ * Initializes an AST node of type NODE_PIPE connecting left and right child nodes.
+ *
+ * @param left Left child AST node.
+ * @param right Right child AST node.
+ * @return Pointer to the new AST node, or NULL on allocation failure.
+ */
 t_ast	*create_pipe_node(t_ast *left, t_ast *right)
 {
 	t_ast	*node;
@@ -116,7 +156,7 @@ t_ast	*create_pipe_node(t_ast *left, t_ast *right)
 		return (NULL);
 	node->type = NODE_PIPE;
 	node->op_type = OP_PIPE;
-	node->value = ft_strdup("|"); //dup the string for easier freeing w/ recursion
+	node->value = ft_strdup("|");
 	if (!node->value)
 		return (free(node), NULL);
 	node->argv = NULL;

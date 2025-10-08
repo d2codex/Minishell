@@ -39,17 +39,20 @@ void	cleanup_shell(t_shell *data)
 }
 
 /**
- * @brief Clean up process_line resources
+ * @brief Free all resources allocated during process_line.
  *
- * Cleans up:
- *  - token array
- *  - ast_ist
- *  - token_list
- *  - input line
+ * This function releases memory used by:
+ *  - The string token array.
+ *  - The typed token linked list.
+ *  - The abstract syntax tree (AST).
+ *  - The original input line.
  *
- * @param tokens Token array to free (can be NULL)
- * @param ast_list Flat Ast node list
- * @param line Input line to free (can be NULL)
+ * Each pointer can safely be NULL.
+ *
+ * @param tokens      Array of string tokens to free (can be NULL).
+ * @param token_list  Linked list of typed tokens to free (can be NULL).
+ * @param ast         Abstract syntax tree to free (can be NULL).
+ * @param line        Input line to free (can be NULL).
  */
 void	cleanup_line(char **tokens,
 		t_token *token_list, t_ast *ast, char *line)

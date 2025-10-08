@@ -1,5 +1,12 @@
 #include "minishell.h"
 
+/**
+ * @brief Check if an operator type is a redirection.
+ *
+ * @param op_type The operator type to check.
+ * @return true if it is OP_INPUT, OP_OUTPUT, OP_APPEND, or OP_HEREDOC;
+ * false otherwise.
+ */
 bool	is_redir_operator(t_operator_type op_type)
 {
 	return (op_type == OP_INPUT
@@ -8,6 +15,14 @@ bool	is_redir_operator(t_operator_type op_type)
 		|| op_type == OP_HEREDOC);
 }
 
+/**
+ * @brief Check if a token range contains any redirection operators.
+ *
+ * @param start Pointer to the first token in the range.
+ * @param end Pointer to the token marking the end of the range (excluded).
+ * @return true if any token in the range is a redirection operator;
+ * false otherwise.
+ */
 bool	has_redirections(t_token *start, t_token *end)
 {
 	t_token	*curr;
@@ -15,13 +30,24 @@ bool	has_redirections(t_token *start, t_token *end)
 	curr = start;
 	while (curr && curr != end)
 	{
-		if(is_redir_operator(curr->op_type))
+		if (is_redir_operator(curr->op_type))
 			return (true);
 		curr = curr->next;
 	}
 	return (false);
 }
 
+/**
+ * @brief Check if a token is a filename for a redirection.
+ *
+ * Scans the token range from start to end (excluded) to see if
+ * `target` follows a redirection operator.
+ *
+ * @param start Pointer to the first token in the range.
+ * @param end Pointer to the token marking the end of the range (excluded).
+ * @param target Token to check as a redirection target.
+ * @return true if target is a redirection filename; false otherwise.
+ */
 bool	is_redir_filename(t_token *start, t_token *end, t_token *target)
 {
 	t_token	*curr;
@@ -29,7 +55,6 @@ bool	is_redir_filename(t_token *start, t_token *end, t_token *target)
 	curr = start;
 	while (curr && curr != end)
 	{
-		// if the token is a REDIR and the next is our TARGET
 		if (is_redir_operator(curr->op_type) && curr->next == target)
 			return (true);
 		curr = curr->next;
@@ -37,6 +62,15 @@ bool	is_redir_filename(t_token *start, t_token *end, t_token *target)
 	return (false);
 }
 
+/**
+ * @brief Count the number of command words in a token range.
+ *
+ * Excludes tokens that are redirection filenames.
+ *
+ * @param start Pointer to the first token in the range.
+ * @param end Pointer to the token marking the end of the range (excluded).
+ * @return The number of command words.
+ */
 int	count_command_words(t_token *start, t_token *end)
 {
 	int		count;
@@ -46,44 +80,9 @@ int	count_command_words(t_token *start, t_token *end)
 	count = 0;
 	while (curr && curr != end)
 	{
-		if (!is_redir_filename(start, end , curr))
+		if (!is_redir_filename(start, end, curr))
 			count++;
 		curr = curr->next;
 	}
 	return (count);
-}
-
-// free the tree using recursion
-// TODO: make helper function to free strings + argv
-void	free_ast(t_ast *node)
-{
-	t_ast	*curr;
-	t_ast	*next;
-
-	if (!node)
-		return ;
-	if (node->value)
-		free(node->value);
-	if (node->filename)
-		free(node->filename);
-	if (node->argv)
-		free_strings_array(node->argv);
-	if (node->left) // recursively free the left subtree
-		free_ast(node->left);
-	if (node->type == NODE_PIPE)
-	{
-		if (node->right)
-			free_ast(node->right);
-	}
-	else if (node->type == NODE_CMD)
-	{
-		curr = node->right;
-		while (curr)
-		{
-			next = curr->next;
-			free_ast(curr);
-			curr = next;
-		}
-	}
-	free(node);
 }

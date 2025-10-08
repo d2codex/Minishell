@@ -7,7 +7,7 @@
  * including `exit`. If a match is found, executes the corresponding
  * function and updates `data->status`. Does not execute external commands.
  *
- * @param argv Command argv from user input.
+ * @param node AST node representing the command.
  * @param data Shell state, including environment, exit status, and exit flag.
  * @return true if the command is a builtin and was executed; false otherwise.
  */
