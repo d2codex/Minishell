@@ -36,11 +36,11 @@ static char	*build_path(const char *dir, const char *cmd)
 
 	temp_path = ft_strjoin(dir, "/");
 	if (!temp_path)
-			return (NULL);
+		return (NULL);
 	full_path = ft_strjoin(temp_path, cmd);
 	free(temp_path);
 	if (!full_path)
-			return (NULL);
+		return (NULL);
 	return (full_path);
 }
 
