@@ -245,7 +245,7 @@ t_list		*init_env_from_envp(char **envp);
 /*         EXECUTION           */
 /* =========================== */
 
-/* build_env_array.c */
+/* src/execution/build_env_array.c */
 char		**env_list_to_array(t_list *env_list);
 
 /* src/execution/execute.c */
@@ -254,6 +254,9 @@ int			execute_ast_tree(t_ast *node, t_shell *data);
 
 /* src/execution/execute_builtin.c */
 bool		execute_builtin(t_ast *node, t_shell *data);
+
+/* src/ execution/find_executable.c */
+char		*find_executable(char *cmd, t_shell *data);
 
 /* =========================== */
 /*         EXPANSION           */

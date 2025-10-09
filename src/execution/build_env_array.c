@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-//TODO: Doxygen coms
+// TODO: Doxygen coms
 
 /* Count how many exported vars must appear in envp */
 static size_t	count_exported_vars(t_list *env_list)
