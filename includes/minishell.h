@@ -251,14 +251,17 @@ t_list		*init_env_from_envp(char **envp);
 /* src/execution/build_env_array.c */
 char		**env_list_to_array(t_list *env_list);
 
-/* src/execution/execute.c */
-int			execute_external_command(char **tokens, t_shell *data);
+/* src/execution/execute_ast_tree.c */
 int			execute_ast_tree(t_ast *node, t_shell *data);
+// int		execute_pipeline(t_ast *node, t_shell *data); // needs to be coded
 
 /* src/execution/execute_builtin.c */
 bool		execute_builtin(t_ast *node, t_shell *data);
 
-/* src/ execution/find_executable.c */
+/* src/execution/ execute_external_cmd.c */
+int			execute_external_command(char **tokens, t_shell *data);
+
+/* src/execution/find_executable.c */
 char		*find_executable(char *cmd, t_shell *data);
 
 /* =========================== */

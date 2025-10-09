@@ -12,7 +12,7 @@
  * @param path Output parameter for the executable path
  * @param envp Output parameter for the environment array
  * @return 0 on success, CMD_NOT_FOUND (127) if command not found,
- *         EXIT_FAILURE (1) if env conversion fails
+ *	 EXIT_FAILURE (1) if env conversion fails
  */
 static int	init_execution(char **tokens, t_shell *data, char **path,
 	char ***envp)
@@ -43,17 +43,33 @@ static int	init_execution(char **tokens, t_shell *data, char **path,
  * @param path Full path to the executable
  * @param tokens Command arguments (argv for execve)
  * @param envp Environment variables array
- * @param data Shell data structure
  *
  * @note This function does not return on success (process is replaced).
- *       Only returns via exit() if execve() fails.
+ *		 Only returns via exit() if execve() fails.
  */
-static void	child_process(char *path, char **tokens, char **envp, t_shell *data)
+static void	child_process(char *path, char **tokens, char **envp)
 {
-	data->is_child = true;
 	execve(path, tokens, envp);
+	// execve failed - cleanup before exit
+	free(path);
+	free_strings_array(envp);
 	perror("execve");
 	exit(CMD_NOT_EXECUTABLE);
+}
+
+/**
+ * @brief Handle fork() failure by cleaning up resources.
+ *
+ * @param path Allocated path string to free
+ * @param envp Allocated environment array to free
+ * @return EXIT_FAILURE (1)
+ */
+static int	handle_fork_error(char *path, char **envp)
+{
+	perror("fork");
+	free(path);
+	free_strings_array(envp);
+	return (EXIT_FAILURE);
 }
 
 /**
@@ -64,7 +80,7 @@ static void	child_process(char *path, char **tokens, char **envp, t_shell *data)
  *
  * @param status Status value from wait() or waitpid()
  * @return Exit code of the child process if it terminated normally,
- *         EXIT_FAILURE (1) if terminated abnormally
+ *	 EXIT_FAILURE (1) if terminated abnormally
  */
 static int	parent_process(int status)
 {
@@ -80,20 +96,12 @@ static int	parent_process(int status)
  * the command using execve(). The parent process waits for the child
  * to complete and returns its exit status.
  *
- * Process:
- * 1. Find executable path and prepare environment
- * 2. Fork a child process
- * 3. Child: execute the command with execve()
- * 4. Parent: wait for child and collect exit status
- * 5. Clean up allocated resources
+ * If already running in a child process (from a pipeline), skips
+ * forking and executes directly.
  *
  * @param tokens Command arguments where tokens[0] is the command name
  * @param data Shell data structure
- * @return Exit status of the executed command:
- *         - 0-125: command's exit status
- *         - 126: command found but not executable
- *         - 127: command not found
- *         - 1: fork or other system error
+ * @return Exit status of the executed command
  */
 int	execute_external_command(char **tokens, t_shell *data)
 {
@@ -103,57 +111,31 @@ int	execute_external_command(char **tokens, t_shell *data)
 	char	**envp;
 	int		ret;
 
+	// Find executable path and prepare environment array for execve
 	ret = init_execution(tokens, data, &path, &envp);
 	if (ret != 0)
 		return (ret);
+
+	// Already in child (from pipeline): execute directly without forking again
+	if (data->is_child)
+		child_process(path, tokens, envp);  // Never returns (execve or exit)
+
+	// Normal case: fork a new child process
 	pid = fork();
 	if (pid == -1)
-	{
-		perror("fork");
-		free(path);
-		free_strings_array(envp);
-		return (EXIT_FAILURE);
-	}
+		return (handle_fork_error(path, envp));
+
+	// Child: replace process with command
 	if (pid == 0)
-		child_process(path, tokens, envp, data);
+		child_process(path, tokens, envp);  // Never returns
+
+	// Parent: wait for child to complete
 	wait(&status);
+
+	// Cleanup allocated resources
 	free(path);
 	free_strings_array(envp);
-	return (parent_process(status));
-}
 
-/**
- * @brief Execute an AST node (command or pipeline).
- *
- * Recursively executes the abstract syntax tree built from the parsed
- * command line. Handles both simple commands and pipelines (TODO).
- * For simple commands, checks if it's a builtin first, otherwise
- * executes as an external command.
- *
- * @param node AST node to execute (NODE_CMD or NODE_PIPE)
- * @param data Shell data structure
- * @return Exit status of the executed command
- *
- * @note Redirections (node->right) are not yet implemented (TODO).
- * @note Pipeline execution is not yet implemented (TODO).
- */
-int	execute_ast_tree(t_ast *node, t_shell *data)
-{
-	if (!node)
-		return (EXIT_SUCCESS);
-	if (node->type == NODE_PIPE)
-	{
-		// TODO: implement pipeline execution (fork, pipe, exec left and right)
-		printf("TODO: Execute pipeline\n");
-		return (EXIT_SUCCESS);
-	}
-	else if (node->type == NODE_CMD)
-	{
-		// TODO: Handle redirections in node->right first
-		if (execute_builtin(node, data))
-			return (data->status);
-		//TODO: execute external command using node->argv
-		return (execute_external_command(node->argv, data));
-	}
-	return (EXIT_SUCCESS);
+	// Extract and return exit code from child
+	return (parent_process(status));
 }

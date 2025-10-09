@@ -29,8 +29,9 @@ SRC =	src/builtins/cd.c \
 		src/core/print_ascii_art.c \
 		src/env/env_import.c \
 		src/execution/build_env_array.c \
-		src/execution/execute.c \
+		src/execution/execute_ast_tree.c \
 		src/execution/execute_builtins.c \
+		src/execution/execute_external_cmd.c \
 		src/execution/find_executable.c \
 		src/expansion/expansion.c \
 		src/expansion/expansion_extract.c \
