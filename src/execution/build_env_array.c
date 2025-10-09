@@ -1,8 +1,15 @@
 #include "minishell.h"
 
-// TODO: Doxygen coms
-
-/* Count how many exported vars must appear in envp */
+/**
+ * @brief Count how many exported variables must appear in envp.
+ *
+ * Iterates through the environment list and counts all variables
+ * marked as exported (in_env == true). These are the variables
+ * that will be passed to execve().
+ *
+ * @param env_list Linked list of environment variables
+ * @return Number of exported variables
+ */
 static size_t	count_exported_vars(t_list *env_list)
 {
 	size_t	count;
@@ -21,7 +28,18 @@ static size_t	count_exported_vars(t_list *env_list)
 	return (count);
 }
 
-/* Build a string like "KEY=value" */
+/**
+ * @brief Build a string in the format "KEY=value".
+ *
+ * Creates a new string by concatenating the environment variable's
+ * key, an equals sign, and its value. The result is suitable for
+ * use in the envp array passed to execve().
+ *
+ * @param env Environment variable node containing key and value
+ * @return Newly allocated string "KEY=value", or NULL on malloc failure
+ *
+ * @note Caller is responsible for freeing the returned string.
+ */
 static char	*create_env_string(t_env *env)
 {
 	char	*result;
@@ -41,7 +59,18 @@ static char	*create_env_string(t_env *env)
 	return (result);
 }
 
-/* Add one variable to env_array, handle malloc failure */
+/**
+ * @brief Add one variable to env_array and handle malloc failure.
+ *
+ * Creates the "KEY=value" string for the given environment variable
+ * and stores it in the array at the specified index. If string creation
+ * fails, frees the entire array to prevent memory leaks.
+ *
+ * @param env_array Array being built for envp
+ * @param i Pointer to current index in the array (incremented on success)
+ * @param env Environment variable to add
+ * @return 0 on success, 1 on malloc failure
+ */
 static int	add_env_to_array(char **env_array, size_t *i, t_env *env)
 {
 	env_array[*i] = create_env_string(env);
@@ -54,7 +83,19 @@ static int	add_env_to_array(char **env_array, size_t *i, t_env *env)
 	return (0);
 }
 
-/* Convert env_list to char ** for execve() */
+/**
+ * @brief Convert environment list to char** array for execve().
+ *
+ * Transforms the linked list of environment variables into a
+ * NULL-terminated array of strings in "KEY=value" format, suitable
+ * for passing to execve(). Only variables marked as exported
+ * (in_env == true) are included.
+ *
+ * @param env_list Linked list of environment variables
+ * @return NULL-terminated array of "KEY=value" strings, or NULL on error
+ *
+ * @note Caller must free the returned array using free_strings_array().
+ */
 char	**env_list_to_array(t_list *env_list)
 {
 	char	**env_array;

@@ -12,6 +12,7 @@
 # include <stdbool.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <sys/wait.h>
 
 /* =========================== */
 /*         CONSTANTS           */
@@ -30,6 +31,7 @@
 # define ERR_NUMERIC_ARG ": numeric argument required"
 # define ERR_TOO_MANY_ARGS "too many arguments"
 # define ERR_SYNTAX "syntax error near unexpected token `"
+# define ERR_CMD_NOT_FOUND ": command not found"
 
 /* easter egg */
 # define EASTER_EGG "101010"
@@ -39,6 +41,7 @@
 // and EXIT_SUCCESS 1
 # define MISUSAGE_ERROR 2 // misuse error (ex invalid key)
 # define INTERNAL_ERROR 125 // shell internal failure
+# define CMD_NOT_EXECUTABLE 126 // cmd not executable
 # define CMD_NOT_FOUND 127 // external command not found
 // add more here for other codes
 
