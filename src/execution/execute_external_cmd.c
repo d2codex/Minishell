@@ -47,7 +47,7 @@ static int	init_execution(char **tokens, t_shell *data, char **path,
  * @note This function does not return on success (process is replaced).
  *		 Only returns via exit() if execve() fails.
  */
-static void	child_process(char *path, char **tokens, char **envp)
+void	child_process(char *path, char **tokens, char **envp)
 {
 	execve(path, tokens, envp);
 	// execve failed - cleanup before exit
@@ -64,7 +64,7 @@ static void	child_process(char *path, char **tokens, char **envp)
  * @param envp Allocated environment array to free
  * @return EXIT_FAILURE (1)
  */
-static int	handle_fork_error(char *path, char **envp)
+int	handle_fork_error(char *path, char **envp)
 {
 	perror("fork");
 	free(path);
@@ -82,7 +82,7 @@ static int	handle_fork_error(char *path, char **envp)
  * @return Exit code of the child process if it terminated normally,
  *	 EXIT_FAILURE (1) if terminated abnormally
  */
-static int	parent_process(int status)
+int	parent_process(int status)
 {
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
