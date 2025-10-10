@@ -258,14 +258,21 @@ int			execute_ast_tree(t_ast *node, t_shell *data);
 /* src/execution/execute_builtin.c */
 bool		execute_builtin(t_ast *node, t_shell *data);
 
-/* src/execution/ execute_external_cmd.c */
+/* src/execution/execute_external_cmd.c */
 int			execute_external_command(char **tokens, t_shell *data);
 void		child_process(char *path, char **tokens, char **envp);
 int			handle_fork_error(char *path, char **envp);
 int			parent_process(int status);
 
+/* src/execution/execute_pipeline.c */
+int			execute_pipeline(t_ast *node, t_shell *data);
+
 /* src/execution/find_executable.c */
 char		*find_executable(char *cmd, t_shell *data);
+
+/* src/execution/pipeline_wait.c */
+int			handle_pipeline_status(int status, t_shell *data);
+int			wait_pipeline(pid_t left_pid, pid_t right_pid, int pipefd[2], t_shell *data);
 
 /* =========================== */
 /*         EXPANSION           */

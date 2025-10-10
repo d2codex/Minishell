@@ -90,52 +90,61 @@ int	parent_process(int status)
 }
 
 /**
- * @brief Execute an external command (non-builtin).
+ * @brief Execute an external (non-builtin) command.
  *
- * Finds the command in PATH, forks a child process, and executes
- * the command using execve(). The parent process waits for the child
- * to complete and returns its exit status.
+ * Resolves the command path using the environment, then executes it
+ * either by forking a new process or directly within an existing child
+ * (for pipeline execution).
  *
- * If already running in a child process (from a pipeline), skips
- * forking and executes directly.
+ * - If already inside a child process (from a pipeline), the function
+ *   performs setup, calls execve(), and exits with the correct status
+ *   if execution fails. No additional fork is performed in this case.
+ * - If in the main shell process, it forks a new child, executes the
+ *   command there, and waits for completion to retrieve the exit code.
  *
- * @param tokens Command arguments where tokens[0] is the command name
- * @param data Shell data structure
- * @return Exit status of the executed command
+ * All allocated resources (path and environment array) are properly freed
+ * before returning or exiting. The final exit code matches bash behavior:
+ *  - 127 for command not found
+ *  - 126 for permission denied
+ *  - exit status of the executed program otherwise
+ *
+ * @param tokens Command arguments, where tokens[0] is the command name.
+ * @param data   Shell data structure containing context and flags.
+ * @return Exit status of the executed command (in parent context).
+ *         In child context, this function does not return.
  */
 int	execute_external_command(char **tokens, t_shell *data)
 {
 	pid_t	pid;
-	int		status;
 	char	*path;
 	char	**envp;
-	int		ret;
+	int		init_status;
+	int		child_status;
 
-	// Find executable path and prepare environment array for execve
-	ret = init_execution(tokens, data, &path, &envp);
-	if (ret != 0)
-		return (ret);
-
-	// Already in child (from pipeline): execute directly without forking again
+	// check if in child first (from pipeline): execute directly without forking again
 	if (data->is_child)
+	{
+		init_status = init_execution(tokens, data, &path, &envp);
+		if (init_status != 0)
+			exit(init_status);
 		child_process(path, tokens, envp);  // Never returns (execve or exit)
-
+	}
+	// Find executable path and prepare environment array for execve
+	init_status = init_execution(tokens, data, &path, &envp);
+	if (init_status != 0)
+		return (init_status);
 	// Normal case: fork a new child process
 	pid = fork();
 	if (pid == -1)
 		return (handle_fork_error(path, envp));
-
 	// Child: replace process with command
 	if (pid == 0)
 		child_process(path, tokens, envp);  // Never returns
-
 	// Parent: wait for child to complete
-	wait(&status);
-
+	waitpid(pid, &child_status, 0);
 	// Cleanup allocated resources
 	free(path);
 	free_strings_array(envp);
-
 	// Extract and return exit code from child
-	return (parent_process(status));
+	return (parent_process(child_status));
 }
