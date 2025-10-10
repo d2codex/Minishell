@@ -141,7 +141,7 @@ int	execute_external_command(char **tokens, t_shell *data)
 	if (pid == 0)
 		child_process(path, tokens, envp);  // Never returns
 	// Parent: wait for child to complete
-	wait(&wait_status);
+	waitpid(pid, &status, 0);
 	// Cleanup allocated resources
 	free(path);
 	free_strings_array(envp);
