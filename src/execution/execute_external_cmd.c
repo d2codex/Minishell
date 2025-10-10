@@ -118,21 +118,21 @@ int	execute_external_command(char **tokens, t_shell *data)
 	pid_t	pid;
 	char	*path;
 	char	**envp;
-	int		status;
-	int		wait_status;
+	int		init_status;
+	int		child_status;
 
 	// check if in child first (from pipeline): execute directly without forking again
 	if (data->is_child)
 	{
-		status = init_execution(tokens, data, &path, &envp);
-		if (status != 0)
-			exit(status);
+		init_status = init_execution(tokens, data, &path, &envp);
+		if (init_status != 0)
+			exit(init_status);
 		child_process(path, tokens, envp);  // Never returns (execve or exit)
 	}
 	// Find executable path and prepare environment array for execve
-	status = init_execution(tokens, data, &path, &envp);
-	if (status != 0)
-		return (status);
+	init_status = init_execution(tokens, data, &path, &envp);
+	if (init_status != 0)
+		return (init_status);
 	// Normal case: fork a new child process
 	pid = fork();
 	if (pid == -1)
@@ -141,10 +141,10 @@ int	execute_external_command(char **tokens, t_shell *data)
 	if (pid == 0)
 		child_process(path, tokens, envp);  // Never returns
 	// Parent: wait for child to complete
-	waitpid(pid, &status, 0);
+	waitpid(pid, &child_status, 0);
 	// Cleanup allocated resources
 	free(path);
 	free_strings_array(envp);
 	// Extract and return exit code from child
-	return (parent_process(wait_status));
+	return (parent_process(child_status));
 }
