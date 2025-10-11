@@ -32,6 +32,7 @@ SRC =	src/builtins/cd.c \
 		src/execution/execute_ast_tree.c \
 		src/execution/execute_builtins.c \
 		src/execution/execute_external_cmd.c \
+		src/execution/execute_external_cmds_child.c \
 		src/execution/execute_pipeline.c \
 		src/execution/find_executable.c \
 		src/execution/pipeline_wait.c \
@@ -52,7 +53,6 @@ SRC =	src/builtins/cd.c \
 		src/parser/tokenizer_utils.c \
 		src/parser/validate_syntax.c \
 		src/signals/signal_handlers.c \
-		src/signals/signal_utils.c \
 		src/signals/signal_setup.c \
 		src/utils/is_whitespace.c \
 		src/utils/memory_cleanup.c \

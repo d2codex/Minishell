@@ -18,7 +18,7 @@
 /* =========================== */
 /*       GLOBAL VARIABLE       */
 /* =========================== */
-extern volatile sig_atomic_t g_signal_received;
+extern volatile sig_atomic_t	g_signal_received;
 
 /* =========================== */
 /*         CONSTANTS           */
@@ -269,9 +269,15 @@ bool		execute_builtin(t_ast *node, t_shell *data);
 
 /* src/execution/execute_external_cmd.c */
 int			execute_external_command(char **tokens, t_shell *data);
-void		child_process(char *path, char **tokens, char **envp);
+int			init_execution(char **tokens, t_shell *data, char **path,
+				char ***envp);
 int			handle_fork_error(char *path, char **envp);
 int			parent_process(int status);
+
+/* src/execution/execute_external_cmd_child.c */
+void		child_process(char *path, char **tokens, char **envp);
+void		execute_in_child_mode(char **tokens, t_shell *data);
+int			wait_for_child(pid_t pid, char *path, char **envp);
 
 /* src/execution/execute_pipeline.c */
 int			execute_pipeline(t_ast *node, t_shell *data);
@@ -281,7 +287,8 @@ char		*find_executable(char *cmd, t_shell *data);
 
 /* src/execution/pipeline_wait.c */
 int			handle_pipeline_status(int status, t_shell *data);
-int			wait_pipeline(pid_t left_pid, pid_t right_pid, int pipefd[2], t_shell *data);
+int			wait_pipeline(pid_t left_pid, pid_t right_pid, int pipefd[2],
+				t_shell *data);
 
 /* =========================== */
 /*         EXPANSION           */
@@ -368,13 +375,6 @@ int			validate_syntax_token_list(t_token *list);
 void		handle_sigint(int sig);
 void		handle_sigquit(int sig);
 
-/* src/signals/signal_utils.c */
-// OLD APPROACH: commented out (no longer needed with readline handler)
-// int			save_stdin(void);
-// int			restore_stdin(int saved_fd);
-// bool		check_signal_after_readline(char **line, t_shell *data,
-// 		int saved_stdin);
-
 /* src/signals/signal_setup.c */
 void		setup_signals_interactive(void);
 void		setup_signals_child(void);
@@ -390,7 +390,8 @@ bool		is_whitespace(char c);
 /* src/utils/memory_cleanup.c */
 void		free_string_array(char **tab, size_t count);
 void		cleanup_shell(t_shell *data);
-void		cleanup_line(char **tokens, t_token *token_list, t_ast *ast, char *line);
+void		cleanup_line(char **tokens, t_token *token_list, t_ast *ast,
+				char *line);
 
 /* src/utils/print_errors.c */
 void		print_error(char *p1, char *p2, char *p3, char *p4);

@@ -27,44 +27,45 @@ int	minishell_loop(t_shell *data)
 }
 
 /**
- * @brief Show prompt, read input and process it.
+ * @brief Show prompt, read user input, and process it.
  *
- * Reads a line from stdin (with prompt if in TTY mode). Saves stdin before
- * readline() to handle signals properly. Differentiates between ctrl-D (EOF)
- * and ctrl-C (signal) when readline() returns NULL. Processes valid input
- * via `process_line`. Updates `data->status` with the exit code.
+ * Displays the shell prompt (if in interactive TTY mode), reads a line
+ * using readline(), and handles signals or EOF conditions properly.
  *
- * @param prompt Prompt string to display
- * @param data Shell data structure
- * @return true to continue loop, false to exit (EOF or should_exit flag)
+ * - If Ctrl-C was pressed, the signal handler already printed a new prompt;
+ *   this function simply resets the global signal flag.
+ * - If Ctrl-D (EOF) is detected, exits the main loop (returns false).
+ * - Otherwise, processes the input line via process_line().
+ *
+ * Updates data->status with the exit code returned by the command.
+ *
+ * @param prompt Prompt string to display when interactive
+ * @param data   Shell state structure
+ * @return true to continue the main loop, false to exit (EOF or should_exit)
  */
 bool	prompt_user(char *prompt, t_shell *data)
 {
 	char	*line;
-	// int		backup_fd;
 
-	// OLD APPROACH: save/restore stdin (no longer needed with readline handler)
-	// backup_fd = save_stdin();
+	// read a new input line (with or without prompt depending on TTY mode)
 	if (data->is_tty)
 		line = readline(prompt);
 	else
 		line = readline(NULL);
 
-	// Reset signal flag if it was set (handler already displayed new prompt)
+	// reset global signal flag after Ctrl-C was caught and handled
 	if (g_signal_received == SIGINT)
+	{
 		g_signal_received = 0;
-
-	// Handle EOF (Ctrl+D)
+		data->status = 128 + SIGINT;
+	}
+	// detect EOF (Ctrl-D) — readline() returned NULL
 	if (!line)
 	{
-		// OLD APPROACH: check if NULL was due to signal vs EOF
-		// if (check_signal_after_readline(&line, data, backup_fd))
-		// 	return (true);
 		if (data->is_tty)
 			printf("exit\n");
 		return (false);
 	}
-	// close(backup_fd);  // OLD: cleanup backup fd
 	if (line[0] == '\0')
 		return (free(line), true);
 	data->status = process_line(line, data);

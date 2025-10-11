@@ -1,20 +1,24 @@
 #include "minishell.h"
 
 /**
- * @brief Initialize execution by finding the executable and preparing envp.
+ * @brief Initialize execution by locating the executable and preparing envp.
  *
- * Locates the command in PATH (or verifies absolute path) and converts
- * the environment list into an array suitable for execve(). If any step
- * fails, cleans up allocated resources and returns an error code.
+ * Finds the absolute path to the command (via PATH lookup or direct access)
+ * and converts the shell’s environment list into an array usable by execve().
+ *
+ * If the command cannot be found or memory allocation fails, cleans up
+ * and returns an appropriate error code.
  *
  * @param tokens Command arguments (tokens[0] is the command name)
- * @param data Shell data structure containing environment
- * @param path Output parameter for the executable path
- * @param envp Output parameter for the environment array
- * @return 0 on success, CMD_NOT_FOUND (127) if command not found,
- *	 EXIT_FAILURE (1) if env conversion fails
+ * @param data   Shell state containing environment information
+ * @param path   Output parameter for the resolved executable path
+ * @param envp   Output parameter for the environment array
+ * @return 0 on success,
+ *         CMD_NOT_FOUND (127) if the command does not exist,
+ *         EXIT_FAILURE (1) if environment conversion fails
+ *         EXIT_SUCCESS (0) if ok
  */
-static int	init_execution(char **tokens, t_shell *data, char **path,
+int	init_execution(char **tokens, t_shell *data, char **path,
 	char ***envp)
 {
 	*path = find_executable(tokens[0], data);
@@ -27,42 +31,19 @@ static int	init_execution(char **tokens, t_shell *data, char **path,
 	if (!*envp)
 	{
 		free(*path);
-		return (EXIT_FAILURE);
+		return (EXIT_SUCCESS);
 	}
 	return (0);
 }
 
 /**
- * @brief Execute command in child process.
+ * @brief Handle fork() failure by cleaning up allocated resources.
  *
- * Restores default signal handlers so external commands react normally
- * to signals (ctrl-C terminates, ctrl-\ dumps core). Then replaces
- * the current process image with the specified command using execve().
- * If execve() fails (ex: permission denied), prints an error and
- * exits with code 126.
+ * Called when fork() fails during command execution. It frees memory
+ * associated with the executable path and environment, prints an error
+ * message, and returns EXIT_FAILURE.
  *
- * @param path Full path to the executable
- * @param tokens Command arguments (argv for execve)
- * @param envp Environment variables array
- *
- * @note This function does not return on success (process is replaced).
- *       Only returns via exit() if execve() fails.
- */
-void	child_process(char *path, char **tokens, char **envp)
-{
-	setup_signals_child();
-	execve(path, tokens, envp);
-	// execve failed - cleanup before exit
-	free(path);
-	free_strings_array(envp);
-	perror("execve");
-	exit(CMD_NOT_EXECUTABLE);
-}
-
-/**
- * @brief Handle fork() failure by cleaning up resources.
- *
- * @param path Allocated path string to free
+ * @param path Allocated executable path to free
  * @param envp Allocated environment array to free
  * @return EXIT_FAILURE (1)
  */
@@ -75,101 +56,74 @@ int	handle_fork_error(char *path, char **envp)
 }
 
 /**
- * @brief Extract and return the exit status from a child process.
+ * @brief Extract the final exit status from a child process.
  *
- * Analyzes the status value returned by wait() to determine how
- * the child process terminated:
- * - Normal exit: returns the exit code
- * - Killed by signal: returns 128 + signal number (bash convention)
- * - Other: returns EXIT_FAILURE
+ * Interprets the status value returned by waitpid() to
+ * determine how the child terminated:
+ * - If exited normally: returns the exit code
+ * - If terminated by a signal: returns 128 + signal number
+ * - Otherwise: returns EXIT_FAILURE
  *
- * @param status Status value from wait() or waitpid()
- * @return Exit code of the child process
+ * Matches standard bash exit code conventions.
+ *
+ * @param status Status value returned by wait() or waitpid()
+ * @return Normalized exit code of the child process
  */
 int	parent_process(int status)
 {
+	// normal termination: return the child’s exit code
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
+
+	// termination by signal: follow bash convention (128 + signal)
 	if (WIFSIGNALED(status))
 		return (128 + WTERMSIG(status));
+
+	// default fallback
 	return (EXIT_FAILURE);
 }
 
 /**
  * @brief Execute an external (non-builtin) command.
  *
- * Resolves the command path using the environment, then executes it
- * either by forking a new process or directly within an existing child
- * (for pipeline execution).
+ * Handles the full lifecycle of an external command:
+ * - Resolves executable path and prepares environment
+ * - Forks a new process
+ * - Executes the command in the child
+ * - Waits for completion in the parent
  *
- * - If already inside a child process (from a pipeline), the function
- *   performs setup, calls execve(), and exits with the correct status
- *   if execution fails. No additional fork is performed in this case.
- * - If in the main shell process, it forks a new child, executes the
- *   command there, and waits for completion to retrieve the exit code.
+ * If running inside an already-forked child (pipeline mode),
+ * directly executes without forking again.
  *
- * All allocated resources (path and environment array) are properly freed
- * before returning or exiting. The final exit code matches bash behavior:
- *  - 127 for command not found
- *  - 126 for permission denied
- *  - exit status of the executed program otherwise
- *
- * @param tokens Command arguments, where tokens[0] is the command name.
- * @param data   Shell data structure containing context and flags.
- * @return Exit status of the executed command (in parent context).
- *         In child context, this function does not return.
+ * @param tokens Command arguments (argv-style array)
+ * @param data   Shell state containing environment and flags
+ * @return Exit code of the executed command, or error code if it fails
  */
 int	execute_external_command(char **tokens, t_shell *data)
 {
 	pid_t	pid;
 	char	*path;
 	char	**envp;
-	int		init_status;
-	int		child_status;
+	int		status;
 
-	// check if in child first (from pipeline): execute directly without forking again
+	// if already inside a child (e.g., in a pipeline), execute directly
 	if (data->is_child)
-	{
-		init_status = init_execution(tokens, data, &path, &envp);
-		if (init_status != 0)
-			exit(init_status);
-		child_process(path, tokens, envp);  // Never returns (execve or exit)
-	}
-	// Find executable path and prepare environment array for execve
-	init_status = init_execution(tokens, data, &path, &envp);
-	if (init_status != 0)
-		return (init_status);
-	// Normal case: fork a new child process
+		execute_in_child_mode(tokens, data);
+
+	// prepare path and environment for execve()
+	status = init_execution(tokens, data, &path, &envp);
+	if (status != 0)
+		return (status);
+
+	// create a new process to run the external command
 	pid = fork();
 	if (pid == -1)
 		return (handle_fork_error(path, envp));
-	// Child: replace process with command
+
+	// child process: execute the command (never returns if successful)
 	if (pid == 0)
-		child_process(path, tokens, envp);  // Never returns
-	// Parent: ignore signals while waiting (only child should react)
-	setup_signals_ignore();
-	// Wait for child to complete
-	// Loop to handle EINTR (interrupted by signal like SIGINT)
-	while (waitpid(pid, &child_status, 0) == -1)
-	{
-		if (errno != EINTR)
-		{
-			perror("waitpid");
-			free(path);
-			free_strings_array(envp);
-			setup_signals_interactive();  // Restore before returning
-			return (EXIT_FAILURE);
-		}
-		// If EINTR, retry waitpid
-	}
-	// Restore interactive signal handling
-	setup_signals_interactive();
-	// If child was killed by a signal, print newline (cursor is after ^C)
-	if (WIFSIGNALED(child_status))
-		write(1, "\n", 1);
-	// Cleanup allocated resources
-	free(path);
-	free_strings_array(envp);
-	// Extract and return exit code from child
-	return (parent_process(child_status));
+		child_process(path, tokens, envp);
+
+	// parent process: wait for child completion and handle signals
+	return (wait_for_child(pid, path, envp));
 }

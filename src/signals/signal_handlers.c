@@ -24,8 +24,6 @@ void	handle_sigint(int sig)
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
-	// OLD APPROACH (caused "Bad file descriptor" errors):
-	// close(STDIN_FILENO);
 }
 
 /**

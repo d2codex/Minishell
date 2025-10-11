@@ -1,61 +1,56 @@
 #include "minishell.h"
 
 /**
- * @brief Configures signals for interactive mode (parent shell)
+ * @brief Configure signals for interactive shell (parent).
  *
- * - SIGINT (ctrl-C): custom handler to display new prompt
- * - SIGQUIT (ctrl-\): ignored at prompt
+ * - SIGINT (Ctrl-C): custom handler to display a new prompt
+ * - SIGQUIT (Ctrl-\): ignored
+ *
+ * Using memset to initialize the struct to 0 simplifies setup.
  */
 void	setup_signals_interactive(void)
 {
-	struct sigaction	sa_int; // config for SIGINT (struct comes from <signal.h>)
-	struct sigaction	sa_quit; // config for SIGQUIT
+	struct sigaction sa;
 
-	// Configure SIGINT (ctrl-C)
-	sigemptyset(&sa_int.sa_mask); // empty signal mask (don't block other signals)
-	sa_int.sa_flags = 0; // no special flags needed for our case
-	sa_int.sa_handler = handle_sigint;  // set our custom handler function
-	sigaction(SIGINT, &sa_int, NULL); // install the config for SIGINT
+	memset(&sa, 0, sizeof(sa));   // zero all fields
+	sigemptyset(&sa.sa_mask);     // no signals blocked during handler
+	sa.sa_handler = handle_sigint;
+	sigaction(SIGINT, &sa, NULL); // install SIGINT handler
 
-	// Configure SIGQUIT (ctrl-\)
-	sigemptyset(&sa_quit.sa_mask); // empty signal mask
-	sa_quit.sa_flags = 0; // no special flags
-	sa_quit.sa_handler = SIG_IGN; // ignore this signal (SIG_IGN specail values that comes from <signal.h>)
-	sigaction(SIGQUIT, &sa_quit, NULL); // install the config for SIGQUIT
+	sa.sa_handler = SIG_IGN;
+	sigaction(SIGQUIT, &sa, NULL); // ignore SIGQUIT
 }
 
 /**
- * @brief Restores default signal handlers for child processes
+ * @brief Restore default signal handlers for child processes.
  *
- * External commands must react normally to signals (terminate on ctrl-C, etc.)
- * We use SIG_DFL flag from <signal.h> to restore kernel's default behavior.
+ * External commands must react normally (terminate on Ctrl-C, dump core on Ctrl-\).
+ * SIG_DFL restores the kernel's default behavior.
  */
 void	setup_signals_child(void)
 {
-	struct sigaction	signal_action;  // Single config for both signals (same settings)
+	struct sigaction sa;
 
-	// Configure both SIGINT and SIGQUIT with default behavior
-	sigemptyset(&signal_action.sa_mask); // Empty signal mask (don't block other signals)
-	signal_action.sa_flags = 0; // No special flags
-	signal_action.sa_handler = SIG_DFL; // Restore default behavior (kernel handles it)
+	memset(&sa, 0, sizeof(sa));
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = SIG_DFL;
 
-	sigaction(SIGINT, &signal_action, NULL); // Install default for SIGINT (ctrl-C)
-	sigaction(SIGQUIT, &signal_action, NULL); // Install default for SIGQUIT (ctrl-\)
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGQUIT, &sa, NULL);
 }
 
 /**
- * @brief Ignores signals while parent waits for child command
+ * @brief Ignore signals while parent waits for a child process.
  *
- * When executing external commands, the parent shell should NOT react to
- * ctrl-C or ctrl-\ - only the child process should handle them.
- * This prevents double prompts and ensures clean signal handling.
+ * When running external commands, only the child should react to signals.
+ * This prevents duplicate prompts and unwanted interruptions in the parent.
  */
 void	setup_signals_ignore(void)
 {
-	struct sigaction	sa;
+	struct sigaction sa;
 
+	memset(&sa, 0, sizeof(sa));
 	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
 	sa.sa_handler = SIG_IGN;
 
 	sigaction(SIGINT, &sa, NULL);
