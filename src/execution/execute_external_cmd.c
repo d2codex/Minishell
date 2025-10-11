@@ -31,9 +31,9 @@ int	init_execution(char **tokens, t_shell *data, char **path,
 	if (!*envp)
 	{
 		free(*path);
-		return (EXIT_SUCCESS);
+		return (EXIT_FAILURE);
 	}
-	return (0);
+	return (EXIT_SUCCESS);
 }
 
 /**
