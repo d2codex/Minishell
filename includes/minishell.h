@@ -5,6 +5,7 @@
 /*          INCLUDES           */
 /* =========================== */
 # include "libft.h"
+# include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -13,6 +14,11 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <sys/wait.h>
+
+/* =========================== */
+/*       GLOBAL VARIABLE       */
+/* =========================== */
+extern volatile sig_atomic_t g_signal_received;
 
 /* =========================== */
 /*         CONSTANTS           */
@@ -43,7 +49,10 @@
 # define INTERNAL_ERROR 125 // shell internal failure
 # define CMD_NOT_EXECUTABLE 126 // cmd not executable
 # define CMD_NOT_FOUND 127 // external command not found
-// add more here for other codes
+
+/* Signal exit codes (128 + signal number) */
+# define EXIT_SIGINT  130 // ctrl-C (128 + 2)
+# define EXIT_SIGQUIT 131 // ctrl-\ (128 + 3)
 
 /* =========================== */
 /*        STRUCTURES           */
@@ -350,6 +359,26 @@ char		**ft_split_tokens(char const *s, t_token_error *error_code);
 
 /* src/parser/validate_syntax.c */
 int			validate_syntax_token_list(t_token *list);
+
+/* =========================== */
+/*          SIGNALS            */
+/* =========================== */
+
+/* src/signals/signal_handlers.c */
+void		handle_sigint(int sig);
+void		handle_sigquit(int sig);
+
+/* src/signals/signal_utils.c */
+// OLD APPROACH: commented out (no longer needed with readline handler)
+// int			save_stdin(void);
+// int			restore_stdin(int saved_fd);
+// bool		check_signal_after_readline(char **line, t_shell *data,
+// 		int saved_stdin);
+
+/* src/signals/signal_setup.c */
+void		setup_signals_interactive(void);
+void		setup_signals_child(void);
+void		setup_signals_ignore(void);
 
 /* =========================== */
 /*           UTILS             */

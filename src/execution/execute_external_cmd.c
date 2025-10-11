@@ -35,7 +35,8 @@ static int	init_execution(char **tokens, t_shell *data, char **path,
 /**
  * @brief Execute command in child process.
  *
- * Marks the shell as running in a child process, then replaces
+ * Restores default signal handlers so external commands react normally
+ * to signals (ctrl-C terminates, ctrl-\ dumps core). Then replaces
  * the current process image with the specified command using execve().
  * If execve() fails (ex: permission denied), prints an error and
  * exits with code 126.
@@ -45,10 +46,11 @@ static int	init_execution(char **tokens, t_shell *data, char **path,
  * @param envp Environment variables array
  *
  * @note This function does not return on success (process is replaced).
- *		 Only returns via exit() if execve() fails.
+ *       Only returns via exit() if execve() fails.
  */
 void	child_process(char *path, char **tokens, char **envp)
 {
+	setup_signals_child();
 	execve(path, tokens, envp);
 	// execve failed - cleanup before exit
 	free(path);
@@ -76,16 +78,20 @@ int	handle_fork_error(char *path, char **envp)
  * @brief Extract and return the exit status from a child process.
  *
  * Analyzes the status value returned by wait() to determine how
- * the child process terminated and extracts the appropriate exit code.
+ * the child process terminated:
+ * - Normal exit: returns the exit code
+ * - Killed by signal: returns 128 + signal number (bash convention)
+ * - Other: returns EXIT_FAILURE
  *
  * @param status Status value from wait() or waitpid()
- * @return Exit code of the child process if it terminated normally,
- *	 EXIT_FAILURE (1) if terminated abnormally
+ * @return Exit code of the child process
  */
 int	parent_process(int status)
 {
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
+	if (WIFSIGNALED(status))
+		return (128 + WTERMSIG(status));
 	return (EXIT_FAILURE);
 }
 
@@ -140,8 +146,27 @@ int	execute_external_command(char **tokens, t_shell *data)
 	// Child: replace process with command
 	if (pid == 0)
 		child_process(path, tokens, envp);  // Never returns
-	// Parent: wait for child to complete
-	waitpid(pid, &child_status, 0);
+	// Parent: ignore signals while waiting (only child should react)
+	setup_signals_ignore();
+	// Wait for child to complete
+	// Loop to handle EINTR (interrupted by signal like SIGINT)
+	while (waitpid(pid, &child_status, 0) == -1)
+	{
+		if (errno != EINTR)
+		{
+			perror("waitpid");
+			free(path);
+			free_strings_array(envp);
+			setup_signals_interactive();  // Restore before returning
+			return (EXIT_FAILURE);
+		}
+		// If EINTR, retry waitpid
+	}
+	// Restore interactive signal handling
+	setup_signals_interactive();
+	// If child was killed by a signal, print newline (cursor is after ^C)
+	if (WIFSIGNALED(child_status))
+		write(1, "\n", 1);
 	// Cleanup allocated resources
 	free(path);
 	free_strings_array(envp);

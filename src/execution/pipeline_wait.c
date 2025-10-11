@@ -3,20 +3,22 @@
 /**
  * @brief Extract and update the shell status from a child process.
  *
- * This function interprets the exit information returned by `waitpid()`
- * for a child process in a pipeline. If the process exited normally,
- * it updates `data->status` with its exit code. Otherwise, it sets the
- * shell status to `EXIT_FAILURE`.
+ * Interprets the exit information returned by `waitpid()` for a child
+ * process in a pipeline:
+ * - Normal exit: updates status with exit code
+ * - Killed by signal: updates status with 128 + signal number
+ * - Other: sets status to EXIT_FAILURE
  *
- * @param status The raw status value returned by `waitpid()`.
- * @param data   Pointer to the shell state structure.
- *
- * @return The updated shell status.
+ * @param status The raw status value returned by `waitpid()`
+ * @param data Pointer to the shell state structure
+ * @return The updated shell status
  */
 int	handle_pipeline_status(int status, t_shell *data)
 {
 	if (WIFEXITED(status))
 		data->status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
+		data->status = 128 + WTERMSIG(status);
 	else
 		data->status = EXIT_FAILURE;
 	return (data->status);
@@ -55,7 +57,14 @@ int	wait_pipeline(pid_t left_pid, pid_t right_pid,
 
 	close(pipefd[0]);
 	close(pipefd[1]);
+	// Ignore signals while waiting (only children should react)
+	setup_signals_ignore();
 	waitpid(left_pid, &status_left, 0);
 	waitpid(right_pid, &status_right, 0);
+	// Restore interactive signal handling
+	setup_signals_interactive();
+	// If child was killed by a signal, print newline (cursor is after ^C)
+	if (WIFSIGNALED(status_right))
+		write(1, "\n", 1);
 	return (handle_pipeline_status(status_right, data));
 }

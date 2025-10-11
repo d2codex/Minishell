@@ -29,35 +29,44 @@ int	minishell_loop(t_shell *data)
 /**
  * @brief Show prompt, read input and process it.
  *
- * Reads a line from stdin (with prompt if in TTY mode) and processes it
- * via `process_line`. Updates `data->status` with the exit code of the
- * last command. Handles empty input and end-of-file (Ctrl+D).
- * Returns whether the shell should continue running or exit, based on
- * `data->should_exit`.
+ * Reads a line from stdin (with prompt if in TTY mode). Saves stdin before
+ * readline() to handle signals properly. Differentiates between ctrl-D (EOF)
+ * and ctrl-C (signal) when readline() returns NULL. Processes valid input
+ * via `process_line`. Updates `data->status` with the exit code.
  *
  * @param prompt Prompt string to display
  * @param data Shell data structure
- * @return true to continue, false to break the loop on EOF or exit signal
+ * @return true to continue loop, false to exit (EOF or should_exit flag)
  */
 bool	prompt_user(char *prompt, t_shell *data)
 {
 	char	*line;
+	// int		backup_fd;
 
+	// OLD APPROACH: save/restore stdin (no longer needed with readline handler)
+	// backup_fd = save_stdin();
 	if (data->is_tty)
 		line = readline(prompt);
 	else
 		line = readline(NULL);
+
+	// Reset signal flag if it was set (handler already displayed new prompt)
+	if (g_signal_received == SIGINT)
+		g_signal_received = 0;
+
+	// Handle EOF (Ctrl+D)
 	if (!line)
 	{
+		// OLD APPROACH: check if NULL was due to signal vs EOF
+		// if (check_signal_after_readline(&line, data, backup_fd))
+		// 	return (true);
 		if (data->is_tty)
 			printf("exit\n");
 		return (false);
 	}
+	// close(backup_fd);  // OLD: cleanup backup fd
 	if (line[0] == '\0')
-	{
-		free(line);
-		return (true);
-	}
+		return (free(line), true);
 	data->status = process_line(line, data);
 	if (data->should_exit)
 		return (false);
