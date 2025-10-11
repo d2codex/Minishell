@@ -54,6 +54,7 @@ int	wait_pipeline(pid_t left_pid, pid_t right_pid,
 {
 	int	status_left;
 	int	status_right;
+	int	sig;
 
 	close(pipefd[0]);
 	close(pipefd[1]);
@@ -65,14 +66,13 @@ int	wait_pipeline(pid_t left_pid, pid_t right_pid,
 	setup_signals_interactive();
 	// If child was killed by a signal, print newline (cursor is after ^C)
 	// Handle signals
-if (WIFSIGNALED(status_right))
-{
-	int sig = WTERMSIG(status_right);
-
-	if (sig == SIGQUIT)
-		write(1, "Quit (core dumped)\n", 20);
-	else
-		write(1, "\n", 1);
-}
-	return (handle_pipeline_status(status_right, data));
+	if (WIFSIGNALED(status_right))
+	{
+		sig = WTERMSIG(status_right);
+		if (sig == SIGQUIT)
+			write(1, "Quit (core dumped)\n", 20);
+		else
+			write(1, "\n", 1);
+	}
+		return (handle_pipeline_status(status_right, data));
 }
