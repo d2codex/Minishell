@@ -21,7 +21,7 @@
  */
 void	child_process(char *path, char **tokens, char **envp)
 {
-	// sestore default signal handling so the command behaves like in bash in non interactive mode
+	// restore default signal handling so the command behaves like in bash in non interactive mode
 	setup_signals_child();
 	execve(path, tokens, envp);
 
