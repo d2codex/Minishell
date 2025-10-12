@@ -11,7 +11,7 @@ volatile sig_atomic_t	g_signal_received = 0;
  * - Clears the input buffer
  * - Redisplays the prompt
  *
- * Note: While rl_* functions aren't in POSIX async-signal-safe list,
+ * Note: While rl_* functions are not in POSIX async-signal-safe list,
  * they are specifically designed by readline for use in signal handlers
  * and are authorized in the subject.
  *
