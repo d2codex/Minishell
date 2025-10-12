@@ -10,15 +10,15 @@
  */
 void	setup_signals_interactive(void)
 {
-	struct sigaction sa;
+	struct sigaction sa_interactive;
 
-	memset(&sa, 0, sizeof(sa));   // zero all fields
-	sigemptyset(&sa.sa_mask);     // no signals blocked during handler
-	sa.sa_handler = handle_sigint;
-	sigaction(SIGINT, &sa, NULL); // install SIGINT handler
+	memset(&sa_interactive, 0, sizeof(sa_interactive));   // zero all fields
+	sigemptyset(&sa_interactive.sa_mask);     // no signals blocked during handler
+	sa_interactive.sa_handler = handle_sigint;
+	sigaction(SIGINT, &sa_interactive, NULL); // install SIGINT handler
 
-	sa.sa_handler = SIG_IGN;
-	sigaction(SIGQUIT, &sa, NULL); // ignore SIGQUIT
+	sa_interactive.sa_handler = SIG_IGN;
+	sigaction(SIGQUIT, &sa_interactive, NULL); // ignore SIGQUIT
 }
 
 /**
@@ -29,14 +29,14 @@ void	setup_signals_interactive(void)
  */
 void	setup_signals_child(void)
 {
-	struct sigaction sa;
+	struct sigaction sa_child;
 
-	memset(&sa, 0, sizeof(sa));
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = SIG_DFL;
+	memset(&sa_child, 0, sizeof(sa_child));
+	sigemptyset(&sa_child.sa_mask);
+	sa_child.sa_handler = SIG_DFL;
 
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
+	sigaction(SIGINT, &sa_child, NULL);
+	sigaction(SIGQUIT, &sa_child, NULL);
 }
 
 /**
@@ -47,12 +47,12 @@ void	setup_signals_child(void)
  */
 void	setup_signals_ignore(void)
 {
-	struct sigaction sa;
+	struct sigaction sa_ignore;
 
-	memset(&sa, 0, sizeof(sa));
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = SIG_IGN;
+	memset(&sa_ignore, 0, sizeof(sa_ignore));
+	sigemptyset(&sa_ignore.sa_mask);
+	sa_ignore.sa_handler = SIG_IGN;
 
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
+	sigaction(SIGINT, &sa_ignore, NULL);
+	sigaction(SIGQUIT, &sa_ignore, NULL);
 }
