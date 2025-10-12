@@ -74,5 +74,5 @@ int	wait_pipeline(pid_t left_pid, pid_t right_pid,
 		else
 			write(1, "\n", 1);
 	}
-		return (handle_pipeline_status(status_right, data));
+	return (handle_pipeline_status(status_right, data));
 }
