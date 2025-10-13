@@ -62,6 +62,5 @@ int	execute_external_command(char **tokens, t_shell *data)
 	perror("execve");
 	free(path);
 	free_strings_array(envp);
-	// Extract and return exit code from child
 	exit(CMD_NOT_EXECUTABLE);
 }

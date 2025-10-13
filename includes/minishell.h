@@ -151,6 +151,7 @@ typedef struct s_ast
 	char			*value; // raw token string (cmd or word)
 	char			**argv; // only for NODE_CMD
 	char			*filename; // only for NODE_REDIR
+	int				heredoc_fd;
 	struct s_ast	*left; // pipe left
 	struct s_ast	*right; // pipe right
 	struct s_ast	*next; // used temporarily for flat list
