@@ -249,6 +249,11 @@ t_list		*init_env_from_envp(char **envp);
 /*         EXECUTION           */
 /* =========================== */
 
+/* src/execution/ast_utils.c */
+bool		should_fork(t_ast *node, t_shell *data);
+bool		is_builtin(t_ast *node);
+bool		is_nonforking_builtin(t_ast *node);
+
 /* src/execution/build_env_array.c */
 char		**env_list_to_array(t_list *env_list);
 
@@ -257,7 +262,7 @@ int			execute_ast_tree(t_ast *node, t_shell *data);
 // int		execute_pipeline(t_ast *node, t_shell *data); // needs to be coded
 
 /* src/execution/execute_builtin.c */
-bool		execute_builtin(t_ast *node, t_shell *data);
+int			execute_builtin(t_ast *node, t_shell *data);
 
 /* src/execution/execute_external_cmd.c */
 int			execute_external_command(char **tokens, t_shell *data);

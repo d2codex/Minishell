@@ -31,7 +31,7 @@ static int	get_target_fd(t_ast *node)
  * @param data Pointer to the main shell data structure.
  * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure.
  */
-static int	perform_dup(int, fd, int target_fd, t_ast *node, t_shell *data)
+static int	perform_dup(int fd, int target_fd, t_shell *data)
 {
 	if (dup2(fd, target_fd) == -1) //stdin now reads from fd
 	{
@@ -64,7 +64,7 @@ static int	dup_redirection(t_ast *node, t_shell *data, int fd)
 	int	result;
 
 	target_fd = get_target_fd(node);
-	result = perform_dup(fd, target_fd, node, data);
+	result = perform_dup(fd, target_fd, data);
 	return (result);
 }
 

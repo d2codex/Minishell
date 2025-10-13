@@ -149,8 +149,8 @@ int	process_line(char *line, t_shell *data)
 		return (cleanup_line(tokens, token_list, NULL, line), EXIT_FAILURE);
 	if (preprocess_heredocs(ast, data) != EXIT_SUCCESS)
 		return (cleanup_line(tokens, token_list, ast, line), EXIT_FAILURE);
-	print_ast(ast, 0);
-	//data->status = execute_ast_tree(ast, data);
+	//print_ast(ast, 0);
+	data->status = execute_ast_tree(ast, data);
 	cleanup_line(tokens, token_list, ast, line);
 	return (data->status);
 }

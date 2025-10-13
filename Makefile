@@ -28,6 +28,7 @@ SRC =	src/builtins/cd.c \
 		src/core/minishell_loop.c \
 		src/core/print_ascii_art.c \
 		src/env/env_import.c \
+		src/execution/ast_utils.c \
 		src/execution/build_env_array.c \
 		src/execution/execute_ast_tree.c \
 		src/execution/execute_builtins.c \
