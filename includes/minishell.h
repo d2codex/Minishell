@@ -268,6 +268,9 @@ int			execute_pipeline(t_ast *node, t_shell *data);
 /* src/execution/find_executable.c */
 char		*find_executable(char *cmd, t_shell *data);
 
+/* src/execution/heredoc.c */
+int			preprocess_heredocs(t_ast *node, t_shell *data);
+
 /* src/execution/pipeline_wait.c */
 int			handle_pipeline_status(int status, t_shell *data);
 int			wait_pipeline(pid_t left_pid, pid_t right_pid, int pipefd[2], t_shell *data);

@@ -32,6 +32,7 @@ SRC =	src/builtins/cd.c \
 		src/execution/execute_ast_tree.c \
 		src/execution/execute_builtins.c \
 		src/execution/execute_external_cmd.c \
+		src/execution/heredoc.c \
 		src/execution/execute_pipeline.c \
 		src/execution/find_executable.c \
 		src/execution/pipeline_wait.c \
