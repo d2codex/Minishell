@@ -260,9 +260,6 @@ bool		execute_builtin(t_ast *node, t_shell *data);
 
 /* src/execution/execute_external_cmd.c */
 int			execute_external_command(char **tokens, t_shell *data);
-void		child_process(char *path, char **tokens, char **envp);
-int			handle_fork_error(char *path, char **envp);
-int			parent_process(int status);
 
 /* src/execution/execute_pipeline.c */
 int			execute_pipeline(t_ast *node, t_shell *data);
