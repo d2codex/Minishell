@@ -92,5 +92,8 @@ int	preprocess_heredocs(t_ast *node, t_shell *data)
 	if (node->right)
 		if (preprocess_heredocs(node->right, data) != EXIT_SUCCESS)
 			return (EXIT_FAILURE);
+	if (node->next)
+		if (preprocess_heredocs(node->next, data) != EXIT_SUCCESS)
+			return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

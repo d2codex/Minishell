@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:58:59 by diade-so          #+#    #+#             */
-/*   Updated: 2025/10/14 19:32:50 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/10/14 23:06:59 by diade-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ void	close_all_heredocs(t_ast *node)
 		close_fds(&node->heredoc_fd);
 	close_all_heredocs(node->left);
 	close_all_heredocs(node->right);
+	close_all_heredocs(node->next);
 }
 
 void	close_pipe_fds(int pipefd[2])

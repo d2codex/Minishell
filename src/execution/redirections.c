@@ -136,7 +136,7 @@ int	apply_redirections(t_ast *node, t_shell *data)
 		ret = apply_single_redirection(node, data);
 		if (ret != EXIT_SUCCESS)
 			return (ret);
-		node = node->right;
+		node = node->next;
 	}
 	return (EXIT_SUCCESS);
 }
