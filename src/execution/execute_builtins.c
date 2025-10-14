@@ -28,6 +28,8 @@ int	execute_builtin(t_ast *node, t_shell *data)
 
 	if (!node || !node->value)
 		return (EXIT_FAILURE);
+	if (data->curr_ast && data->is_child)
+		close_all_heredocs(data->curr_ast);
 	i = 0;
 	while (builtins[i].cmd != NULL)
 	{

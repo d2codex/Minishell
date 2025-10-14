@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fd_utils.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diade-so <diade-so@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 11:58:59 by diade-so          #+#    #+#             */
-/*   Updated: 2025/10/14 16:14:06 by diade-so         ###   ########.fr       */
+/*   Updated: 2025/10/14 19:32:50 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,11 +50,9 @@ void	close_pipe_fds(int pipefd[2])
 int	save_std_fds(int saved_fds[3])
 {
 	memset(saved_fds, -1, sizeof(int) * 3);
+	saved_fds[0] = dup(STDIN_FILENO);
 	if (saved_fds[0] == -1)
-	{
-		perror("dup");
-		return (EXIT_FAILURE);
-	}
+		return (perror("dup"), EXIT_FAILURE);
 	saved_fds[1] = dup(STDOUT_FILENO);
 	if (saved_fds[1] == -1)
 	{
