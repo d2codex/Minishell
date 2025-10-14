@@ -48,7 +48,10 @@ static int	execute_in_child_process(t_ast *node, t_shell *data)
 	{
 		data->is_child = true;
 		if (apply_redirections(node->right, data) != EXIT_SUCCESS)
+		{
+			close_all_heredocs(node->right);
 			exit (data->status);
+		}
 		exit(execute_command(node, data));
 	}
 	waitpid(pid, &status, 0);
@@ -73,20 +76,35 @@ static int	execute_in_child_process(t_ast *node, t_shell *data)
  */
 int	execute_ast_tree(t_ast *node, t_shell *data)
 {
+	int	saved_fds[3];
+
 	if (!node)
 		return (EXIT_SUCCESS);
+	// handle pipelines - always forks
 	if (node->type == NODE_PIPE)
-		return (execute_pipeline(node, data)); //forks
-	// Non-forking builtins that dont modify parent state
+		return (execute_pipeline(node, data));
+	// Non-forking builtins: cd, export, unset, exit
 	if (node->type == NODE_CMD && is_nonforking_builtin(node))
 	{
-		data->status = execute_builtin(node, data); //runs in parent
+		// case 1: builtin without redirections - run directly
+		if (!node->right)
+		{
+			data->status = execute_builtin(node, data); //runs in parent
+			return (data->status);
+		}
+		// case 2: builtin WITH redirections - temporarily redirect parent
+		if(save_std_fds(saved_fds) == -1)
+			return (EXIT_FAILURE);
+		if (apply_redirections(node->right, data) == EXIT_SUCCESS)
+			data->status = execute_builtin(node, data);
+		restore_std_fds(saved_fds);
+		close_all_heredocs(node->right);
 		return (data->status);
 	}
 	// forking commands (external or forkable builtins)
 	if (should_fork(node, data))
 		return (execute_in_child_process(node, data));
-	// non forking builtin - execute directly
+	// simiple builtin or cmd - execute directly
 	data->status = execute_command(node, data);
 	return (data->status);
 }

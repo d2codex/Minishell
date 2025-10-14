@@ -13,6 +13,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <sys/wait.h>
+# include <fcntl.h>
 
 /* =========================== */
 /*         CONSTANTS           */
@@ -58,6 +59,8 @@ typedef struct s_env
 }	t_env;
 
 /* shell state and configuration */
+typedef struct s_ast	t_ast;
+
 typedef struct s_shell
 {
 	t_list	*env_list;
@@ -65,6 +68,7 @@ typedef struct s_shell
 	bool	is_tty;
 	bool	is_child;
 	bool	should_exit;
+	t_ast	*curr_ast;
 }	t_shell;
 
 /* for builtin functions array, stores cmd and function's pointer*/
@@ -270,6 +274,13 @@ int			execute_external_command(char **tokens, t_shell *data);
 /* src/execution/execute_pipeline.c */
 int			execute_pipeline(t_ast *node, t_shell *data);
 
+/* src/execution/fd_utils.c */
+void		close_fds(int *fd);
+void		close_all_heredocs(t_ast *node);
+void		close_pipe_fds(int pipefd[2]);
+int			save_std_fds(int saved_fds[3]);
+void		restore_std_fds(int saved_fds[3]);
+
 /* src/execution/find_executable.c */
 char		*find_executable(char *cmd, t_shell *data);
 
@@ -278,7 +289,7 @@ int			preprocess_heredocs(t_ast *node, t_shell *data);
 
 /* src/execution/pipeline_wait.c */
 int			handle_pipeline_status(int status, t_shell *data);
-int			wait_pipeline(pid_t left_pid, pid_t right_pid, int pipefd[2], t_shell *data);
+int			wait_pipeline(pid_t left_pid, pid_t right_pid, t_shell *data);
 
 /* src/execution/redirections.c */
 int			apply_redirections(t_ast *node, t_shell *data);
@@ -326,7 +337,7 @@ t_ast		*create_cmd_node(char **argv);
 t_ast		*create_pipe_node(t_ast *left, t_ast *right);
 
 /* src/ast_free.c */
-void		free_strings_in_node(t_ast *node);
+void		cleanup_node(t_ast *node);
 void		free_ast(t_ast *node);
 
 /* src/ast_print.c */

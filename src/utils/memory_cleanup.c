@@ -65,6 +65,7 @@ void	cleanup_line(char **tokens,
 	}
 	if (ast)
 	{
+		close_all_heredocs(ast);
 		free_ast(ast);
 		ast = NULL;
 	}

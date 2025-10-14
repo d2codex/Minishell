@@ -165,17 +165,18 @@ int	execute_pipeline(t_ast *node, t_shell *data)
 	left_pid = fork_left_child(node, data, pipefd);
 	if (left_pid == -1)
 	{
-		close(pipefd[0]);
-		close(pipefd[1]);
+		close_pipe_fds(pipefd);
 		return (EXIT_FAILURE);
 	}
 	right_pid = fork_right_child(node, data, pipefd);
 	if (right_pid == -1)
 	{
-		close(pipefd[0]);
-		close(pipefd[1]);
+		close_pipe_fds(pipefd);
 		waitpid(left_pid, NULL, 0);
 		return (EXIT_FAILURE);
 	}
-	return (wait_pipeline(left_pid, right_pid, pipefd, data));
+	close_pipe_fds(pipefd);
+	//if (data->curr_ast)
+	//	close_all_heredocs(data->curr_ast);
+	return (wait_pipeline(left_pid, right_pid, data));
 }

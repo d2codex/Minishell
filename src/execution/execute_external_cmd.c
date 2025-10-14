@@ -56,6 +56,9 @@ int	execute_external_command(char **argv, t_shell *data)
 	init_status = init_execution(argv, data, &path, &envp);
 	if (init_status != 0)
 		exit (init_status);
+	// close unused heredocs before execve
+	if (data->curr_ast)
+		close_all_heredocs(data->curr_ast);
 	// Try to execute the external command
 	execve(path, argv, envp);
 	// If execve returns, it failed, so clean up before exiting

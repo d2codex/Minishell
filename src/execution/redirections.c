@@ -42,7 +42,6 @@ static int	perform_dup(int fd, int target_fd, t_shell *data)
 			exit(data->status);
 		return (data->status);
 	}
-	close(fd);
 	return (EXIT_SUCCESS);
 }
 
@@ -106,6 +105,12 @@ static int	apply_single_redirection(t_ast *node, t_shell *data)
 		return (data->status);
 	}
 	result = dup_redirection(node, data, fd);
+	// mark heredoc fd as closed
+	if (node->op_type == OP_HEREDOC && result == EXIT_SUCCESS)
+		node->heredoc_fd = -1;
+	// always close origianl FD after successful dup2
+//	if (result == EXIT_SUCCESS)
+	close_fds(&fd);
 	return (result);
 }
 

@@ -83,7 +83,8 @@ int	preprocess_heredocs(t_ast *node, t_shell *data)
 		if (fd == -1)
 		{
 			//error reading heredoc - set status and return failure
-			data->status = EXIT_FAILURE; //may be propogated..
+			close_all_heredocs(node);
+			data->status = EXIT_FAILURE;
 			return (EXIT_FAILURE);
 		}
 		node->heredoc_fd = fd;

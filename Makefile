@@ -37,6 +37,7 @@ SRC =	src/builtins/cd.c \
 		src/execution/execute_pipeline.c \
 		src/execution/find_executable.c \
 		src/execution/pipeline_wait.c \
+		src/execution/fd_utils.c \
 		src/execution/redirections.c \
 		src/expansion/expansion.c \
 		src/expansion/expansion_extract.c \
