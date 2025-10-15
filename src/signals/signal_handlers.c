@@ -30,8 +30,10 @@ void	handle_sigint(int sig)
 /**
  * @brief SIGINT handler for heredoc (ctrl-C)
  *
- * Injects a newline character into the input buffer using ioctl/TIOCSTI
- * to force readline to return immediately, allowing clean heredoc interruption.
+ * Attempts to inject a newline using ioctl/TIOCSTI to force readline
+ * to return immediately. If TIOCSTI is disabled (modern Linux kernels),
+ * falls back to writing newline without injection (user must press Enter).
+ * Exit code 130 is still correctly set via g_signal_received.
  *
  * @param sig Signal number (SIGINT = 2)
  */
@@ -41,7 +43,10 @@ void	handle_sigint_heredoc(int sig)
 
 	g_signal_received = sig;
 	newline = '\n';
-	ioctl(STDIN_FILENO, TIOCSTI, &newline);
+	if (ioctl(STDIN_FILENO, TIOCSTI, &newline) == -1)
+	{
+		write(STDOUT_FILENO, "\n", 1);
+	}
 }
 
 /**
@@ -50,7 +55,8 @@ void	handle_sigint_heredoc(int sig)
  * Does nothing in interactive mode at prompt. Just void out the param.
  * We need handler to have the same signature in order to pass them to the
  * sigaction structure (just like what we did with builtins)
- * For, child processes, SIG_DFL flag will be used for proper termination.
+ * For child processes, SIG_DFL (default behavior) flag will be used for
+ * proper termination.
  *
  * @param sig Signal number (SIGQUIT = 3)
  */

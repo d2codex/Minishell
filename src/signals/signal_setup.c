@@ -10,31 +10,30 @@
  */
 void	setup_signals_interactive(void)
 {
-	struct sigaction sa_interactive;
+	struct sigaction	sa_interactive;
 
-	memset(&sa_interactive, 0, sizeof(sa_interactive));   // zero all fields
-	sigemptyset(&sa_interactive.sa_mask);     // no signals blocked during handler
+	memset(&sa_interactive, 0, sizeof(sa_interactive));
+	sigemptyset(&sa_interactive.sa_mask);
 	sa_interactive.sa_handler = handle_sigint;
-	sigaction(SIGINT, &sa_interactive, NULL); // install SIGINT handler
-
+	sigaction(SIGINT, &sa_interactive, NULL);
 	sa_interactive.sa_handler = SIG_IGN;
-	sigaction(SIGQUIT, &sa_interactive, NULL); // ignore SIGQUIT
+	sigaction(SIGQUIT, &sa_interactive, NULL);
 }
 
 /**
  * @brief Restore default signal handlers for child processes.
  *
- * External commands must react normally (terminate on Ctrl-C, dump core on Ctrl-\).
+ * External commands must react normally (terminate on Ctrl-C,
+ * dump core on Ctrl-\).
  * SIG_DFL restores the kernel's default behavior.
  */
 void	setup_signals_child(void)
 {
-	struct sigaction sa_child;
+	struct sigaction	sa_child;
 
 	memset(&sa_child, 0, sizeof(sa_child));
 	sigemptyset(&sa_child.sa_mask);
 	sa_child.sa_handler = SIG_DFL;
-
 	sigaction(SIGINT, &sa_child, NULL);
 	sigaction(SIGQUIT, &sa_child, NULL);
 }
@@ -47,12 +46,11 @@ void	setup_signals_child(void)
  */
 void	setup_signals_ignore(void)
 {
-	struct sigaction sa_ignore;
+	struct sigaction	sa_ignore;
 
 	memset(&sa_ignore, 0, sizeof(sa_ignore));
 	sigemptyset(&sa_ignore.sa_mask);
 	sa_ignore.sa_handler = SIG_IGN;
-
 	sigaction(SIGINT, &sa_ignore, NULL);
 	sigaction(SIGQUIT, &sa_ignore, NULL);
 }
@@ -68,13 +66,12 @@ void	setup_signals_ignore(void)
  */
 void	setup_signals_heredoc(void)
 {
-	struct sigaction sa_heredoc;
+	struct sigaction	sa_heredoc;
 
 	memset(&sa_heredoc, 0, sizeof(sa_heredoc));
 	sigemptyset(&sa_heredoc.sa_mask);
 	sa_heredoc.sa_handler = handle_sigint_heredoc;
 	sigaction(SIGINT, &sa_heredoc, NULL);
-
 	sa_heredoc.sa_handler = SIG_IGN;
 	sigaction(SIGQUIT, &sa_heredoc, NULL);
 }
