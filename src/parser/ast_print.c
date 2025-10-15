@@ -96,6 +96,8 @@ void print_ast(t_ast *node, int depth)
     print_indent(depth);
     printf("│  Filename: %s\n", node->filename ? node->filename : "NULL");
     
+    print_indent(depth);
+    printf("│  heredoc_fd: %d\n", node->heredoc_fd);
     // Print redirections chain if this is a CMD node
     if (node->type == NODE_CMD && node->right)
     {

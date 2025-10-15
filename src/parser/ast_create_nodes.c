@@ -103,6 +103,7 @@ t_ast	*create_redir_node(t_token *op_token, t_token *file_token)
 	node->filename = ft_strdup(file_token->value);
 	if (!node->filename)
 		return (free(node->value), free(node), NULL);
+	node->heredoc_fd = -1;
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
@@ -132,6 +133,7 @@ t_ast	*create_cmd_node(char **argv)
 		return (free(node), NULL);
 	node->argv = argv;
 	node->filename = NULL;
+	node->heredoc_fd = -1;
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
@@ -161,6 +163,7 @@ t_ast	*create_pipe_node(t_ast *left, t_ast *right)
 		return (free(node), NULL);
 	node->argv = NULL;
 	node->filename = NULL;
+	node->heredoc_fd = -1;
 	node->left = left;
 	node->right = right;
 	node->next = NULL;

@@ -1,17 +1,22 @@
 #include "minishell.h"
 
 /**
- * @brief Check and execute a builtin command.
+ * @brief Execute a shell builtin command if it matches a known builtin.
  *
- * Compares the first token against the list of supported builtins,
- * including `exit`. If a match is found, executes the corresponding
- * function and updates `data->status`. Does not execute external commands.
+ * This function checks the command in the given AST node against the list
+ * of supported builtin commands (`pwd`, `export`, `exit`, `echo`, `env`,
+ * `unset`, `cd`). If a match is found, the corresponding function is executed,
+ * and the shell state (`data->status`) is updated accordingly.
  *
- * @param node AST node representing the command.
- * @param data Shell state, including environment, exit status, and exit flag.
- * @return true if the command is a builtin and was executed; false otherwise.
+ * This function does **not** handle external commands; it only executes builtins.
+ *
+ * @param node Pointer to the AST node representing the command.
+ * @param data Pointer to the shell state structure, which includes environment,
+ *             exit status, and other runtime flags.
+ * @return int The updated exit status after executing the builtin, or
+ *             EXIT_FAILURE if the command is not a builtin or the node is invalid.
  */
-bool	execute_builtin(t_ast *node, t_shell *data)
+int	execute_builtin(t_ast *node, t_shell *data)
 {
 	int						i;
 	static const t_builtin	builtins[] = {
@@ -22,16 +27,18 @@ bool	execute_builtin(t_ast *node, t_shell *data)
 	{NULL, NULL}};
 
 	if (!node || !node->value)
-		return (false);
+		return (EXIT_FAILURE);
+	if (data->curr_ast && data->is_child)
+		close_all_heredocs(data->curr_ast);
 	i = 0;
 	while (builtins[i].cmd != NULL)
 	{
 		if (ft_strcmp(node->value, builtins[i].cmd) == 0)
 		{
 			builtins[i].f(node->argv, data);
-			return (true);
+			return (data->status);
 		}
 		i++;
 	}
-	return (false);
+	return (EXIT_FAILURE);
 }

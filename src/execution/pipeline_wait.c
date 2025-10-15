@@ -47,15 +47,14 @@ int	handle_pipeline_status(int status, t_shell *data)
  * The left child’s exit status is ignored, as shell semantics define
  * the pipeline’s return status to be that of the last command.
  */
-int	wait_pipeline(pid_t left_pid, pid_t right_pid,
-	int pipefd[2], t_shell *data)
+int	wait_pipeline(pid_t left_pid, pid_t right_pid, t_shell *data)
 {
 	int	status_left;
 	int	status_right;
 
-	close(pipefd[0]);
-	close(pipefd[1]);
 	waitpid(left_pid, &status_left, 0);
 	waitpid(right_pid, &status_right, 0);
+	if (data->curr_ast)
+		close_all_heredocs(data->curr_ast);
 	return (handle_pipeline_status(status_right, data));
 }

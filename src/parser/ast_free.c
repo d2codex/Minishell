@@ -10,7 +10,7 @@
  *
  * @param node Pointer to the AST node whose strings will be freed.
  */
-void	free_strings_in_node(t_ast *node)
+void	cleanup_node(t_ast *node)
 {
 	if (node->value)
 		free(node->value);
@@ -18,6 +18,9 @@ void	free_strings_in_node(t_ast *node)
 		free(node->filename);
 	if (node->argv)
 		free_strings_array(node->argv);
+	// Close heredoc FD if still valid
+	if (node->heredoc_fd >= 0)
+		close_fds(&node->heredoc_fd);
 }
 
 /**
@@ -37,7 +40,6 @@ void	free_ast(t_ast *node)
 
 	if (!node)
 		return ;
-	free_strings_in_node(node);
 	if (node->left)
 		free_ast(node->left);
 	if (node->type == NODE_PIPE)
@@ -55,5 +57,7 @@ void	free_ast(t_ast *node)
 			curr = next;
 		}
 	}
+	// free nodes string resources and fds
+	cleanup_node(node);
 	free(node);
 }

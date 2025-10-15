@@ -28,13 +28,17 @@ SRC =	src/builtins/cd.c \
 		src/core/minishell_loop.c \
 		src/core/print_ascii_art.c \
 		src/env/env_import.c \
+		src/execution/ast_utils.c \
 		src/execution/build_env_array.c \
 		src/execution/execute_ast_tree.c \
 		src/execution/execute_builtins.c \
 		src/execution/execute_external_cmd.c \
+		src/execution/heredoc.c \
 		src/execution/execute_pipeline.c \
 		src/execution/find_executable.c \
 		src/execution/pipeline_wait.c \
+		src/execution/fd_utils.c \
+		src/execution/redirections.c \
 		src/expansion/expansion.c \
 		src/expansion/expansion_extract.c \
 		src/expansion/expansion_replace.c \

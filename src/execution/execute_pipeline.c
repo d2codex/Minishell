@@ -33,6 +33,13 @@ static void	execute_left_child(t_ast *node, t_shell *data, int pipefd[2])
 		exit(EXIT_FAILURE);
 	}
 	close(pipefd[1]);
+	if (node->left && node->left->right)
+	{
+		if (apply_redirections(node->left->right, data) != EXIT_SUCCESS)
+			exit(data->status);
+	}
+	if (data->curr_ast)
+		close_all_heredocs(data->curr_ast);
 	execute_ast_tree(node->left, data);
 	exit(data->status);
 }
@@ -40,25 +47,17 @@ static void	execute_left_child(t_ast *node, t_shell *data, int pipefd[2])
 /**
  * @brief Fork and execute the left side of a pipeline.
  *
- * This function creates a new child process to handle the left command
- * in a pipeline (e.g., `cmd1` in `cmd1 | cmd2`). The child redirects
- * its standard output to the pipe’s write end and executes the left
- * subtree of the AST.
+ * Creates a child process for the left command of a pipeline (e.g., `cmd1` in `cmd1 | cmd2`).
+ * The child process will redirect its standard output to the pipe’s write end
+ * and execute the left subtree of the AST via `execute_left_child()`.
  *
- * @param node Pointer to the current AST node representing the pipeline.
- * @param data Pointer to the shell state structure.
- * @param pipefd The pipe file descriptors; pipefd[0] is the read end,
- *               and pipefd[1] is the write end.
- *
- * @return The PID of the forked child process on success, or -1 on failure.
+ * @param node AST node representing the pipeline.
+ * @param data Shell state structure.
+ * @param pipefd Array of two integers: pipefd[0] is read end, pipefd[1] is write end.
+ * @return PID of the forked left child on success, -1 on failure.
  *
  * @details
- * Steps performed:
- * 1. Call `fork()` to create a new process.
- * 2. In the child:
- *      - Execute the left side using `execute_left_child()`.
- * 3. In the parent:
- *      - Return the PID of the left child for later `waitpid()` calls.
+ * The parent process receives the PID for later use in `waitpid()`.
  */
 static	pid_t	fork_left_child(t_ast *node, t_shell *data, int pipefd[2])
 {
@@ -78,24 +77,17 @@ static	pid_t	fork_left_child(t_ast *node, t_shell *data, int pipefd[2])
 /**
  * @brief Execute the right side of a pipeline in a child process.
  *
- * This function runs the right command of a pipe (e.g., in `cmd1 | cmd2`),
- * redirecting its standard input to the read end of the pipe so that it
- * receives the output from the left command. It closes unused file
- * descriptors and ensures proper exit with the child’s execution status.
+ * Redirects standard input to the pipe’s read end so the child receives
+ * the output from the left command. Closes unused file descriptors and
+ * executes the right subtree of the AST.
  *
- * @param node Pointer to the current AST node representing the pipeline.
- * @param data Pointer to the shell state structure.
- * @param pipefd The pipe file descriptors; pipefd[0] is the read end,
- *               and pipefd[1] is the write end.
+ * @param node AST node representing the pipeline.
+ * @param data Shell state structure.
+ * @param pipefd Array of two integers: pipefd[0] is read end, pipefd[1] is write end.
  *
  * @details
- * Steps performed:
- * 1. Mark the shell as a child process (`data->is_child = true`).
- * 2. Close the unused write end of the pipe (`pipefd[1]`).
- * 3. Redirect `STDIN_FILENO` to the pipe’s read end via `dup2()`.
- * 4. Close the read end after duplication to avoid file descriptor leaks.
- * 5. Recursively execute the right subtree of the AST.
- * 6. Exit the process using the current shell status.
+ * After execution, the child exits with the current shell status.
+ * The read end is closed after duplication to prevent descriptor leaks.
  */
 static void	execute_right_child(t_ast *node, t_shell *data, int pipefd[2])
 {
@@ -108,6 +100,13 @@ static void	execute_right_child(t_ast *node, t_shell *data, int pipefd[2])
 		exit(EXIT_FAILURE);
 	}
 	close(pipefd[0]);
+	if (node->right && node->right->right)
+	{
+		if (apply_redirections(node->right->right, data) != EXIT_SUCCESS)
+			exit(data->status);
+	}
+	if (data->curr_ast)
+		close_all_heredocs(data->curr_ast);
 	execute_ast_tree(node->right, data);
 	exit(data->status);
 }
@@ -151,31 +150,20 @@ static pid_t	fork_right_child(t_ast *node, t_shell *data, int pipefd[2])
 }
 
 /**
- * @brief Execute a pipeline between two commands.
+ * @brief Execute a pipeline node in the AST.
  *
- * This function handles the execution of a pipeline node in the AST
- * (e.g., `cmd1 | cmd2`). It creates a pipe, forks two child processes
- * for the left and right commands, and connects their standard output
- * and input through the pipe.
+ * Handles a pipeline between two commands (e.g., `cmd1 | cmd2`):
+ * creates a pipe, forks two children, connects their input/output
+ * through the pipe, and waits for both processes to finish.
  *
- * @param node Pointer to the current AST node representing the pipeline.
- * @param data Pointer to the shell state structure.
- *
- * @return The exit status of the rightmost command in the pipeline.
+ * @param node AST node representing the pipeline.
+ * @param data Shell state structure.
+ * @return Exit status of the rightmost command in the pipeline,
+ *         or EXIT_FAILURE on error.
  *
  * @details
- * Steps performed:
- * 1. Create a pipe with `pipe()`.
- * 2. Fork the left child process via `fork_left_child()` to handle
- *    the left side of the pipeline (writes to the pipe).
- * 3. Fork the right child process via `fork_right_child()` to handle
- *    the right side of the pipeline (reads from the pipe).
- * 4. Close the pipe ends in the parent process.
- * 5. Wait for both child processes to finish using `wait_pipeline()`.
- *
- * On failure to create the pipe or fork any child, the function ensures
- * all open file descriptors are closed and previously forked children
- * are waited for before returning an error status.
+ * On any failure (pipe creation or fork), ensures open file descriptors are
+ * closed and previously forked children are waited for before returning.
  */
 int	execute_pipeline(t_ast *node, t_shell *data)
 {
@@ -191,17 +179,18 @@ int	execute_pipeline(t_ast *node, t_shell *data)
 	left_pid = fork_left_child(node, data, pipefd);
 	if (left_pid == -1)
 	{
-		close(pipefd[0]);
-		close(pipefd[1]);
+		close_pipe_fds(pipefd);
 		return (EXIT_FAILURE);
 	}
 	right_pid = fork_right_child(node, data, pipefd);
 	if (right_pid == -1)
 	{
-		close(pipefd[0]);
-		close(pipefd[1]);
+		close_pipe_fds(pipefd);
 		waitpid(left_pid, NULL, 0);
 		return (EXIT_FAILURE);
 	}
-	return (wait_pipeline(left_pid, right_pid, pipefd, data));
+	close_pipe_fds(pipefd);
+	//if (data->curr_ast)
+	//	close_all_heredocs(data->curr_ast);
+	return (wait_pipeline(left_pid, right_pid, data));
 }
