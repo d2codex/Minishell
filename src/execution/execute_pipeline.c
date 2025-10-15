@@ -33,6 +33,11 @@ static void	execute_left_child(t_ast *node, t_shell *data, int pipefd[2])
 		exit(EXIT_FAILURE);
 	}
 	close(pipefd[1]);
+	if (node->left && node->left->right)
+	{
+		if (apply_redirections(node->left->right, data) != EXIT_SUCCESS)
+			exit(data->status);
+	}
 	if (data->curr_ast)
 		close_all_heredocs(data->curr_ast);
 	execute_ast_tree(node->left, data);
@@ -95,6 +100,11 @@ static void	execute_right_child(t_ast *node, t_shell *data, int pipefd[2])
 		exit(EXIT_FAILURE);
 	}
 	close(pipefd[0]);
+	if (node->right && node->right->right)
+	{
+		if (apply_redirections(node->right->right, data) != EXIT_SUCCESS)
+			exit(data->status);
+	}
 	if (data->curr_ast)
 		close_all_heredocs(data->curr_ast);
 	execute_ast_tree(node->right, data);

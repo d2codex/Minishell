@@ -13,8 +13,9 @@
  */
 bool	should_fork(t_ast *node, t_shell *data)
 {
-	(void)data;
 	if (!node || node->type != NODE_CMD)
+		return (false);
+	if (data->is_child)
 		return (false);
 	if (is_builtin(node))
 	{
