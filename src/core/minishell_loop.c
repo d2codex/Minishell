@@ -47,6 +47,11 @@ bool	prompt_user(char *prompt, t_shell *data)
 		line = readline(prompt);
 	else
 		line = readline(NULL);
+	if (g_signal_received == SIGINT)
+	{
+		g_signal_received = 0;
+		data->status = EXIT_SIGINT;
+	}
 	if (!line)
 	{
 		if (data->is_tty)
@@ -148,7 +153,7 @@ int	process_line(char *line, t_shell *data)
 	if (!ast)
 		return (cleanup_line(tokens, token_list, NULL, line), EXIT_FAILURE);
 	if (preprocess_heredocs(ast, data) != EXIT_SUCCESS)
-		return (cleanup_line(tokens, token_list, ast, line), EXIT_FAILURE);
+		return (cleanup_line(tokens, token_list, ast, line), data->status);
 	//print_ast(ast, 0);
 	data->curr_ast = ast;
 	data->status = execute_ast_tree(ast, data);

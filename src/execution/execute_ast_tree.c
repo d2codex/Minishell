@@ -46,6 +46,7 @@ static int	execute_in_child_process(t_ast *node, t_shell *data)
 	}
 	if (pid == 0) // child
 	{
+		setup_signals_child();
 		data->is_child = true;
 		if (apply_redirections(node->right, data) != EXIT_SUCCESS)
 		{
@@ -54,11 +55,23 @@ static int	execute_in_child_process(t_ast *node, t_shell *data)
 		}
 		exit(execute_command(node, data));
 	}
+	setup_signals_ignore();
 	waitpid(pid, &status, 0);
+	setup_signals_interactive();
 	if (WIFEXITED(status))
 		data->status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
+	{
+		int sig = WTERMSIG(status);
+		data->status = 128 + sig;
+		if (sig == SIGQUIT)
+			write(1, "Quit (core dumped)\n", 20);
+		else if (sig == SIGINT)
+			write(1, "\n", 1);
+	}
 	else
 		data->status = EXIT_FAILURE;
+	close_all_heredocs(node->right);
 	return (data->status);
 }
 

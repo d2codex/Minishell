@@ -29,9 +29,19 @@ static int	create_heredoc_fd(const char *limiter)
 		perror("pipe");
 		return (-1);
 	}
+	setup_signals_heredoc();
 	while (1)
 	{
 		line = readline("> ");
+		if (g_signal_received == SIGINT)
+		{
+			if (line)
+				free(line);
+			close(pipefd[0]);
+			close(pipefd[1]);
+			setup_signals_interactive();
+			return (-1);
+		}
 		if (!line) //EOF (ctrl+D)
 			break ;
 		if (ft_strcmp(line, limiter) == 0)
@@ -43,6 +53,7 @@ static int	create_heredoc_fd(const char *limiter)
 		free(line);
 	}
 	close(pipefd[1]); // close write end, keep read end open
+	setup_signals_interactive();
 	return (pipefd[0]);
 }
 
@@ -84,7 +95,13 @@ int	preprocess_heredocs(t_ast *node, t_shell *data)
 		{
 			//error reading heredoc - set status and return failure
 			close_all_heredocs(node);
-			data->status = EXIT_FAILURE;
+			if (g_signal_received == SIGINT)
+			{
+				data->status = EXIT_SIGINT;
+				g_signal_received = 0;
+			}
+			else
+				data->status = EXIT_FAILURE;
 			return (EXIT_FAILURE);
 		}
 		node->heredoc_fd = fd;

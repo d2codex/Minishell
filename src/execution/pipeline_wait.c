@@ -17,6 +17,11 @@ int	handle_pipeline_status(int status, t_shell *data)
 {
 	if (WIFEXITED(status))
 		data->status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
+	{
+		int sig = WTERMSIG(status);
+		data->status = 128 + sig;
+	}
 	else
 		data->status = EXIT_FAILURE;
 	return (data->status);
@@ -51,9 +56,20 @@ int	wait_pipeline(pid_t left_pid, pid_t right_pid, t_shell *data)
 {
 	int	status_left;
 	int	status_right;
+	int	sig;
 
+	setup_signals_ignore();
 	waitpid(left_pid, &status_left, 0);
 	waitpid(right_pid, &status_right, 0);
+	setup_signals_interactive();
+	if (WIFSIGNALED(status_right))
+	{
+		sig = WTERMSIG(status_right);
+		if (sig == SIGQUIT)
+			write(1, "Quit (core dumped)\n", 20);
+		else if (sig == SIGINT)
+			write(1, "\n", 1);
+	}
 	if (data->curr_ast)
 		close_all_heredocs(data->curr_ast);
 	return (handle_pipeline_status(status_right, data));

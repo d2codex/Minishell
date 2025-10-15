@@ -55,6 +55,8 @@ SRC =	src/builtins/cd.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_utils.c \
 		src/parser/validate_syntax.c \
+		src/signals/signal_handlers.c \
+		src/signals/signal_setup.c \
 		src/utils/is_whitespace.c \
 		src/utils/memory_cleanup.c \
 		src/utils/print_error.c \

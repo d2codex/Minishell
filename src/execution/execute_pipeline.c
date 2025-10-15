@@ -24,6 +24,7 @@
  */
 static void	execute_left_child(t_ast *node, t_shell *data, int pipefd[2])
 {
+	setup_signals_child();
 	data->is_child = true;
 	close(pipefd[0]);
 	if (dup2(pipefd[1], STDOUT_FILENO) == -1)
@@ -91,6 +92,7 @@ static	pid_t	fork_left_child(t_ast *node, t_shell *data, int pipefd[2])
  */
 static void	execute_right_child(t_ast *node, t_shell *data, int pipefd[2])
 {
+	setup_signals_child();
 	data->is_child = true;
 	close(pipefd[1]);
 	if (dup2(pipefd[0], STDIN_FILENO) == -1)

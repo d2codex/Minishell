@@ -14,20 +14,29 @@ static void	update_shlvl(t_list **env_list)
 {
 	t_env	*shlvl;
 	int		level;
-	int		out;
+	int		status;
+	char	*new_value;
 
 	shlvl = get_env_node_by_key(*env_list, "SHLVL");
 	if (shlvl)
 	{
-		level = ft_safe_atoi(shlvl->value, &out);
+		status = ft_safe_atoi(shlvl->value, &level);
+		if (status == 0 || level < 0)
+			level = 0;
 		level++;
-		free(shlvl->value);
-		shlvl->value = ft_itoa(level);
-		if (!shlvl->value)
+		new_value = ft_itoa(level);
+		if (!new_value)
+		{
 			ft_putendl_fd("failed to update SHLVL", 2);
+			return ;
+		}
+		free(shlvl->value);
+		shlvl->value = new_value;
 	}
 	else
+	{
 		set_env_node(env_list, "SHLVL=1");
+	}
 }
 
 /**
