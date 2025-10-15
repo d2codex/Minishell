@@ -37,25 +37,40 @@ static char	*get_cd_target(char **argv, t_shell *data)
 }
 
 /**
- * @brief Updates OLDPWD in the environment list.
+ * @brief Safely updates the OLDPWD variable in the environment list.
  *
- * Replaces the value of OLDPWD with the provided oldpwd.
- * If OLDPWD does not exist, nothing is done.
+ * If OLDPWD exists, its value is replaced with a duplicate of oldpwd.
+ * If OLDPWD does not exist, a new environment node is created and added.
+ * Memory allocations for the new value are checked to prevent leaks
+ * or invalid reads.
  *
- * @param data Shell data structure
- * @param oldpwd Previous working directory string
+ * @param data   Pointer to the main shell data structure.
+ * @param oldpwd String containing the previous working directory.
  */
 static void	update_old_pwd(t_shell *data, char *oldpwd)
 {
 	t_env	*node;
+	char	*joined;
+	char	*dup;
 
 	if (!data || !oldpwd)
 		return ;
 	node = get_env_node_by_key(data->env_list, "OLDPWD");
 	if (node)
 	{
+		dup = ft_strdup(oldpwd);
+		if (!dup)
+			return ;
 		free(node->value);
-		node->value = oldpwd;
+		node->value = dup;
+	}
+	else
+	{
+		joined = ft_strjoin("OLDPWD=", oldpwd);
+		if (!joined)
+			return ;
+		set_env_node(&data->env_list, joined);
+		free(joined);
 	}
 }
 
@@ -95,15 +110,16 @@ static int	set_status(t_shell *data, int status)
  * @brief Implements the cd builtin command.
  *
  * Changes the current working directory.
- * - No arguments: changes to the directory specified by $HOME.
- * - One argument: changes to the specified directory.
+ * - No arguments: switches to the directory in $HOME.
+ * - One argument: switches to the given directory.
  * - More than one argument: prints an error and fails.
- * Updates OLDPWD in the environment if applicable.
- * Updates the shell status in data->status before returning.
  *
- * @param argv Command argv array where argv[0] is "cd"
- * @param data Shell data structure, including environment and status
- * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
+ * On success, updates OLDPWD in the environment.
+ * Always updates data->status before returning.
+ *
+ * @param argv Command argument array where argv[0] is "cd".
+ * @param data Shell data structure (environment and status).
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure.
  */
 int	builtin_cd(char **argv, t_shell *data)
 {
@@ -120,16 +136,14 @@ int	builtin_cd(char **argv, t_shell *data)
 	}
 	target = get_cd_target(argv, data);
 	if (!target)
-	{
-		free(oldpwd);
-		return (set_status(data, EXIT_FAILURE));
-	}
+		return (free(oldpwd), set_status(data, EXIT_FAILURE));
 	if (chdir(target) != 0)
 	{
 		print_cd_error(target);
 		free(oldpwd);
-		return (set_status (data, EXIT_FAILURE));
+		return (set_status(data, EXIT_FAILURE));
 	}
 	update_old_pwd(data, oldpwd);
+	free(oldpwd);
 	return (set_status(data, EXIT_SUCCESS));
 }
