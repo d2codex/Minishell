@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast_create_nodes.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:03:16 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:03:21 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -8,7 +20,8 @@
  *
  * @param start Pointer to the first token in the range.
  * @param end Pointer to the token marking the end of the range (excluded).
- * @return NULL-terminated array of argument strings, or NULL on allocation failure.
+ * @return NULL-terminated array of argument strings, or NULL on
+ * allocation failure.
  */
 char	**collect_argv(t_token *start, t_token *end)
 {
@@ -46,7 +59,8 @@ char	**collect_argv(t_token *start, t_token *end)
  *
  * @param start Pointer to the first token in the range.
  * @param end Pointer to the token marking the end of the range (excluded).
- * @return Head of the redirection AST linked list, or NULL if none or on failure.
+ * @return Head of the redirection AST linked list, or NULL if none or
+ * on failure.
  */
 t_ast	*collect_redirections(t_token *start, t_token *end)
 {
@@ -143,7 +157,8 @@ t_ast	*create_cmd_node(char **argv)
 /**
  * @brief Create a pipe AST node.
  *
- * Initializes an AST node of type NODE_PIPE connecting left and right child nodes.
+ * Initializes an AST node of type NODE_PIPE connecting left and right child
+ * nodes.
  *
  * @param left Left child AST node.
  * @param right Right child AST node.

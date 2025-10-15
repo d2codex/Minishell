@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   categorize_tokens.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:04:47 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:05:15 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -24,15 +36,6 @@ int	get_operator_type(char *token)
 		return (OP_HEREDOC);
 	if (*token == '>' && token[1] == '>' && token[2] == '\0')
 		return (OP_APPEND);
-	// if we do bonus
-	// if (*token == '&' && token[1] == '&' && token[2] == '\0')
-	//	 return (OP_AND);
-	// if (*token == '|' && token[1] == '|' && token[2] == '\0')
-	//	 return (OP_OR);
-	// if (*token == '(' && token[1] == '\0')
-	//	 return (OP_PAREN_OPEN);
-	// if (*token == ')' && token[1] == '\0')
-	//	 return (OP_PAREN_CLOSE);
 	return (OP_NONE);
 }
 
@@ -48,7 +51,6 @@ void	free_tokens_list(t_token *list)
 {
 	t_token	*current;
 
-//	int i = 0;
 	while (list)
 	{
 		current = list;
@@ -56,13 +58,9 @@ void	free_tokens_list(t_token *list)
 		if (current->value)
 			free(current->value);
 		free(current);
-//		i++;
 	}
-//	printf("DEBUG: number of tokens freed: %d\n", i);
 }
 
-// function that mallocs and set node,
-// malloc_and_node haha like lock and load
 /**
  * @brief Allocate and initialize a new token node.
  *
@@ -132,6 +130,5 @@ t_token	*create_token_type_list(char **tokens)
 		tail = new;
 		i++;
 	}
-//	printf("DEBUG: number of tokens allocated: %d\n", i);
 	return (tokens_list);
 }

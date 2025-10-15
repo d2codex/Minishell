@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipeline_wait.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:01:16 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:08:53 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -15,11 +27,13 @@
  */
 int	handle_pipeline_status(int status, t_shell *data)
 {
+	int	sig;
+
 	if (WIFEXITED(status))
 		data->status = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
 	{
-		int sig = WTERMSIG(status);
+		sig = WTERMSIG(status);
 		data->status = 128 + sig;
 	}
 	else

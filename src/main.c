@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:07:58 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:07:59 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -18,8 +30,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	init_shell(&data, envp);
-	if (data.is_tty)
-		setup_signals_interactive();
+	setup_signals_interactive();
 	if (data.is_tty)
 		select_random_ascii_art();
 	data.status = minishell_loop(&data);

@@ -1,4 +1,41 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execute_ast_tree.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:40:51 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:15:07 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
+
+/**
+ * @brief Handles child process exit status and signal-related outputs.
+ *
+ * @param status Raw status from waitpid
+ * @param data Shell state structure
+ */
+static void	handle_child_exit_status(int status, t_shell *data)
+{
+	int	sig;
+
+	if (WIFEXITED(status))
+		data->status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
+	{
+		sig = WTERMSIG(status);
+		data->status = 128 + sig;
+		if (sig == SIGQUIT)
+			write(1, "Quit (core dumped)\n", 20);
+		else if (sig == SIGINT)
+			write(1, "\n", 1);
+	}
+	else
+		data->status = EXIT_FAILURE;
+}
 
 /**
  * @brief Execute a single command (builtin or external) without forking.
@@ -8,8 +45,10 @@
  *
  * @param node AST node representing the command.
  * @param data Pointer to the shell state structure.
- * @return int The exit status of the command. For builtins, it is `data->status`;
- *             for external commands, `data->status` is updated by `execute_external_command`.
+ * @return int The exit status of the command. For builtins,
+ * it is `data->status`;
+ *             for external commands, `data->status` is updated by
+ * `execute_external_command`.
  */
 static int	execute_command(t_ast *node, t_shell *data)
 {
@@ -25,9 +64,12 @@ static int	execute_command(t_ast *node, t_shell *data)
 /**
  * @brief Execute a command in a child process, applying redirections if needed.
  *
- * Forks a new child process, applies any redirections on the right side of the node,
- * then executes the command (builtin or external) inside the child. The parent waits
- * for the child to finish and updates `data->status` with the child’s exit status.
+ * Forks a new child process, applies any redirections on the right side of the
+ * node,
+ * then executes the command (builtin or external) inside the child. The parent
+ *  waits
+ * for the child to finish and updates `data->status` with the child’s exit
+ * status.
  *
  * @param node AST node representing the command to execute in the child.
  * @param data Pointer to the shell state structure.
@@ -40,11 +82,8 @@ static int	execute_in_child_process(t_ast *node, t_shell *data)
 
 	pid = fork();
 	if (pid == -1)
-	{
-		perror("fork");
-		return (EXIT_FAILURE);
-	}
-	if (pid == 0) // child
+		return (perror("fork"), EXIT_FAILURE);
+	if (pid == 0)
 	{
 		setup_signals_child();
 		data->is_child = true;
@@ -58,19 +97,7 @@ static int	execute_in_child_process(t_ast *node, t_shell *data)
 	setup_signals_ignore();
 	waitpid(pid, &status, 0);
 	setup_signals_interactive();
-	if (WIFEXITED(status))
-		data->status = WEXITSTATUS(status);
-	else if (WIFSIGNALED(status))
-	{
-		int sig = WTERMSIG(status);
-		data->status = 128 + sig;
-		if (sig == SIGQUIT)
-			write(1, "Quit (core dumped)\n", 20);
-		else if (sig == SIGINT)
-			write(1, "\n", 1);
-	}
-	else
-		data->status = EXIT_FAILURE;
+	handle_child_exit_status(status, data);
 	close_all_heredocs(node->right);
 	return (data->status);
 }
@@ -93,20 +120,16 @@ int	execute_ast_tree(t_ast *node, t_shell *data)
 
 	if (!node)
 		return (EXIT_SUCCESS);
-	// handle pipelines - always forks
 	if (node->type == NODE_PIPE)
 		return (execute_pipeline(node, data));
-	// Non-forking builtins: cd, export, unset, exit
 	if (node->type == NODE_CMD && is_nonforking_builtin(node))
 	{
-		// case 1: builtin without redirections - run directly
 		if (!node->right)
 		{
-			data->status = execute_builtin(node, data); //runs in parent
+			data->status = execute_builtin(node, data);
 			return (data->status);
 		}
-		// case 2: builtin WITH redirections - temporarily redirect parent
-		if(save_std_fds(saved_fds) == -1)
+		if (save_std_fds(saved_fds) == -1)
 			return (EXIT_FAILURE);
 		if (apply_redirections(node->right, data) == EXIT_SUCCESS)
 			data->status = execute_builtin(node, data);
@@ -114,10 +137,8 @@ int	execute_ast_tree(t_ast *node, t_shell *data)
 		close_all_heredocs(node->right);
 		return (data->status);
 	}
-	// forking commands (external or forkable builtins)
 	if (should_fork(node, data))
 		return (execute_in_child_process(node, data));
-	// simiple builtin or cmd - execute directly
 	data->status = execute_command(node, data);
 	return (data->status);
 }

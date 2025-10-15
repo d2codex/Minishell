@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:39:03 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:24:44 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -6,6 +18,7 @@
 /* =========================== */
 # include "libft.h"
 # include <signal.h>
+# include <sys/ioctl.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -20,7 +33,7 @@
 /*       GLOBAL VARIABLE       */
 /* =========================== */
 
-extern volatile sig_atomic_t	g_signal_received;
+extern volatile sig_atomic_t		g_signal_received;
 
 /* =========================== */
 /*         CONSTANTS           */
@@ -44,6 +57,7 @@ extern volatile sig_atomic_t	g_signal_received;
 # define ERR_SYNTAX "syntax error near unexpected token `"
 # define ERR_CMD_NOT_FOUND ": command not found"
 # define ERR_NO_SUCH_FILE ": No such file or directory"
+# define ERR_HEREDOC_EOF ":  warning: here-document delimited by EOF\n"
 
 /* standardized return codes - EXIT_SUCCES 0 - EXIT_FAILURE 1 */
 # define MISUSAGE_ERROR 2
@@ -124,7 +138,7 @@ typedef struct s_env
 }	t_env;
 
 /* shell state and configuration */
-typedef struct s_ast	t_ast;
+typedef struct s_ast				t_ast;
 
 typedef struct s_shell
 {
@@ -241,6 +255,7 @@ int			init_shell(t_shell *data, char **envp);
 /* src/core/print_ascii_art.c */
 bool		is_easter_egg(char *line);
 void		display_easter_egg(void);
+bool		check_and_handle_easter_egg(char *line);
 void		select_random_ascii_art(void);
 
 /* =========================== */

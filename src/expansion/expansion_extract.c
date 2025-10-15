@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expansion_extract.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:01:59 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:02:00 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 // this was a norminette hell, I'm sorry for all the helper functions !!
@@ -101,7 +113,8 @@ char	*extract_var_name(const char *str, size_t start_pos)
  *         string if variable not found. Never returns NULL.
  *
  * @note Caller is responsible for freeing the returned string
- * @note Always returns an allocated string, even for errors or missing variables
+ * @note Always returns an allocated string, even for errors or missing
+ * variables
  * @note The returned string must be freed to avoid memory leaks
  *
  * Examples:

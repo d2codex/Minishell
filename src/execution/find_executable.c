@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   find_executable.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:41:13 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:41:14 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -104,14 +116,12 @@ char	*find_executable(char *cmd, t_shell *data)
 
 	if (!cmd || !cmd[0])
 		return (NULL);
-	// if cmd has a '/' already it is a path
 	if (ft_strchr(cmd, '/') != NULL)
 	{
 		if (is_executable(cmd) == true)
 			return (ft_strdup(cmd));
 		return (NULL);
 	}
-	// normal case
 	path_value = get_var_value("PATH", data);
 	if (!path_value)
 		return (NULL);

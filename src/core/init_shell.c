@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_shell.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:40:26 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:40:27 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -60,7 +72,7 @@ int	init_shell(t_shell *data, char **envp)
 	data->env_list = init_env_from_envp(envp);
 	update_shlvl(&data->env_list);
 	data->status = 0;
-	data->is_tty = isatty(STDIN_FILENO);
+	data->is_tty = isatty(STDIN_FILENO) && isatty(STDOUT_FILENO);
 	data->is_child = false;
 	data->should_exit = false;
 	data->curr_ast = NULL;

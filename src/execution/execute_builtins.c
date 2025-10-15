@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execute_builtins.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:40:55 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:40:56 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -8,13 +20,15 @@
  * `unset`, `cd`). If a match is found, the corresponding function is executed,
  * and the shell state (`data->status`) is updated accordingly.
  *
- * This function does **not** handle external commands; it only executes builtins.
+ * This function does **not** handle external commands; it only executes
+ * builtins.
  *
  * @param node Pointer to the AST node representing the command.
  * @param data Pointer to the shell state structure, which includes environment,
  *             exit status, and other runtime flags.
  * @return int The updated exit status after executing the builtin, or
- *             EXIT_FAILURE if the command is not a builtin or the node is invalid.
+ *             EXIT_FAILURE if the command is not a builtin or the node is
+ * invalid.
  */
 int	execute_builtin(t_ast *node, t_shell *data)
 {

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execute_external_cmd.c                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:41:00 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:41:01 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -18,12 +30,12 @@ static int	init_execution(char **argv, t_shell *data, char **path,
 	char ***envp)
 {
 	*path = find_executable(argv[0], data);
+	if (!*path)
 	{
-		// Distinguish between PATH search vs direct path
-		if (ft_strchr(tokens[0], '/'))
-			print_error(tokens[0], ERR_NO_SUCH_FILE, NULL, NULL);
+		if (ft_strchr(argv[0], '/'))
+			print_error(argv[0], ERR_NO_SUCH_FILE, NULL, NULL);
 		else
-			print_error(tokens[0], ERR_CMD_NOT_FOUND, NULL, NULL);
+			print_error(argv[0], ERR_CMD_NOT_FOUND, NULL, NULL);
 		return (CMD_NOT_FOUND);
 	}
 	*envp = env_list_to_array(data->env_list);
@@ -39,14 +51,16 @@ static int	init_execution(char **argv, t_shell *data, char **path,
  * @brief Execute an external command in the current (child) process.
  *
  * This function prepares the executable path and environment array, then
- * replaces the current process image with the external program using `execve()`.
+ * replaces the current process image with the external program using `execve()`
  * It is intended to be called only in a forked child process.
  *
  * @param argv Argument vector for the command (NULL-terminated).
- * @param data   Pointer to the main shell structure containing environment data.
+ * @param data   Pointer to the main shell structure containing environment data
  *
- * @note This function never returns. If `execve()` fails, it cleans up and exits
- *       with `CMD_NOT_EXECUTABLE`. The parent process should handle the exit code
+ * @note This function never returns. If `execve()` fails, it cleans up
+ * and exits
+ *       with `CMD_NOT_EXECUTABLE`. The parent process should handle the
+ * exit code
  *       via `waitpid()`.
  */
 int	execute_external_command(char **argv, t_shell *data)
@@ -55,16 +69,12 @@ int	execute_external_command(char **argv, t_shell *data)
 	char	**envp;
 	int		init_status;
 
-	// Find executable path and prepare environment array for execve
 	init_status = init_execution(argv, data, &path, &envp);
 	if (init_status != 0)
 		exit (init_status);
-	// close unused heredocs before execve
 	if (data->curr_ast)
 		close_all_heredocs(data->curr_ast);
-	// Try to execute the external command
 	execve(path, argv, envp);
-	// If execve returns, it failed, so clean up before exiting
 	perror("execve");
 	free(path);
 	free_strings_array(envp);

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/14 11:58:59 by diade-so          #+#    #+#             */
-/*   Updated: 2025/10/14 23:06:59 by diade-so         ###   ########.fr       */
+/*   Created: 2025/10/15 17:41:09 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:10:27 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ void	close_fds(int *fd)
 	}
 }
 
-// recursion to support nested shells
 void	close_all_heredocs(t_ast *node)
 {
 	if (!node)
@@ -76,17 +75,21 @@ int	save_std_fds(int saved_fds[3])
 }
 
 /**
- * @brief Restore the standard file descriptors (stdin, stdout, stderr) from saved copies.
+ * @brief Restore the standard file descriptors (stdin, stdout, stderr) from
+ * saved copies.
  *
- * This function restores the three standard file descriptors using previously saved
- * duplicates in the `saved_fds` array. It safely handles cases where some FDs were
+ * This function restores the three standard file descriptors using previously
+ * saved
+ * duplicates in the `saved_fds` array. It safely handles cases where some FDs
+ * were
  * never saved (i.e., remain negative), preventing spurious errors.
  *
  * After restoring each FD, the corresponding entry in `saved_fds` is set to -1
  * to prevent accidental reuse.
  *
  * @param saved_fds An array of three integers containing saved duplicates of
- *                  STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO, in that order.
+ *                  STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO, in that
+ * order.
  *                  Values < 0 are ignored.
  *
  * @details
@@ -101,13 +104,11 @@ int	save_std_fds(int saved_fds[3])
  */
 void	restore_std_fds(int saved_fds[3])
 {
-	//check first if saved FD is valid before attempting dup2 or close
 	if (saved_fds[0] >= 0)
 	{
 		if (dup2(saved_fds[0], STDIN_FILENO) == -1)
 			perror("restore stdin");
 		close(saved_fds[0]);
-		// after restoring set saved FD to -1 to prevent accidental double use
 		saved_fds[0] = -1;
 	}
 	if (saved_fds[1] >= 0)
