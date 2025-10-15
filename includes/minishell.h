@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:39:03 by pafroidu          #+#    #+#             */
-/*   Updated: 2025/10/15 18:24:44 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/10/15 19:30:31 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ extern volatile sig_atomic_t		g_signal_received;
 # define ERR_SYNTAX "syntax error near unexpected token `"
 # define ERR_CMD_NOT_FOUND ": command not found"
 # define ERR_NO_SUCH_FILE ": No such file or directory"
-# define ERR_HEREDOC_EOF ":  warning: here-document delimited by EOF\n"
+# define ERR_HEREDOC_EOF "warning: here-document delimited by end-of-file\n"
 
 /* standardized return codes - EXIT_SUCCES 0 - EXIT_FAILURE 1 */
 # define MISUSAGE_ERROR 2

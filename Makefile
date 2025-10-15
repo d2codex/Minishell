@@ -47,7 +47,6 @@ SRC =	src/builtins/cd.c \
 		src/parser/ast_build_utils.c \
 		src/parser/ast_create_nodes.c \
 		src/parser/ast_free.c \
-		src/parser/ast_print.c \
 		src/parser/categorize_tokens.c \
 		src/parser/execute_tokenizer.c \
 		src/parser/quote_trimming.c \
