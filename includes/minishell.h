@@ -43,6 +43,7 @@ extern volatile sig_atomic_t	g_signal_received;
 # define ERR_TOO_MANY_ARGS "too many arguments"
 # define ERR_SYNTAX "syntax error near unexpected token `"
 # define ERR_CMD_NOT_FOUND ": command not found"
+# define ERR_NO_SUCH_FILE ": No such file or directory"
 
 /* standardized return codes - EXIT_SUCCES 0 - EXIT_FAILURE 1 */
 # define MISUSAGE_ERROR 2

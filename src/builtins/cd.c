@@ -115,7 +115,7 @@ int	builtin_cd(char **argv, t_shell *data)
 	oldpwd = getcwd(NULL, 0);
 	if (!oldpwd)
 	{
-		perror("[mini$HELL: cd: ");
+		perror("[mini$HELL]: cd: ");
 		return (set_status(data, EXIT_FAILURE));
 	}
 	target = get_cd_target(argv, data);

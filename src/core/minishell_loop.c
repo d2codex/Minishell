@@ -138,14 +138,14 @@ int	process_line(char *line, t_shell *data)
 	tokens = NULL;
 	ast = NULL;
 	token_list = NULL;
+	if (line)
+		add_history(line);
 	if (is_easter_egg(line))
 	{
 		display_easter_egg();
 		free(line);
 		return (EXIT_SUCCESS);
 	}
-	if (line)
-		add_history(line);
 	data->status = process_tokens(line, data, &tokens, &token_list);
 	if (data->status != EXIT_SUCCESS)
 		return (cleanup_line(tokens, token_list, NULL, line), data->status);

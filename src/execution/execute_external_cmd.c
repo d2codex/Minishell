@@ -18,9 +18,12 @@ static int	init_execution(char **argv, t_shell *data, char **path,
 	char ***envp)
 {
 	*path = find_executable(argv[0], data);
-	if (!*path)
 	{
-		print_error(argv[0], ERR_CMD_NOT_FOUND, NULL, NULL);
+		// Distinguish between PATH search vs direct path
+		if (ft_strchr(tokens[0], '/'))
+			print_error(tokens[0], ERR_NO_SUCH_FILE, NULL, NULL);
+		else
+			print_error(tokens[0], ERR_CMD_NOT_FOUND, NULL, NULL);
 		return (CMD_NOT_FOUND);
 	}
 	*envp = env_list_to_array(data->env_list);

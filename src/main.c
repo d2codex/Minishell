@@ -17,8 +17,7 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
-	if (init_shell(&data, envp))
-		return (1);
+	init_shell(&data, envp);
 	if (data.is_tty)
 		setup_signals_interactive();
 	if (data.is_tty)
