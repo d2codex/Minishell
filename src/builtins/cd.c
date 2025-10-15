@@ -141,7 +141,7 @@ int	builtin_cd(char **argv, t_shell *data)
 	{
 		print_cd_error(target);
 		free(oldpwd);
-		return (set_status (data, EXIT_FAILURE));
+		return (set_status(data, EXIT_FAILURE));
 	}
 	update_old_pwd(data, oldpwd);
 	free(oldpwd);
