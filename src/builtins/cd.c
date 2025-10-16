@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:39:17 by pafroidu          #+#    #+#             */
-/*   Updated: 2025/10/15 17:39:18 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/10/16 18:06:04 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,44 +46,6 @@ static char	*get_cd_target(char **argv, t_shell *data)
 		return (NULL);
 	}
 	return (argv[1]);
-}
-
-/**
- * @brief Safely updates the OLDPWD variable in the environment list.
- *
- * If OLDPWD exists, its value is replaced with a duplicate of oldpwd.
- * If OLDPWD does not exist, a new environment node is created and added.
- * Memory allocations for the new value are checked to prevent leaks
- * or invalid reads.
- *
- * @param data   Pointer to the main shell data structure.
- * @param oldpwd String containing the previous working directory.
- */
-static void	update_old_pwd(t_shell *data, char *oldpwd)
-{
-	t_env	*node;
-	char	*joined;
-	char	*dup;
-
-	if (!data || !oldpwd)
-		return ;
-	node = get_env_node_by_key(data->env_list, "OLDPWD");
-	if (node)
-	{
-		dup = ft_strdup(oldpwd);
-		if (!dup)
-			return ;
-		free(node->value);
-		node->value = dup;
-	}
-	else
-	{
-		joined = ft_strjoin("OLDPWD=", oldpwd);
-		if (!joined)
-			return ;
-		set_env_node(&data->env_list, joined);
-		free(joined);
-	}
 }
 
 /**
@@ -143,8 +105,8 @@ int	builtin_cd(char **argv, t_shell *data)
 	oldpwd = getcwd(NULL, 0);
 	if (!oldpwd)
 	{
-		perror("[mini$HELL]: cd: ");
-		return (set_status(data, EXIT_FAILURE));
+		perror("getcwd");
+		oldpwd = NULL;
 	}
 	target = get_cd_target(argv, data);
 	if (!target)
@@ -155,7 +117,9 @@ int	builtin_cd(char **argv, t_shell *data)
 		free(oldpwd);
 		return (set_status(data, EXIT_FAILURE));
 	}
-	update_old_pwd(data, oldpwd);
+	if (oldpwd)
+		update_env_var_value(&data->env_list, "OLDPWD", oldpwd);
+	update_pwd_from_target(data);
 	free(oldpwd);
 	return (set_status(data, EXIT_SUCCESS));
 }

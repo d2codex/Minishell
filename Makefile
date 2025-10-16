@@ -11,7 +11,8 @@ OBJ_DIR = obj
 LIBFT_DIR = libft
 
 # src files
-SRC =	src/builtins/cd.c \
+SRC =	src/builtins/cd_update.c \
+		src/builtins/cd.c \
 		src/builtins/echo.c \
 		src/builtins/env.c \
 		src/builtins/exit.c \

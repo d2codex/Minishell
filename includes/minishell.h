@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:39:03 by pafroidu          #+#    #+#             */
-/*   Updated: 2025/10/15 19:30:31 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/10/16 17:48:52 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,11 @@ typedef struct s_ast
 /* =========================== */
 /*          BUILTINS           */
 /* =========================== */
+
+/* src/builtins/cd_update.c */
+void		update_env_var_value(t_list **env_list, const char *key,
+				const char *value);
+void		update_pwd_from_target(t_shell *data);
 
 /* src/builtins/pwd.c */
 int			builtin_pwd(char **argv, t_shell *data);
