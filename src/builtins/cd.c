@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cd.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: diade-so <diade-so@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:39:17 by pafroidu          #+#    #+#             */
-/*   Updated: 2025/10/15 17:39:18 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/10/16 17:26:19 by diade-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ static char	*get_cd_target(char **argv, t_shell *data)
  * @param data   Pointer to the main shell data structure.
  * @param oldpwd String containing the previous working directory.
  */
+/*
 static void	update_old_pwd(t_shell *data, char *oldpwd)
 {
 	t_env	*node;
@@ -84,7 +85,7 @@ static void	update_old_pwd(t_shell *data, char *oldpwd)
 		set_env_node(&data->env_list, joined);
 		free(joined);
 	}
-}
+}*/
 
 /**
  * @brief Prints a formatted error message for cd failures.
@@ -141,10 +142,11 @@ int	builtin_cd(char **argv, t_shell *data)
 	if (!argv || !data)
 		return (set_status(data, EXIT_FAILURE));
 	oldpwd = getcwd(NULL, 0);
+	// dont abort on getcwd failure anymore but just print msg
 	if (!oldpwd)
 	{
-		perror("[mini$HELL]: cd: ");
-		return (set_status(data, EXIT_FAILURE));
+		perror("[mini$HELL]: getcwd: ");
+		oldpwd = NULL;
 	}
 	target = get_cd_target(argv, data);
 	if (!target)
@@ -155,7 +157,10 @@ int	builtin_cd(char **argv, t_shell *data)
 		free(oldpwd);
 		return (set_status(data, EXIT_FAILURE));
 	}
-	update_old_pwd(data, oldpwd);
+	if (oldpwd)
+		update_env_var_value(&data->env_list, "OLDPWD", oldpwd);
+	//now update pwd
+	update_pwd_from_target(data);
 	free(oldpwd);
 	return (set_status(data, EXIT_SUCCESS));
 }
