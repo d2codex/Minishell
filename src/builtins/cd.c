@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:39:17 by pafroidu          #+#    #+#             */
-/*   Updated: 2025/10/16 17:55:42 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/10/16 18:06:04 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ int	builtin_cd(char **argv, t_shell *data)
 	oldpwd = getcwd(NULL, 0);
 	if (!oldpwd)
 	{
-		perror("[mini$HELL]: getcwd: ");
+		perror("getcwd");
 		oldpwd = NULL;
 	}
 	target = get_cd_target(argv, data);
