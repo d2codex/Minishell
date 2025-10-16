@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cd.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: diade-so <diade-so@student.42.fr>          +#+  +:+       +#+        */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:39:17 by pafroidu          #+#    #+#             */
-/*   Updated: 2025/10/16 17:26:19 by diade-so         ###   ########.fr       */
+/*   Updated: 2025/10/16 17:55:42 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,45 +47,6 @@ static char	*get_cd_target(char **argv, t_shell *data)
 	}
 	return (argv[1]);
 }
-
-/**
- * @brief Safely updates the OLDPWD variable in the environment list.
- *
- * If OLDPWD exists, its value is replaced with a duplicate of oldpwd.
- * If OLDPWD does not exist, a new environment node is created and added.
- * Memory allocations for the new value are checked to prevent leaks
- * or invalid reads.
- *
- * @param data   Pointer to the main shell data structure.
- * @param oldpwd String containing the previous working directory.
- */
-/*
-static void	update_old_pwd(t_shell *data, char *oldpwd)
-{
-	t_env	*node;
-	char	*joined;
-	char	*dup;
-
-	if (!data || !oldpwd)
-		return ;
-	node = get_env_node_by_key(data->env_list, "OLDPWD");
-	if (node)
-	{
-		dup = ft_strdup(oldpwd);
-		if (!dup)
-			return ;
-		free(node->value);
-		node->value = dup;
-	}
-	else
-	{
-		joined = ft_strjoin("OLDPWD=", oldpwd);
-		if (!joined)
-			return ;
-		set_env_node(&data->env_list, joined);
-		free(joined);
-	}
-}*/
 
 /**
  * @brief Prints a formatted error message for cd failures.
@@ -142,7 +103,6 @@ int	builtin_cd(char **argv, t_shell *data)
 	if (!argv || !data)
 		return (set_status(data, EXIT_FAILURE));
 	oldpwd = getcwd(NULL, 0);
-	// dont abort on getcwd failure anymore but just print msg
 	if (!oldpwd)
 	{
 		perror("[mini$HELL]: getcwd: ");
@@ -159,7 +119,6 @@ int	builtin_cd(char **argv, t_shell *data)
 	}
 	if (oldpwd)
 		update_env_var_value(&data->env_list, "OLDPWD", oldpwd);
-	//now update pwd
 	update_pwd_from_target(data);
 	free(oldpwd);
 	return (set_status(data, EXIT_SUCCESS));

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd_update.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/16 17:56:35 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/16 17:56:49 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -10,7 +22,8 @@
  * @param key      The variable name (e.g., "PWD", "OLDPWD").
  * @param value    The new value for the variable.
  */
-void	update_env_var_value(t_list **env_list, const char *key, const char *value)
+void	update_env_var_value(t_list **env_list, const char *key,
+	const char *value)
 {
 	char	*joined;
 	char	*full;
