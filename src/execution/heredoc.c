@@ -61,13 +61,15 @@ static int	read_heredoc_lines(const char *limiter, int pipefd[2])
 	while (1)
 	{
 		line = readline("> ");
-		if (g_signal_received == SIGINT)
-			return (handle_heredoc_interrupt(line, pipefd));
 		if (!line)
 		{
+			if (g_signal_received == SIGINT)
+				return (handle_heredoc_interrupt(NULL, pipefd));
 			print_error(ERR_PREFIX, ERR_HEREDOC_EOF, NULL, NULL);
 			break ;
 		}
+		if (g_signal_received == SIGINT)
+			return (handle_heredoc_interrupt(line, pipefd));
 		if (ft_strcmp(line, limiter) == 0)
 		{
 			free(line);
