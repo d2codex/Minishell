@@ -6,7 +6,7 @@
 /*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/15 17:40:26 by pafroidu          #+#    #+#             */
-/*   Updated: 2025/10/15 17:40:27 by pafroidu         ###   ########.fr       */
+/*   Updated: 2025/10/16 13:25:07 by pafroidu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,22 @@ static void	update_shlvl(t_list **env_list)
 }
 
 /**
+ * @brief Determines if the shell is running in interactive mode
+ *
+ * This function checks if both standard input (STDIN) and standard output
+ * (STDOUT) are connected to a terminal. If so, the shell is considered to be
+ * in interactive mode and should display a prompt.
+ *
+ * @return true if the shell is in interactive mode (both STDIN and STDOUT 
+ * are TTYs)
+ * @return false if the shell is in non-interactive mode (pipe or redirection)
+ */
+static bool	is_interactive_mode(void)
+{
+	return (isatty(STDIN_FILENO) && isatty(STDOUT_FILENO));
+}
+
+/**
  * @brief Initialize the shell data structure.
  *
  * Responsibilities:
@@ -72,7 +88,7 @@ int	init_shell(t_shell *data, char **envp)
 	data->env_list = init_env_from_envp(envp);
 	update_shlvl(&data->env_list);
 	data->status = 0;
-	data->is_tty = isatty(STDIN_FILENO) && isatty(STDOUT_FILENO);
+	data->is_tty = is_interactive_mode();
 	data->is_child = false;
 	data->should_exit = false;
 	data->curr_ast = NULL;
