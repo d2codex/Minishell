@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print_ascii_art.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:40:33 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:40:34 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -25,6 +37,27 @@ void	display_easter_egg(void)
 	printf(BR_YEL "   │    ! outstanding move !     │\n" RESET);
 	printf(BR_YEL "   └─────────────────────────────┘\n" RESET);
 	printf(RED "back to work now...\n" RESET);
+}
+
+/**
+ * @brief Check and handle easter egg if detected.
+ *
+ * Checks if the input line is the easter egg sequence. If so, displays
+ * the easter egg message, frees the line, and returns true to signal
+ * that processing is complete.
+ *
+ * @param line Input line from user
+ * @return true if easter egg was detected and handled, false otherwise
+ */
+bool	check_and_handle_easter_egg(char *line)
+{
+	if (is_easter_egg(line))
+	{
+		display_easter_egg();
+		free(line);
+		return (true);
+	}
+	return (false);
 }
 
 /**

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:39:03 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 19:30:31 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -5,6 +17,8 @@
 /*          INCLUDES           */
 /* =========================== */
 # include "libft.h"
+# include <signal.h>
+# include <sys/ioctl.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -16,11 +30,20 @@
 # include <fcntl.h>
 
 /* =========================== */
+/*       GLOBAL VARIABLE       */
+/* =========================== */
+
+extern volatile sig_atomic_t		g_signal_received;
+
+/* =========================== */
 /*         CONSTANTS           */
 /* =========================== */
 
 /* minishell prompt */
 # define SHELL_PROMPT "[mini$HELL] "
+
+/* easter egg */
+# define EASTER_EGG "101010"
 
 /* errors messages tools */
 # define ERR_PREFIX "[mini$HELL]: "
@@ -33,50 +56,18 @@
 # define ERR_TOO_MANY_ARGS "too many arguments"
 # define ERR_SYNTAX "syntax error near unexpected token `"
 # define ERR_CMD_NOT_FOUND ": command not found"
+# define ERR_NO_SUCH_FILE ": No such file or directory"
+# define ERR_HEREDOC_EOF "warning: here-document delimited by end-of-file\n"
 
-/* easter egg */
-# define EASTER_EGG "101010"
+/* standardized return codes - EXIT_SUCCES 0 - EXIT_FAILURE 1 */
+# define MISUSAGE_ERROR 2
+# define INTERNAL_ERROR 125
+# define CMD_NOT_EXECUTABLE 126
+# define CMD_NOT_FOUND 127
 
-/* standardized return codes */
-// continue to use EXIT_FAILURE 0
-// and EXIT_SUCCESS 1
-# define MISUSAGE_ERROR 2 // misuse error (ex invalid key)
-# define INTERNAL_ERROR 125 // shell internal failure
-# define CMD_NOT_EXECUTABLE 126 // cmd not executable
-# define CMD_NOT_FOUND 127 // external command not found
-// add more here for other codes
-
-/* =========================== */
-/*        STRUCTURES           */
-/* =========================== */
-
-/* env import structure to emulate KEY=VALUE behavior */
-typedef struct s_env
-{
-	char	*key;
-	char	*value;
-	bool	in_env;
-}	t_env;
-
-/* shell state and configuration */
-typedef struct s_ast	t_ast;
-
-typedef struct s_shell
-{
-	t_list	*env_list;
-	int		status;
-	bool	is_tty;
-	bool	is_child;
-	bool	should_exit;
-	t_ast	*curr_ast;
-}	t_shell;
-
-/* for builtin functions array, stores cmd and function's pointer*/
-typedef struct s_builtin
-{
-	char	*cmd;
-	int		(*f)(char **tokens, t_shell *data);
-}	t_builtin;
+/* Signal exit codes (128 + signal number) */
+# define EXIT_SIGINT  130
+# define EXIT_SIGQUIT 131
 
 /* =========================== */
 /*           ENUMS             */
@@ -99,7 +90,7 @@ typedef enum e_token_error
 	TOKEN_NOT_OPERATOR
 }	t_token_error;
 
-/* detects operation: assign, append or key only mode, used in export builtin */
+/* detects operation: assign append or key only mode, used in export builtin */
 typedef enum e_export_op
 {
 	EXPORT_NONE,
@@ -107,15 +98,14 @@ typedef enum e_export_op
 	EXPORT_APPEND
 }	t_export_op;
 
-/* =========================== */
-/*           LEXER             */
-/* =========================== */
+/* categorizes tokens: word or operator, used during lexical analysis */
 typedef enum t_token_type
 {
 	TOKEN_WORD,
 	TOKEN_OPERATOR
 }	t_token_type;
 
+/* defines AST node types: command, pipe or redirection */
 typedef enum t_node_type
 {
 	NODE_NONE,
@@ -124,6 +114,7 @@ typedef enum t_node_type
 	NODE_REDIR
 }	t_node_type;
 
+/* identifies operator types: pipe and redirection operators */
 typedef enum e_operator_type
 {
 	OP_NONE,
@@ -132,13 +123,41 @@ typedef enum e_operator_type
 	OP_OUTPUT,
 	OP_APPEND,
 	OP_HEREDOC
-	// if we have time for bonus later
-	// OP_AND,
-	// OP_OR,
-	// OP_PAREN_OPEN,
-	// OP_PAREN_CLOSE
 }	t_operator_type;
 
+/* =========================== */
+/*        STRUCTURES           */
+/* =========================== */
+
+/* env import structure to emulate KEY=VALUE behavior */
+typedef struct s_env
+{
+	char	*key;
+	char	*value;
+	bool	in_env;
+}	t_env;
+
+/* shell state and configuration */
+typedef struct s_ast				t_ast;
+
+typedef struct s_shell
+{
+	t_list	*env_list;
+	int		status;
+	bool	is_tty;
+	bool	is_child;
+	bool	should_exit;
+	t_ast	*curr_ast;
+}	t_shell;
+
+/* for builtin functions array, stores cmd and function's pointer*/
+typedef struct s_builtin
+{
+	char	*cmd;
+	int		(*f)(char **tokens, t_shell *data);
+}	t_builtin;
+
+/* lexer token structure: represents a token with its type and metadata */
 typedef struct s_token
 {
 	char			*value;
@@ -147,19 +166,18 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
-// unused fields will be set to 0 or null
+/* AST node structure: represents a node in the abstract syntax tree */
 typedef struct s_ast
 {
-	t_node_type		type; // NODE_CMD, NODE_PIPE or NODE_REDIR
-	t_operator_type	op_type;// <, >, >>, <<
-	char			*value; // raw token string (cmd or word)
-	char			**argv; // only for NODE_CMD
-	char			*filename; // only for NODE_REDIR
+	t_node_type		type;
+	t_operator_type	op_type;
+	char			*value;
+	char			**argv;
+	char			*filename;
 	int				heredoc_fd;
-	struct s_ast	*left; // pipe left
-	struct s_ast	*right; // pipe right
-	struct s_ast	*next; // used temporarily for flat list
-							//
+	struct s_ast	*left;
+	struct s_ast	*right;
+	struct s_ast	*next;
 }	t_ast;
 
 /* =========================== */
@@ -193,7 +211,7 @@ int			median_of_three(t_env **array, int low, int high);
 void		swap_env(t_env **a, t_env **b);
 int			partition(t_env **array, int low, int high);
 
-/* src/export_update.c */
+/* src/builtins/export_update.c */
 t_env		*create_new_env_node(char *key, const char *arg, t_export_op op);
 int			update_existing_env_node(t_env *env_node, const char *arg);
 int			append_env_value(t_env *env_node, const char *arg);
@@ -237,6 +255,7 @@ int			init_shell(t_shell *data, char **envp);
 /* src/core/print_ascii_art.c */
 bool		is_easter_egg(char *line);
 void		display_easter_egg(void);
+bool		check_and_handle_easter_egg(char *line);
 void		select_random_ascii_art(void);
 
 /* =========================== */
@@ -263,7 +282,6 @@ char		**env_list_to_array(t_list *env_list);
 
 /* src/execution/execute_ast_tree.c */
 int			execute_ast_tree(t_ast *node, t_shell *data);
-// int		execute_pipeline(t_ast *node, t_shell *data); // needs to be coded
 
 /* src/execution/execute_builtin.c */
 int			execute_builtin(t_ast *node, t_shell *data);
@@ -372,6 +390,21 @@ char		**ft_split_tokens(char const *s, t_token_error *error_code);
 int			validate_syntax_token_list(t_token *list);
 
 /* =========================== */
+/*          SIGNALS            */
+/* =========================== */
+
+/* src/signals/signal_handlers.c */
+void		handle_sigint(int sig);
+void		handle_sigquit(int sig);
+void		handle_sigint_heredoc(int sig);
+
+/* src/signals/signal_setup.c */
+void		setup_signals_interactive(void);
+void		setup_signals_child(void);
+void		setup_signals_ignore(void);
+void		setup_signals_heredoc(void);
+
+/* =========================== */
 /*           UTILS             */
 /* =========================== */
 
@@ -381,7 +414,8 @@ bool		is_whitespace(char c);
 /* src/utils/memory_cleanup.c */
 void		free_string_array(char **tab, size_t count);
 void		cleanup_shell(t_shell *data);
-void		cleanup_line(char **tokens, t_token *token_list, t_ast *ast, char *line);
+void		cleanup_line(char **tokens, t_token *token_list, t_ast *ast,
+				char *line);
 
 /* src/utils/print_errors.c */
 void		print_error(char *p1, char *p2, char *p3, char *p4);

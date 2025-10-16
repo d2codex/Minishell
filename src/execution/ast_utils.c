@@ -1,15 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast_utils.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:40:41 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:40:42 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
  * @brief Determine whether a command should be executed in a separate process.
  *
- * Non-forking builtins (like cd, export, unset, exit) are executed in the parent
- * process to affect shell state. All other commands, including external commands
+ * Non-forking builtins (like cd, export, unset, exit) are executed in the
+ * parent
+ * process to affect shell state. All other commands, including external
+ * commands
  * and forkable builtins, should be executed in a child process.
  *
  * @param node AST node containing the command.
- * @param data Pointer to the shell state (currently unused but may be needed later).
- * @return true if the command should be executed in a child process; false otherwise.
+ * @param data Pointer to the shell state (currently unused but may be needed
+ * later).
+ * @return true if the command should be executed in a child process; false
+ * otherwise.
  */
 bool	should_fork(t_ast *node, t_shell *data)
 {
@@ -29,7 +45,8 @@ bool	should_fork(t_ast *node, t_shell *data)
  * @brief Check if the AST node represents a builtin command.
  *
  * @param node AST node containing the command.
- * @return true if the command is a builtin (pwd, export, exit, echo, env, unset, cd);
+ * @return true if the command is a builtin (pwd, export, exit, echo, env,
+ * unset, cd);
  *         false otherwise.
  */
 bool	is_builtin(t_ast *node)
@@ -53,10 +70,12 @@ bool	is_builtin(t_ast *node)
 /**
  * @brief Check if a builtin command should run without forking.
  *
- * Some builtins need to run in the parent process to modify shell state directly.
+ * Some builtins need to run in the parent process to modify shell state
+ * directly.
  *
  * @param node AST node containing the command.
- * @return true if the builtin is non-forking (cd, export, unset, exit); false otherwise.
+ * @return true if the builtin is non-forking (cd, export, unset, exit);
+ * false otherwise.
  */
 bool	is_nonforking_builtin(t_ast *node)
 {

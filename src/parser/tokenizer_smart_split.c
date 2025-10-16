@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokenizer_smart_split.c                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:05:58 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:05:59 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -135,21 +147,6 @@ static t_token_error	extract_tokens_to_tab(const char *s, char **tab)
  * Checks for unclosed quotes before splitting.
  * On error, sets the provided error_code and returns NULL.
  *
- * ex of interface function that will call ft_split_token and use its returned
- * error code :
- *
- * t_token_error returned_code;
- * char **tokens;
- * tokens = ft_split_tokens(line, &returned_code);
- * if (returned_code == TOKEN_OK)
- *			=> advance to the next step
- * if (!tokens)
- * {
- *		if (returned_code == TOKEN_UNCLOSED_QUOTE)
- *			=> caller prints message about quotes and exit or return to prompt
- *		else if (returned_code == TOKEN_MALLOC_ERROR)
- *			=> caller prints perror("malloc") and exit
- *	}
  * @param s The input command line string
  * @param error_code Pointer to store error code (set to TOKEN_OK on success)
  * @return Array of tokens (NULL terminated) or NULL on failure

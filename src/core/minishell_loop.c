@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell_loop.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:40:29 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:40:30 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -46,7 +58,12 @@ bool	prompt_user(char *prompt, t_shell *data)
 	if (data->is_tty)
 		line = readline(prompt);
 	else
-		line = readline(NULL);
+		line = get_next_line(STDIN_FILENO);
+	if (g_signal_received == SIGINT)
+	{
+		g_signal_received = 0;
+		data->status = EXIT_SIGINT;
+	}
 	if (!line)
 	{
 		if (data->is_tty)
@@ -54,10 +71,7 @@ bool	prompt_user(char *prompt, t_shell *data)
 		return (false);
 	}
 	if (line[0] == '\0')
-	{
-		free(line);
-		return (true);
-	}
+		return (free(line), true);
 	data->status = process_line(line, data);
 	if (data->should_exit)
 		return (false);
@@ -107,10 +121,12 @@ static int	process_tokens(char *line, t_shell *data,
  * @brief Process a single input line in the shell.
  *
  * This function performs the full lifecycle of processing a command line:
- *  1. Detects and displays Easter egg commands using `is_easter_egg` and `display_easter_egg`.
+ *  1. Detects and displays Easter egg commands using `is_easter_egg` and
+ * `display_easter_egg`.
  *  2. Adds non-empty lines to the command history (when running interactively).
  *  3. Tokenizes and validates the input via `process_tokens`.
- *  4. Builds an Abstract Syntax Tree (AST) from the token list using `build_ast_from_tokens`.
+ *  4. Builds an Abstract Syntax Tree (AST) from the token list using
+ * `build_ast_from_tokens`.
  *  5. Executes the AST via `execute_ast_tree`.
  *  6. Cleans up all allocated memory (tokens, AST, and input line).
  *
@@ -121,7 +137,8 @@ static int	process_tokens(char *line, t_shell *data,
  *  - The actual exit code of builtins or external commands otherwise.
  *
  * @param line The input command line to process.
- * @param data The shell context storing environment, status, and execution state.
+ * @param data The shell context storing environment, status, and execution
+ * state.
  * @return The exit code resulting from processing the given line.
  */
 int	process_line(char *line, t_shell *data)
@@ -133,14 +150,10 @@ int	process_line(char *line, t_shell *data)
 	tokens = NULL;
 	ast = NULL;
 	token_list = NULL;
-	if (is_easter_egg(line))
-	{
-		display_easter_egg();
-		free(line);
-		return (EXIT_SUCCESS);
-	}
 	if (line)
 		add_history(line);
+	if (check_and_handle_easter_egg(line))
+		return (EXIT_SUCCESS);
 	data->status = process_tokens(line, data, &tokens, &token_list);
 	if (data->status != EXIT_SUCCESS)
 		return (cleanup_line(tokens, token_list, NULL, line), data->status);
@@ -148,8 +161,7 @@ int	process_line(char *line, t_shell *data)
 	if (!ast)
 		return (cleanup_line(tokens, token_list, NULL, line), EXIT_FAILURE);
 	if (preprocess_heredocs(ast, data) != EXIT_SUCCESS)
-		return (cleanup_line(tokens, token_list, ast, line), EXIT_FAILURE);
-	//print_ast(ast, 0);
+		return (cleanup_line(tokens, token_list, ast, line), data->status);
 	data->curr_ast = ast;
 	data->status = execute_ast_tree(ast, data);
 	data->curr_ast = NULL;

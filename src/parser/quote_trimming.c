@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   quote_trimming.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:05:39 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:05:40 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -9,7 +21,7 @@
  *
  * Quote processing rules:
  * - Single quotes preserve everything literally until closing quote
- * - Double quotes preserve everything literally until closing quote  
+ * - Double quotes preserve everything literally until closing quote
  * - Adjacent quoted/unquoted segments are concatenated
  * - Quote characters themselves are consumed (not included in output)
  *
@@ -22,7 +34,7 @@
  *
  * Examples:
  *   trim_quotes("\"hello\"")    → "hello" (outer quotes)
- *   trim_quotes("he\"llo\"")    → "hello" (internal quotes)  
+ *   trim_quotes("he\"llo\"")    → "hello" (internal quotes)
  *   trim_quotes("\"a\"'b'")     → "ab" (mixed quotes)
  *   trim_quotes("\"a b\"c")     → "a bc" (quote + unquoted)
  *   trim_quotes("\"\"")         → "" (empty quotes)

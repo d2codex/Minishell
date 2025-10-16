@@ -47,7 +47,6 @@ SRC =	src/builtins/cd.c \
 		src/parser/ast_build_utils.c \
 		src/parser/ast_create_nodes.c \
 		src/parser/ast_free.c \
-		src/parser/ast_print.c \
 		src/parser/categorize_tokens.c \
 		src/parser/execute_tokenizer.c \
 		src/parser/quote_trimming.c \
@@ -55,6 +54,8 @@ SRC =	src/builtins/cd.c \
 		src/parser/tokenizer_smart_split.c \
 		src/parser/tokenizer_utils.c \
 		src/parser/validate_syntax.c \
+		src/signals/signal_handlers.c \
+		src/signals/signal_setup.c \
 		src/utils/is_whitespace.c \
 		src/utils/memory_cleanup.c \
 		src/utils/print_error.c \
@@ -96,8 +97,6 @@ $(SUPP_FILE):
 	@echo "}" >> $(SUPP_FILE)
 
 valgrind: $(NAME) $(SUPP_FILE)
-
-valgrind: $(SUPP_FILE)
 	valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(NAME)
 
 # clean objects

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd.c                                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:39:17 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:39:18 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -131,7 +143,7 @@ int	builtin_cd(char **argv, t_shell *data)
 	oldpwd = getcwd(NULL, 0);
 	if (!oldpwd)
 	{
-		perror("[mini$HELL: cd: ");
+		perror("[mini$HELL]: cd: ");
 		return (set_status(data, EXIT_FAILURE));
 	}
 	target = get_cd_target(argv, data);

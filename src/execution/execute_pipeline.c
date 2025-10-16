@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   execute_pipeline.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 17:41:05 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 17:41:06 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -24,6 +36,7 @@
  */
 static void	execute_left_child(t_ast *node, t_shell *data, int pipefd[2])
 {
+	setup_signals_child();
 	data->is_child = true;
 	close(pipefd[0]);
 	if (dup2(pipefd[1], STDOUT_FILENO) == -1)
@@ -47,13 +60,15 @@ static void	execute_left_child(t_ast *node, t_shell *data, int pipefd[2])
 /**
  * @brief Fork and execute the left side of a pipeline.
  *
- * Creates a child process for the left command of a pipeline (e.g., `cmd1` in `cmd1 | cmd2`).
+ * Creates a child process for the left command of a pipeline (e.g., `cmd1`
+ * in `cmd1 | cmd2`).
  * The child process will redirect its standard output to the pipe’s write end
  * and execute the left subtree of the AST via `execute_left_child()`.
  *
  * @param node AST node representing the pipeline.
  * @param data Shell state structure.
- * @param pipefd Array of two integers: pipefd[0] is read end, pipefd[1] is write end.
+ * @param pipefd Array of two integers: pipefd[0] is read end, pipefd[1] is
+ * write end.
  * @return PID of the forked left child on success, -1 on failure.
  *
  * @details
@@ -83,7 +98,8 @@ static	pid_t	fork_left_child(t_ast *node, t_shell *data, int pipefd[2])
  *
  * @param node AST node representing the pipeline.
  * @param data Shell state structure.
- * @param pipefd Array of two integers: pipefd[0] is read end, pipefd[1] is write end.
+ * @param pipefd Array of two integers: pipefd[0] is read end, pipefd[1] is
+ * write end.
  *
  * @details
  * After execution, the child exits with the current shell status.
@@ -91,6 +107,7 @@ static	pid_t	fork_left_child(t_ast *node, t_shell *data, int pipefd[2])
  */
 static void	execute_right_child(t_ast *node, t_shell *data, int pipefd[2])
 {
+	setup_signals_child();
 	data->is_child = true;
 	close(pipefd[1]);
 	if (dup2(pipefd[0], STDIN_FILENO) == -1)
@@ -190,7 +207,5 @@ int	execute_pipeline(t_ast *node, t_shell *data)
 		return (EXIT_FAILURE);
 	}
 	close_pipe_fds(pipefd);
-	//if (data->curr_ast)
-	//	close_all_heredocs(data->curr_ast);
 	return (wait_pipeline(left_pid, right_pid, data));
 }

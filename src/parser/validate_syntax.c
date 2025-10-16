@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   validate_syntax.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:06:52 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:06:53 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -51,7 +63,8 @@ static bool	is_token_redirection(t_token *token)
  * Rules enforced:
  * - Empty input (no tokens) is valid.
  * - The first token cannot be a pipe.
- * - A leading redirection is only valid if it has a proper target (WORD) after it.
+ * - A leading redirection is only valid if it has a proper target (WORD)
+ * after it.
  * - Otherwise, the first token must be a WORD (typically a command).
  *
  * @param curr Pointer to the first token in the list.
@@ -63,8 +76,8 @@ static bool	is_token_redirection(t_token *token)
 static int	validate_first_token(t_token *curr)
 {
 	if (!curr)
-		return (EXIT_SUCCESS); //empty input - not error
-	if (curr->type == TOKEN_WORD) // first node must be a CMD
+		return (EXIT_SUCCESS);
+	if (curr->type == TOKEN_WORD)
 		return (EXIT_SUCCESS);
 	if (curr->op_type == OP_PIPE)
 		return (syntax_error(curr));
@@ -115,21 +128,19 @@ int	validate_syntax_token_list(t_token *list)
 	curr = list;
 	while (curr)
 	{
-		// pipe rules
 		if (curr->op_type == OP_PIPE)
 		{
 			if (!curr->next)
-				return (syntax_error(NULL)); // pipe at end
+				return (syntax_error(NULL));
 			if (curr->next->op_type == OP_PIPE)
-				return (syntax_error(curr->next)); //two pipes in a row
+				return (syntax_error(curr->next));
 		}
-		// redirection without a valid target
 		else if (is_token_redirection(curr))
 		{
 			if (!curr->next)
-				return (syntax_error(NULL)); //missing target
+				return (syntax_error(NULL));
 			if (curr->next->op_type != OP_NONE)
-				return (syntax_error(curr->next)); //invalid target
+				return (syntax_error(curr->next));
 		}
 		curr = curr->next;
 	}

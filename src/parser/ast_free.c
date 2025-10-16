@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast_free.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pafroidu <pafroidu@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/15 18:03:33 by pafroidu          #+#    #+#             */
+/*   Updated: 2025/10/15 18:21:05 by pafroidu         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 /**
@@ -18,7 +30,6 @@ void	cleanup_node(t_ast *node)
 		free(node->filename);
 	if (node->argv)
 		free_strings_array(node->argv);
-	// Close heredoc FD if still valid
 	if (node->heredoc_fd >= 0)
 		close_fds(&node->heredoc_fd);
 }
@@ -57,7 +68,6 @@ void	free_ast(t_ast *node)
 			curr = next;
 		}
 	}
-	// free nodes string resources and fds
 	cleanup_node(node);
 	free(node);
 }
