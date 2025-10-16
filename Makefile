@@ -87,6 +87,7 @@ $(LIBTEST): $(filter-out $(OBJ_DIR)/main.o, $(OBJ))
 	@mkdir -p $(dir $@)
 	ar rcs $@ $^
 
+# create .supp file that suppresses leaks from teh readline library
 $(SUPP_FILE):
 	@echo "Creating valgrind suppression file for readline library"
 	@echo "{" > $(SUPP_FILE)
@@ -96,8 +97,9 @@ $(SUPP_FILE):
 	@echo "   obj:*/libreadline.so.*" >> $(SUPP_FILE)
 	@echo "}" >> $(SUPP_FILE)
 
+# launch ./minishell with valgrind set up with the suppressed file
 valgrind: $(NAME) $(SUPP_FILE)
-	valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(NAME)
+	valgrind --suppressions=$(SUPP_FILE) --leak-check=full ./$(NAME) || true
 
 # clean objects
 clean:
